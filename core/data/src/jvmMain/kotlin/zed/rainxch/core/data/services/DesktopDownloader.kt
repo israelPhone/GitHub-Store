@@ -38,9 +38,13 @@ class DesktopDownloader(
                 val dir = File(files.userDownloadsDir())
                 if (!dir.exists()) dir.mkdirs()
 
-                val safeName = (suggestedFileName?.takeIf { it.isNotBlank() }
-                    ?: url.substringAfterLast('/')
-                        .ifBlank { "asset-${UUID.randomUUID()}" })
+                val rawName = suggestedFileName?.takeIf { it.isNotBlank() }
+                    ?: url.substringAfterLast('/').substringBefore('?').substringBefore('#')
+                        .ifBlank { "asset-${UUID.randomUUID()}" }
+                val safeName = rawName.substringAfterLast('/').substringAfterLast('\\')
+                require(safeName.isNotBlank() && safeName != "." && safeName != "..") {
+                    "Invalid file name: $rawName"
+                }
                 val outFile = File(dir, safeName)
 
                 if (outFile.exists()) {
@@ -75,7 +79,9 @@ class DesktopDownloader(
 
                                 if (bytesRead > 0) {
                                     val byteBuffer = ByteBuffer.wrap(buffer, 0, bytesRead)
-                                    fc.write(byteBuffer)
+                                    while (byteBuffer.hasRemaining()) {
+                                        fc.write(byteBuffer)
+                                    }
                                     downloaded.addAndGet(bytesRead.toLong())
                                 }
                             }
@@ -132,9 +138,13 @@ class DesktopDownloader(
     override suspend fun saveToFile(url: String, suggestedFileName: String?): String =
         withContext(Dispatchers.IO) {
             val dir = File(files.userDownloadsDir())
-            val safeName = (suggestedFileName?.takeIf { it.isNotBlank() }
-                ?: url.substringAfterLast('/')
-                    .ifBlank { "asset-${UUID.randomUUID()}" })
+            val rawName = suggestedFileName?.takeIf { it.isNotBlank() }
+                ?: url.substringAfterLast('/').substringBefore('?').substringBefore('#')
+                    .ifBlank { "asset-${UUID.randomUUID()}" }
+            val safeName = rawName.substringAfterLast('/').substringAfterLast('\\')
+            require(safeName.isNotBlank() && safeName != "." && safeName != "..") {
+                "Invalid file name: $rawName"
+            }
 
             val outFile = File(dir, safeName)
 
