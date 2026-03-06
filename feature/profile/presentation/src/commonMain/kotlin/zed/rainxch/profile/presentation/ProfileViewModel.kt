@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.ThemesRepository
@@ -22,6 +21,7 @@ import zed.rainxch.githubstore.core.presentation.res.failed_to_save_proxy_settin
 import zed.rainxch.githubstore.core.presentation.res.invalid_proxy_port
 import zed.rainxch.githubstore.core.presentation.res.proxy_host_required
 import zed.rainxch.profile.domain.repository.ProfileRepository
+import zed.rainxch.profile.presentation.model.ProxyType
 
 class ProfileViewModel(
     private val browserHelper: BrowserHelper,
@@ -43,6 +43,7 @@ class ProfileViewModel(
                 loadUserProfile()
                 loadVersionName()
                 loadProxyConfig()
+                observeCacheSize()
 
                 hasLoadedInitialData = true
             }
@@ -55,6 +56,12 @@ class ProfileViewModel(
 
     private val _events = Channel<ProfileEvent>()
     val events = _events.receiveAsFlow()
+
+    private fun observeCacheSize() {
+        viewModelScope.launch {
+
+        }
+    }
 
     private fun loadVersionName() {
         viewModelScope.launch {
@@ -170,6 +177,10 @@ class ProfileViewModel(
                 browserHelper.openUrl(
                     url = "https://github.com/rainxchzed/Github-Store/issues"
                 )
+            }
+
+            ProfileAction.OnClearCacheClick -> {
+
             }
 
             is ProfileAction.OnThemeColorSelected -> {

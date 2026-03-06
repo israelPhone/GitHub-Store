@@ -36,6 +36,7 @@ import zed.rainxch.profile.presentation.components.LogoutDialog
 import zed.rainxch.profile.presentation.components.sections.about
 import zed.rainxch.profile.presentation.components.sections.logout
 import zed.rainxch.profile.presentation.components.sections.networkSection
+import zed.rainxch.profile.presentation.components.sections.othersSection
 import zed.rainxch.profile.presentation.components.sections.profile
 import zed.rainxch.profile.presentation.components.sections.settings
 
@@ -173,6 +174,15 @@ fun ProfileScreen(
             }
 
             networkSection(
+                state = state,
+                onAction = onAction
+            )
+
+            item {
+                Spacer(Modifier.height(16.dp))
+            }
+
+            othersSection(
                 state = state,
                 onAction = onAction
             )
