@@ -106,7 +106,7 @@ fun LazyListScope.appearanceSection(
                 }
             )
 
-            VerticalSpacer(16.dp)
+            VerticalSpacer(8.dp)
         }
 
         ToggleSettingCard(
@@ -124,7 +124,7 @@ fun LazyListScope.appearanceSection(
             }
         )
 
-        VerticalSpacer(16.dp)
+        VerticalSpacer(8.dp)
 
         ToggleSettingCard(
             title = stringResource(Res.string.auto_detect_clipboard_links),

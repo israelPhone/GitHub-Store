@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import zed.rainxch.githubstore.core.presentation.res.*
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.profile.presentation.ProfileAction
+import zed.rainxch.profile.presentation.components.SectionHeader
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.about(
@@ -38,12 +39,8 @@ fun LazyListScope.about(
     onAction: (ProfileAction) -> Unit,
 ) {
     item {
-        Text(
-            text = stringResource(Res.string.section_about),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.outline,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 8.dp)
+        SectionHeader(
+            text = stringResource(Res.string.section_about)
         )
 
         Spacer(Modifier.height(8.dp))

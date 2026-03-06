@@ -36,6 +36,7 @@ import zed.rainxch.profile.presentation.components.LogoutDialog
 import zed.rainxch.profile.presentation.components.sections.about
 import zed.rainxch.profile.presentation.components.sections.logout
 import zed.rainxch.profile.presentation.components.sections.networkSection
+import zed.rainxch.profile.presentation.components.sections.othersSection
 import zed.rainxch.profile.presentation.components.sections.profile
 import zed.rainxch.profile.presentation.components.sections.settings
 
@@ -75,6 +76,18 @@ fun ProfileRoot(
             }
 
             is ProfileEvent.OnProxySaveError -> {
+                coroutineScope.launch {
+                    snackbarState.showSnackbar(event.message)
+                }
+            }
+
+            ProfileEvent.OnCacheCleared -> {
+                coroutineScope.launch {
+                    snackbarState.showSnackbar(getString(Res.string.cache_cleared))
+                }
+            }
+
+            is ProfileEvent.OnCacheClearError -> {
                 coroutineScope.launch {
                     snackbarState.showSnackbar(event.message)
                 }
@@ -160,7 +173,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             settings(
@@ -169,7 +182,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             networkSection(
@@ -178,7 +191,16 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
+            }
+
+            othersSection(
+                state = state,
+                onAction = onAction
+            )
+
+            item {
+                Spacer(Modifier.height(32.dp))
             }
 
             about(
@@ -187,7 +209,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             if (state.isUserLoggedIn) {

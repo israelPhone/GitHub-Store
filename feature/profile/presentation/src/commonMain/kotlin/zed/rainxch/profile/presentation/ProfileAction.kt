@@ -2,6 +2,7 @@ package zed.rainxch.profile.presentation
 
 import zed.rainxch.core.domain.model.AppTheme
 import zed.rainxch.core.domain.model.FontTheme
+import zed.rainxch.profile.presentation.model.ProxyType
 
 sealed interface ProfileAction {
     data object OnNavigateBackClick : ProfileAction
@@ -15,6 +16,7 @@ sealed interface ProfileAction {
     data object OnLogoutDismiss : ProfileAction
     data object OnHelpClick : ProfileAction
     data object OnLoginClick : ProfileAction
+    data object OnClearCacheClick : ProfileAction
     data class OnFontThemeSelected(val fontTheme: FontTheme) : ProfileAction
     data class OnProxyTypeSelected(val type: ProxyType) : ProfileAction
     data class OnProxyHostChanged(val host: String) : ProfileAction

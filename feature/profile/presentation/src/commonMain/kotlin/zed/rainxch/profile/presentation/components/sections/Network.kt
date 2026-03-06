@@ -45,8 +45,8 @@ import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.githubstore.core.presentation.res.*
 import zed.rainxch.profile.presentation.ProfileAction
 import zed.rainxch.profile.presentation.ProfileState
-import zed.rainxch.profile.presentation.ProxyType
 import zed.rainxch.profile.presentation.components.SectionHeader
+import zed.rainxch.profile.presentation.model.ProxyType
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.networkSection(

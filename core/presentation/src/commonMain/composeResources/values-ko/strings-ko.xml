@@ -124,6 +124,7 @@
 
     <!-- Snackbar -->
     <string name="logout_success">성공적으로 로그아웃되었습니다. 이동 중...</string>
+    <string name="cache_cleared">캐시가 성공적으로 삭제되었습니다</string>
 
     <!-- Dialog -->
     <string name="warning">경고!</string>
@@ -277,9 +278,9 @@
     <string name="star_repos_hint">설치 가능한 릴리스가 있는 저장소에 별표를 추가하세요</string>
     <string name="last_synced">마지막 동기화</string>
     <string name="just_now">방금</string>
-    <string name="minutes_ago">%d분 전</string>
-    <string name="hours_ago">%d시간 전</string>
-    <string name="days_ago">%d일 전</string>
+    <string name="minutes_ago">%1$d분 전</string>
+    <string name="hours_ago">%1$d시간 전</string>
+    <string name="days_ago">%1$d일 전</string>
     <string name="dismiss">닫기</string>
     <string name="sync_starred_failed">별표 저장소 동기화에 실패했습니다</string>
 
@@ -450,4 +451,8 @@
     <string name="open_in_app">앱에서 열기</string>
     <string name="no_github_link_in_clipboard">클립보드에서 GitHub 링크를 찾을 수 없습니다</string>
 
+    <string name="storage">저장 공간</string>
+    <string name="clear_cache">캐시 지우기</string>
+    <string name="current_size">현재 크기:</string>
+    <string name="clear">지우기</string>
 </resources>

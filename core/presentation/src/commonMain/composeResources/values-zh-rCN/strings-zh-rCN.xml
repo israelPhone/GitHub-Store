@@ -106,6 +106,7 @@
     <string name="logout">退出登录</string>
 
     <string name="logout_success">已成功退出，正在跳转…</string>
+    <string name="cache_cleared">缓存已成功清除</string>
 
     <string name="warning">警告！</string>
     <string name="logout_confirmation">确定要退出登录吗？</string>
@@ -227,9 +228,9 @@
     <string name="star_repos_hint">在 GitHub 上收藏有可安装版本的仓库以在此查看</string>
     <string name="last_synced">上次同步</string>
     <string name="just_now">刚刚</string>
-    <string name="minutes_ago">%d 分钟前</string>
-    <string name="hours_ago">%d 小时前</string>
-    <string name="days_ago">%d 天前</string>
+    <string name="minutes_ago">%1$d 分钟前</string>
+    <string name="hours_ago">%1$d 小时前</string>
+    <string name="days_ago">%1$d 天前</string>
     <string name="dismiss">关闭</string>
     <string name="sync_starred_failed">同步收藏的仓库失败</string>
 
@@ -418,4 +419,8 @@
     <string name="open_in_app">在应用中打开</string>
     <string name="no_github_link_in_clipboard">剪贴板中未找到 GitHub 链接</string>
 
+    <string name="storage">存储</string>
+    <string name="clear_cache">清除缓存</string>
+    <string name="current_size">当前大小：</string>
+    <string name="clear">清除</string>
 </resources>

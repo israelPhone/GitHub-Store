@@ -4,6 +4,7 @@ import zed.rainxch.core.domain.model.AppTheme
 import zed.rainxch.core.domain.model.FontTheme
 import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.profile.domain.model.UserProfile
+import zed.rainxch.profile.presentation.model.ProxyType
 
 data class ProfileState(
     val userProfile: UserProfile? = null,
@@ -21,17 +22,5 @@ data class ProfileState(
     val proxyPassword: String = "",
     val isProxyPasswordVisible: Boolean = false,
     val autoDetectClipboardLinks: Boolean = true,
+    val cacheSize: String = ""
 )
-
-enum class ProxyType {
-    NONE, SYSTEM, HTTP, SOCKS;
-
-    companion object {
-        fun fromConfig(config: ProxyConfig): ProxyType = when (config) {
-            is ProxyConfig.None -> NONE
-            is ProxyConfig.System -> SYSTEM
-            is ProxyConfig.Http -> HTTP
-            is ProxyConfig.Socks -> SOCKS
-        }
-    }
-}
