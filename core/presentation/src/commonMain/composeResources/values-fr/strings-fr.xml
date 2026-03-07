@@ -104,6 +104,7 @@
     <string name="logout">Se déconnecter</string>
 
     <string name="logout_success">Déconnexion réussie, redirection…</string>
+    <string name="cache_cleared">Cache vidé avec succès</string>
 
     <string name="warning">Attention !</string>
     <string name="logout_confirmation">Voulez-vous vraiment vous déconnecter ?</string>
@@ -263,6 +264,7 @@
     <string name="no_repos_with_releases">Aucun dépôt avec des versions installables</string>
     <string name="no_installed_repos">Aucun dépôt installé</string>
     <string name="no_favorite_repos">Aucun dépôt favori</string>
+    <string name="report_issue">Signaler un problème</string>
 
     <!-- Developer Profile - Repository Item -->
     <string name="updated_x_ago">Mis à jour %1$s</string>
@@ -417,4 +419,8 @@
     <string name="open_in_app">Ouvrir dans l\'app</string>
     <string name="no_github_link_in_clipboard">Aucun lien GitHub trouvé dans le presse-papiers</string>
 
+    <string name="storage">Stockage</string>
+    <string name="clear_cache">Vider le cache</string>
+    <string name="current_size">Taille actuelle :</string>
+    <string name="clear">Vider</string>
 </resources>

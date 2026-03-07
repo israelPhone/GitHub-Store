@@ -104,6 +104,7 @@
     <string name="logout">Cerrar sesión</string>
 
     <string name="logout_success">Sesión cerrada correctamente, redirigiendo…</string>
+    <string name="cache_cleared">Caché borrada con éxito</string>
 
     <string name="warning">¡Advertencia!</string>
     <string name="logout_confirmation">¿Estás seguro de que deseas cerrar sesión?</string>
@@ -309,6 +310,7 @@
     <!-- Errors & states -->
     <string name="no_description">Sin descripción proporcionada.</string>
     <string name="no_release_notes">Sin notas de versión.</string>
+    <string name="report_issue">Reportar problema</string>
 
     <!-- Install status -->
     <string name="not_available">No disponible</string>
@@ -417,4 +419,8 @@
     <string name="open_in_app">Abrir en la app</string>
     <string name="no_github_link_in_clipboard">No se encontró enlace de GitHub en el portapapeles</string>
 
+    <string name="storage">Almacenamiento</string>
+    <string name="clear_cache">Borrar caché</string>
+    <string name="current_size">Tamaño actual:</string>
+    <string name="clear">Borrar</string>
 </resources>

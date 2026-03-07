@@ -126,6 +126,7 @@
 
     <!-- Snackbar -->
     <string name="logout_success">সফলভাবে লগআউট হয়েছে, রিডাইরেক্ট করা হচ্ছে...</string>
+    <string name="cache_cleared">ক্যাশ সফলভাবে পরিষ্কার করা হয়েছে</string>
 
     <!-- Dialog -->
     <string name="warning">সতর্কতা!</string>
@@ -150,6 +151,7 @@
     <string name="retry">পুনরায় চেষ্টা করুন</string>
     <string name="no_description">কোনো বিবরণ দেওয়া হয়নি।</string>
     <string name="no_release_notes">কোনো রিলিজ নোট নেই।</string>
+    <string name="report_issue">সমস্যা রিপোর্ট করুন</string>
 
     <!-- Headers -->
     <string name="about_this_app">এই অ্যাপ বৃত্তান্ত</string>
@@ -278,9 +280,9 @@
     <string name="star_repos_hint">ইনস্টলযোগ্য রিলিজ থাকা রিপোজিটরি GitHub-এ স্টার করুন</string>
     <string name="last_synced">শেষ সিঙ্ক</string>
     <string name="just_now">এইমাত্র</string>
-    <string name="minutes_ago">%d মিনিট আগে</string>
-    <string name="hours_ago">%d ঘণ্টা আগে</string>
-    <string name="days_ago">%d দিন আগে</string>
+    <string name="minutes_ago">%1$d মিনিট আগে</string>
+    <string name="hours_ago">%1$d ঘণ্টা আগে</string>
+    <string name="days_ago">%1$d দিন আগে</string>
     <string name="dismiss">বন্ধ করুন</string>
     <string name="sync_starred_failed">স্টার করা রিপোজিটরি সিঙ্ক করতে ব্যর্থ হয়েছে</string>
 
@@ -452,4 +454,8 @@
     <string name="open_in_app">অ্যাপে খুলুন</string>
     <string name="no_github_link_in_clipboard">ক্লিপবোর্ডে কোনো GitHub লিংক পাওয়া যায়নি</string>
 
+    <string name="storage">স্টোরেজ</string>
+    <string name="clear_cache">ক্যাশে পরিষ্কার করুন</string>
+    <string name="current_size">বর্তমান আকার:</string>
+    <string name="clear">পরিষ্কার করুন</string>
 </resources>

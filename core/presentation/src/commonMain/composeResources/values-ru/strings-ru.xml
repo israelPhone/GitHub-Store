@@ -104,6 +104,7 @@
     <string name="logout">Выйти</string>
 
     <string name="logout_success">Вы успешно вышли, перенаправление...</string>
+    <string name="cache_cleared">Кэш успешно очищен</string>
 
     <string name="warning">Внимание!</string>
     <string name="logout_confirmation">Вы уверены, что хотите выйти?</string>
@@ -133,6 +134,7 @@
     <string name="install_latest">Установить последнюю</string>
     <string name="reinstall">Переустановить</string>
     <string name="update_app">Обновить приложение</string>
+    <string name="report_issue">Сообщить о проблеме</string>
 
     <string name="downloading">Загрузка</string>
     <string name="updating">Обновление</string>
@@ -243,9 +245,9 @@
     <string name="star_repos_hint">Отмечайте репозитории с установочными релизами на GitHub</string>
     <string name="last_synced">Последняя синхронизация</string>
     <string name="just_now">Только что</string>
-    <string name="minutes_ago">%d мин назад</string>
-    <string name="hours_ago">%d ч назад</string>
-    <string name="days_ago">%d д назад</string>
+    <string name="minutes_ago">%1$d мин назад</string>
+    <string name="hours_ago">%1$d ч назад</string>
+    <string name="days_ago">%1$d д назад</string>
     <string name="dismiss">Закрыть</string>
     <string name="sync_starred_failed">Не удалось синхронизировать избранные репозитории</string>
 
@@ -417,4 +419,8 @@
     <string name="open_in_app">Открыть в приложении</string>
     <string name="no_github_link_in_clipboard">Ссылка GitHub не найдена в буфере обмена</string>
 
+    <string name="storage">Хранение</string>
+    <string name="clear_cache">Очистить кэш</string>
+    <string name="current_size">Текущий размер:</string>
+    <string name="clear">Очистить</string>
 </resources>

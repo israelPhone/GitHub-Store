@@ -151,6 +151,7 @@
 
     <!-- Snackbar -->
     <string name="logout_success">Logged out successfully, redirecting...</string>
+    <string name="cache_cleared">Cache cleared successfully</string>
 
     <!-- Dialog -->
     <string name="warning">Warning!</string>
@@ -175,6 +176,7 @@
     <string name="retry">Retry</string>
     <string name="no_description">No description provided.</string>
     <string name="no_release_notes">No release notes.</string>
+    <string name="report_issue">Report Issue</string>
 
     <!-- Headers -->
     <string name="about_this_app">About this app</string>
@@ -316,9 +318,9 @@
     <string name="star_repos_hint">Star repositories on GitHub with installable releases to see them here</string>
     <string name="last_synced">Last synced</string>
     <string name="just_now">Just now</string>
-    <string name="minutes_ago">%d min ago</string>
-    <string name="hours_ago">%d h ago</string>
-    <string name="days_ago">%d d ago</string>
+    <string name="minutes_ago">%1$d min ago</string>
+    <string name="hours_ago">%1$d h ago</string>
+    <string name="days_ago">%1$d d ago</string>
     <string name="dismiss">Dismiss</string>
     <string name="sync_starred_failed">Failed to sync starred repos</string>
 
@@ -456,4 +458,9 @@
     <string name="detected_links">Detected Links</string>
     <string name="open_in_app">Open in app</string>
     <string name="no_github_link_in_clipboard">No GitHub link found in clipboard</string>
+
+    <string name="storage">Storage</string>
+    <string name="clear_cache">Clear Cache</string>
+    <string name="current_size">Current size:</string>
+    <string name="clear">Clear</string>
 </resources>

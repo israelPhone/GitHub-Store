@@ -104,6 +104,7 @@
     <string name="logout">ログアウト</string>
 
     <string name="logout_success">ログアウトしました。リダイレクト中…</string>
+    <string name="cache_cleared">キャッシュを正常にクリアしました</string>
 
     <string name="warning">警告！</string>
     <string name="logout_confirmation">ログアウトしてもよろしいですか？</string>
@@ -120,6 +121,7 @@
     <string name="install_logs">インストールログ</string>
     <string name="author">作者</string>
     <string name="whats_new">新機能</string>
+    <string name="report_issue">問題を報告</string>
 
     <string name="installed">インストール済み</string>
     <string name="update_available">更新あり</string>
@@ -416,4 +418,8 @@
     <string name="open_in_app">アプリで開く</string>
     <string name="no_github_link_in_clipboard">クリップボードにGitHubリンクが見つかりません</string>
 
+    <string name="storage">ストレージ</string>
+    <string name="clear_cache">キャッシュをクリア</string>
+    <string name="current_size">現在のサイズ:</string>
+    <string name="clear">クリア</string>
 </resources>

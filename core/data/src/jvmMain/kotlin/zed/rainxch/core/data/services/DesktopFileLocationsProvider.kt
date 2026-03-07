@@ -62,27 +62,29 @@ class DesktopFileLocationsProvider(
     }
 
     override fun userDownloadsDir(): String {
+        val appSubdirName = "GitHub Store Downloads"
         val downloadsDir = when (platform) {
             Platform.WINDOWS -> {
                 val userProfile = System.getenv("USERPROFILE")
                     ?: System.getProperty("user.home")
-                File(userProfile, "Downloads")
+                File(userProfile, "Downloads").resolve(appSubdirName)
             }
             Platform.MACOS -> {
                 val home = System.getProperty("user.home")
-                File(home, "Downloads")
+                File(home, "Downloads").resolve(appSubdirName)
             }
             Platform.LINUX -> {
                 val xdgDownloads = getXdgDownloadsDir()
-                if (xdgDownloads != null) {
+                val baseDir = if (xdgDownloads != null) {
                     File(xdgDownloads)
                 } else {
                     val home = System.getProperty("user.home")
                     File(home, "Downloads")
                 }
+                baseDir.resolve(appSubdirName)
             }
             else -> {
-                File(System.getProperty("user.home"), "Downloads")
+                File(System.getProperty("user.home"), "Downloads").resolve(appSubdirName)
             }
         }
 
@@ -91,6 +93,43 @@ class DesktopFileLocationsProvider(
         }
 
         return downloadsDir.absolutePath
+    }
+
+    override fun getCacheSizeBytes(): Long {
+        val appDir = File(appDownloadsDir())
+        val userDir = File(userDownloadsDir())
+        return calculateDirSize(appDir) + calculateDirSize(userDir)
+    }
+
+    override fun clearCacheFiles(): Boolean {
+        val appDir = File(appDownloadsDir())
+        val userDir = File(userDownloadsDir())
+        val appCleared = deleteDirectoryContents(appDir)
+        val userCleared = deleteDirectoryContents(userDir)
+        return appCleared && userCleared
+    }
+
+    private fun calculateDirSize(dir: File): Long {
+        if (!dir.exists()) return 0L
+        var size = 0L
+        dir.listFiles()?.forEach { file ->
+            size += if (file.isDirectory) calculateDirSize(file) else file.length()
+        }
+        return size
+    }
+
+    private fun deleteDirectoryContents(dir: File): Boolean {
+        if (!dir.exists()) return true
+        var allDeleted = true
+        dir.listFiles()?.forEach { file ->
+            if (file.isDirectory) {
+                if (!deleteDirectoryContents(file)) allDeleted = false
+                if (!file.delete()) allDeleted = false
+            } else {
+                if (!file.delete()) allDeleted = false
+            }
+        }
+        return allDeleted
     }
 
     private fun getXdgDownloadsDir(): String? {

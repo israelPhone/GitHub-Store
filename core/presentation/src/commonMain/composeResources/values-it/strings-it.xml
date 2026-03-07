@@ -126,6 +126,7 @@
 
     <!-- Snackbar -->
     <string name="logout_success">Uscito con successo, reindirizzamento…</string>
+    <string name="cache_cleared">Cache cancellata con successo</string>
 
     <!-- Dialog -->
     <string name="warning">Attenzione!</string>
@@ -150,6 +151,7 @@
     <string name="retry">Riprova</string>
     <string name="no_description">Nessuna descrizione fornita.</string>
     <string name="no_release_notes">Nessuna nota di aggiornamento.</string>
+    <string name="report_issue">Segnala problema</string>
 
     <!-- Headers -->
     <string name="about_this_app">Informazioni su quest'app</string>
@@ -453,4 +455,8 @@
     <string name="open_in_app">Apri nell\'app</string>
     <string name="no_github_link_in_clipboard">Nessun link GitHub trovato negli appunti</string>
 
+    <string name="storage">Archiviazione</string>
+    <string name="clear_cache">Pulisci cache</string>
+    <string name="current_size">Dimensione attuale:</string>
+    <string name="clear">Pulisci</string>
 </resources>
