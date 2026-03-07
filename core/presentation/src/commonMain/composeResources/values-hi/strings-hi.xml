@@ -83,6 +83,10 @@
     <string name="sort_most_forks">सबसे अधिक फोर्क्स</string>
     <string name="sort_best_match">सबसे अच्छा मिलान</string>
 
+    <string name="sort_order_descending">अवरोही</string>
+    <string name="sort_order_ascending">आरोही</string>
+    <string name="sort_label">क्रमबद्ध करें</string>
+
     <!-- Programming languages -->
     <string name="language_all">सभी भाषाएँ</string>
     <string name="language_kotlin">Kotlin</string>

@@ -83,6 +83,10 @@
     <string name="sort_most_forks">Più Forks</string>
     <string name="sort_best_match">Miglior corrispondenza</string>
 
+    <string name="sort_order_descending">Decrescente</string>
+    <string name="sort_order_ascending">Crescente</string>
+    <string name="sort_label">Ordina</string>
+
     <!-- Programming languages -->
     <string name="language_all">Tutte le lingue</string>
     <string name="language_kotlin">Kotlin</string>

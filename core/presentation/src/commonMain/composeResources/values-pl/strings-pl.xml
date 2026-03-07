@@ -69,6 +69,10 @@
     <string name="sort_most_forks">Najwięcej forków</string>
     <string name="sort_best_match">Najlepsze dopasowanie</string>
 
+    <string name="sort_order_descending">Malejąco</string>
+    <string name="sort_order_ascending">Rosnąco</string>
+    <string name="sort_label">Sortuj</string>
+
     <string name="language_all">Wszystkie języki</string>
     <string name="language_kotlin">Kotlin</string>
     <string name="language_java">Java</string>

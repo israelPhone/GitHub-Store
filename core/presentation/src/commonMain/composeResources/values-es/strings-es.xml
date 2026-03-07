@@ -68,6 +68,10 @@
     <string name="sort_most_forks">Más forks</string>
     <string name="sort_best_match">Mejor coincidencia</string>
 
+    <string name="sort_order_descending">Descendente</string>
+    <string name="sort_order_ascending">Ascendente</string>
+    <string name="sort_label">Ordenar</string>
+
     <string name="language_all">Todos los lenguajes</string>
     <string name="language_kotlin">Kotlin</string>
     <string name="language_java">Java</string>

@@ -257,8 +257,14 @@ jobs:
           UPINFO="gh-releases-zsync|rainxchzed|Github-Store|latest|*x86_64.AppImage.zsync"
           ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool-x86_64.AppImage -u "$UPINFO" "$APPDIR" "$OUTPUT"
 
-          echo "Created AppImage:"
-          ls -lh "$OUTPUT"
+          # appimagetool may place .zsync in the working directory; move it next to the AppImage
+          ZSYNC_NAME="$(basename "$OUTPUT").zsync"
+          if [ -f "$ZSYNC_NAME" ] && [ ! -f "$OUTPUT.zsync" ]; then
+            mv "$ZSYNC_NAME" "$OUTPUT.zsync"
+          fi
+
+          echo "Created AppImage and zsync:"
+          ls -lh "$OUTPUT" "$OUTPUT.zsync"
         shell: bash
 
       - name: Upload Linux installers

@@ -83,6 +83,10 @@
     <string name="sort_most_forks">الأكثر تفرعاً</string>
     <string name="sort_best_match">الأفضل تطابقاً</string>
 
+    <string name="sort_order_descending">تنازلي</string>
+    <string name="sort_order_ascending">تصاعدي</string>
+    <string name="sort_label">ترتيب</string>
+
     <!-- Programming languages -->
     <string name="language_all">جميع اللغات</string>
     <string name="language_kotlin">Kotlin</string>
