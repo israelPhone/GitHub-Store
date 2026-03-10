@@ -30,7 +30,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +40,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.coil3.CoilImage
-import zed.rainxch.githubstore.core.presentation.res.*
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.domain.model.GithubRelease
 import zed.rainxch.core.domain.model.GithubRepoSummary
@@ -48,6 +49,13 @@ import zed.rainxch.core.presentation.components.ForkBadge
 import zed.rainxch.core.presentation.components.PlatformChip
 import zed.rainxch.core.presentation.utils.formatReleasedAt
 import zed.rainxch.details.presentation.model.DownloadStage
+import zed.rainxch.githubstore.core.presentation.res.Res
+import zed.rainxch.githubstore.core.presentation.res.by_author
+import zed.rainxch.githubstore.core.presentation.res.installed
+import zed.rainxch.githubstore.core.presentation.res.installed_version
+import zed.rainxch.githubstore.core.presentation.res.no_description
+import zed.rainxch.githubstore.core.presentation.res.pending_install
+import zed.rainxch.githubstore.core.presentation.res.update_available
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -65,6 +73,12 @@ fun AppHeader(
         animationSpec = tween(durationMillis = 500),
         label = "avatar_progress_animation"
     )
+
+    val supportedPlatforms by remember(release?.assets) {
+        derivedStateOf {
+            derivePlatformsFromAssets(release)
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth()
@@ -128,7 +142,7 @@ fun AppHeader(
                                 )
                             }
 
-                            else -> { }
+                            else -> {}
                         }
                     }
                 }
@@ -151,16 +165,17 @@ fun AppHeader(
                         modifier = Modifier.weight(1f, fill = false)
                     )
 
-                    if (repository.isFork) {
-                        ForkBadge()
-                    }
-                }
-
-                Text(
-                    text = stringResource(Res.string.by_author, author?.login.toString()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+					if (repository.isFork) {
+						ForkBadge()
+					}
+				}
+				author?.login?.let{ author ->
+					Text(
+						text = stringResource(Res.string.by_author, author),
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.primary,
+					)
+				}
 
                 Spacer(Modifier.height(8.dp))
 
@@ -208,15 +223,14 @@ fun AppHeader(
             }
         }
 
-        val platforms = derivePlatformsFromAssets(release)
-        if (platforms.isNotEmpty()) {
+        if (supportedPlatforms.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
 
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                platforms.forEach { platform ->
+                supportedPlatforms.forEach { platform ->
                     PlatformChip(platform = platform)
                 }
             }
@@ -235,12 +249,18 @@ fun AppHeader(
 private fun derivePlatformsFromAssets(release: GithubRelease?): List<String> {
     if (release == null) return emptyList()
     val names = release.assets.map { it.name.lowercase() }
-    val platforms = mutableListOf<String>()
-    if (names.any { it.endsWith(".apk") }) platforms.add("Android")
-    if (names.any { it.endsWith(".exe") || it.endsWith(".msi") }) platforms.add("Windows")
-    if (names.any { it.endsWith(".dmg") || it.endsWith(".pkg") }) platforms.add("macOS")
-    if (names.any { it.endsWith(".appimage") || it.endsWith(".deb") || it.endsWith(".rpm") }) platforms.add("Linux")
-    return platforms
+    return buildList {
+        when {
+            names.any { it.endsWith(".apk") } -> add("Android")
+            names.any { it.endsWith(".exe") || it.endsWith(".msi") } -> add("Windows")
+            names.any { it.endsWith(".dmg") || it.endsWith(".pkg") } -> add("macOS")
+            names.any {
+                it.endsWith(".appimage") ||
+                        it.endsWith(".deb") ||
+                        it.endsWith(".rpm")
+            } -> add("Linux")
+        }
+    }
 }
 
 @Composable
