@@ -16,6 +16,8 @@ dependencies {
 
     implementation(libs.buildkonfig.gradlePlugin)
     implementation(libs.buildkonfig.compiler)
+
+    implementation(libs.ktlint.gradlePlugin)
 }
 
 java {
@@ -33,6 +35,11 @@ tasks {
     validatePlugins {
         enableStricterValidation = true
         failOnWarning = true
+    }
+    configureEach {
+        if (name == "preBuild") {
+            dependsOn("addKtlintFormatGitPreCommitHook")
+        }
     }
 }
 
@@ -69,6 +76,10 @@ gradlePlugin {
         register("room") {
             id = "zed.rainxch.convention.room"
             implementationClass = "RoomConventionPlugin"
+        }
+        register("ktlint") {
+            id = "zed.rainxch.convention.ktlint"
+            implementationClass = "KtlintConventionPlugin"
         }
     }
 }

@@ -44,6 +44,8 @@ jsystemthemedetector = "3.9.1"
 work = "2.11.1"
 resources="1.10.1"
 
+ktlint-gradle = "12.1.1"
+
 projectApplicationId = "zed.rainxch.githubstore"
 projectVersionName = "1.6.2"
 projectMinSdkVersion = "26"
@@ -147,6 +149,8 @@ androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref
 
 # Liquid effect
 liquid = { module = "io.github.fletchmckee.liquid:liquid", version.ref = "liquid" }
+
+ktlint-gradlePlugin = { group = "org.jlleitschuh.gradle", name="ktlint-gradle", version.ref = "ktlint-gradle" }
 
 [plugins]
 

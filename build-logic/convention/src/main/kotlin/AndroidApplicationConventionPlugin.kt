@@ -10,6 +10,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("com.android.application")
+                apply("zed.rainxch.convention.ktlint")
             }
 
             extensions.configure<ApplicationExtension> {
