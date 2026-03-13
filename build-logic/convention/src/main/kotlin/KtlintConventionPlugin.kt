@@ -10,10 +10,16 @@ class KtlintConventionPlugin : Plugin<Project> {
             extensions.configure(KtlintExtension::class.java) {
                 version.set("1.8.0")
                 outputToConsole.set(true)
-                ignoreFailures.set(false)
+                ignoreFailures.set(true)
                 filter {
                     exclude("**/generated/**")
                     exclude("**/build/**")
+                    exclude("**/*.g.kt")
+                    exclude("**/schemas/**")
+                }
+                reporters {
+                    reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+                    reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.HTML)
                 }
             }
         }

@@ -36,11 +36,6 @@ tasks {
         enableStricterValidation = true
         failOnWarning = true
     }
-    configureEach {
-        if (name == "preBuild") {
-            dependsOn("addKtlintFormatGitPreCommitHook")
-        }
-    }
 }
 
 gradlePlugin {

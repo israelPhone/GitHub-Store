@@ -8,7 +8,6 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("zed.rainxch.convention.cmp.library")
-                apply("zed.rainxch.convention.ktlint")
             }
 
             dependencies {

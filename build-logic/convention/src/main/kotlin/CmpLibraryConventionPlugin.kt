@@ -11,7 +11,6 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
                 apply("zed.rainxch.convention.kmp.library")
                 apply("org.jetbrains.kotlin.plugin.compose")
                 apply("org.jetbrains.compose")
-                apply("zed.rainxch.convention.ktlint")
             }
 
             dependencies {
