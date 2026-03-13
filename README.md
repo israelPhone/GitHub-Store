@@ -123,7 +123,7 @@ GitHub® is a registered trademark of GitHub, Inc.
 </a>
 
 <a href="https://github-store.org/app?repo=OpenHub-Store/GitHub-Store">
-  <img src="media-resources/ghs_download_badge.png" alt="Get it on GitHub Store" height="80">
+  <img src="media-resources/ghs_download_badge.png" alt="Get it on GitHub Store" height="64">
 </a>
 </p>
 
