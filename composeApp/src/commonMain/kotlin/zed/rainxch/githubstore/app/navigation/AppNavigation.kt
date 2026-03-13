@@ -140,7 +140,12 @@ fun AppNavigation(navController: NavHostController) {
                         },
                         viewModel =
                             koinViewModel {
-                                parametersOf(args.repositoryId, args.owner, args.repo, args.isComingFromUpdate)
+                                parametersOf(
+                                    args.repositoryId,
+                                    args.owner,
+                                    args.repo,
+                                    args.isComingFromUpdate,
+                                )
                             },
                     )
                 }
@@ -272,7 +277,8 @@ fun AppNavigation(navController: NavHostController) {
                 }
             }
 
-            val currentScreen = navController.currentBackStackEntryAsState().value.getCurrentScreen()
+            val currentScreen =
+                navController.currentBackStackEntryAsState().value.getCurrentScreen()
 
             currentScreen?.let {
                 BottomNavigation(
@@ -294,7 +300,8 @@ fun AppNavigation(navController: NavHostController) {
                             .navigationBarsPadding()
                             .padding(bottom = 24.dp)
                             .onGloballyPositioned { coordinates ->
-                                bottomNavigationHeight = with(density) { coordinates.size.height.toDp() }
+                                bottomNavigationHeight =
+                                    with(density) { coordinates.size.height.toDp() }
                             },
                 )
             }
