@@ -22,6 +22,7 @@ import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.getString
 import zed.rainxch.core.domain.logging.GitHubStoreLogger
+import zed.rainxch.core.domain.model.ApkPackageInfo
 import zed.rainxch.core.domain.model.FavoriteRepo
 import zed.rainxch.core.domain.model.GithubAsset
 import zed.rainxch.core.domain.model.GithubRelease
@@ -58,6 +59,7 @@ import zed.rainxch.githubstore.core.presentation.res.link_copied_to_clipboard
 import zed.rainxch.githubstore.core.presentation.res.rate_limit_exceeded
 import zed.rainxch.githubstore.core.presentation.res.removed_from_favourites
 import zed.rainxch.githubstore.core.presentation.res.translation_failed
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock.System
@@ -776,23 +778,25 @@ class DetailsViewModel(
             is DetailsAction.TranslateAbout -> {
                 val readme = _state.value.readmeMarkdown ?: return
                 aboutTranslationJob?.cancel()
-                aboutTranslationJob = translateContent(
-                    text = readme,
-                    targetLanguageCode = action.targetLanguageCode,
-                    updateState = { ts -> _state.update { it.copy(aboutTranslation = ts) } },
-                    getCurrentState = { _state.value.aboutTranslation },
-                )
+                aboutTranslationJob =
+                    translateContent(
+                        text = readme,
+                        targetLanguageCode = action.targetLanguageCode,
+                        updateState = { ts -> _state.update { it.copy(aboutTranslation = ts) } },
+                        getCurrentState = { _state.value.aboutTranslation },
+                    )
             }
 
             is DetailsAction.TranslateWhatsNew -> {
                 val description = _state.value.selectedRelease?.description ?: return
                 whatsNewTranslationJob?.cancel()
-                whatsNewTranslationJob = translateContent(
-                    text = description,
-                    targetLanguageCode = action.targetLanguageCode,
-                    updateState = { ts -> _state.update { it.copy(whatsNewTranslation = ts) } },
-                    getCurrentState = { _state.value.whatsNewTranslation },
-                )
+                whatsNewTranslationJob =
+                    translateContent(
+                        text = description,
+                        targetLanguageCode = action.targetLanguageCode,
+                        updateState = { ts -> _state.update { it.copy(whatsNewTranslation = ts) } },
+                        getCurrentState = { _state.value.whatsNewTranslation },
+                    )
             }
 
             DetailsAction.ToggleAboutTranslation -> {
@@ -885,14 +889,16 @@ class DetailsViewModel(
                                         downloadStage = DownloadStage.DOWNLOADING,
                                     )
 
-                                downloader.download(primary.downloadUrl, primary.name).collect { p ->
-                                    _state.value =
-                                        _state.value.copy(downloadProgressPercent = p.percent)
-                                    if (p.percent == 100) {
+                                downloader
+                                    .download(primary.downloadUrl, primary.name)
+                                    .collect { p ->
                                         _state.value =
-                                            _state.value.copy(downloadStage = DownloadStage.VERIFYING)
+                                            _state.value.copy(downloadProgressPercent = p.percent)
+                                        if (p.percent == 100) {
+                                            _state.value =
+                                                _state.value.copy(downloadStage = DownloadStage.VERIFYING)
+                                        }
                                     }
-                                }
 
                                 val filePath =
                                     downloader.getDownloadedFilePath(primary.name)
@@ -989,131 +995,22 @@ class DetailsViewModel(
         currentDownloadJob =
             viewModelScope.launch {
                 try {
-                    currentAssetName = assetName
-
-                    appendLog(
-                        assetName = assetName,
-                        size = sizeBytes,
-                        tag = releaseTag,
-                        result =
-                            if (isUpdate) {
-                                LogResult.UpdateStarted
-                            } else {
-                                LogResult.DownloadStarted
-                            },
-                    )
-                    _state.value =
-                        _state.value.copy(
-                            downloadError = null,
-                            installError = null,
-                            downloadProgressPercent = null,
-                        )
-
-                    val existingPath = downloader.getDownloadedFilePath(assetName)
-                    val filePath: String
-
-                    val existingFile = existingPath?.let { java.io.File(it) }
-                    if (existingFile != null && existingFile.exists() && existingFile.length() == sizeBytes) {
-                        logger.debug("Reusing already downloaded file: $assetName")
-                        filePath = existingPath
-                        _state.value =
-                            _state.value.copy(
-                                downloadProgressPercent = 100,
-                                downloadedBytes = sizeBytes,
-                                totalBytes = sizeBytes,
-                                downloadStage = DownloadStage.VERIFYING,
-                            )
-                    } else {
-                        _state.value =
-                            _state.value.copy(
-                                downloadStage = DownloadStage.DOWNLOADING,
-                                downloadedBytes = 0L,
-                                totalBytes = sizeBytes,
-                            )
-                        downloader.download(downloadUrl, assetName).collect { p ->
-                            _state.value =
-                                _state.value.copy(
-                                    downloadProgressPercent = p.percent,
-                                    downloadedBytes = p.bytesDownloaded,
-                                    totalBytes = p.totalBytes ?: sizeBytes,
-                                )
-                            if (p.percent == 100) {
-                                _state.value =
-                                    _state.value.copy(downloadStage = DownloadStage.VERIFYING)
-                            }
-                        }
-
-                        filePath = downloader.getDownloadedFilePath(assetName)
-                            ?: throw IllegalStateException("Downloaded file not found")
-
-                        cachedDownloadAssetName = assetName
-                    }
-
-                    appendLog(
-                        assetName = assetName,
-                        size = sizeBytes,
-                        tag = releaseTag,
-                        result = LogResult.Downloaded,
-                    )
-
-                    val ext = assetName.substringAfterLast('.', "").lowercase()
-
-                    if (!installer.isSupported(ext)) {
-                        throw IllegalStateException("Asset type .$ext not supported")
-                    }
-
-                    // Check install permission after download — if blocked, offer external installer
-                    try {
-                        installer.ensurePermissionsOrThrow(extOrMime = ext)
-                    } catch (e: IllegalStateException) {
-                        logger.warn("Install permission blocked: ${e.message}")
-                        _state.value =
-                            _state.value.copy(
-                                downloadStage = DownloadStage.IDLE,
-                                showExternalInstallerPrompt = true,
-                                pendingInstallFilePath = filePath,
-                            )
-                        currentAssetName = null
-                        appendLog(
+                    val filePath: String =
+                        downloadAsset(
                             assetName = assetName,
-                            size = sizeBytes,
-                            tag = releaseTag,
-                            result = LogResult.PermissionBlocked,
-                        )
-                        return@launch
-                    }
-
-                    _state.value = _state.value.copy(downloadStage = DownloadStage.INSTALLING)
-
-                    if (platform == Platform.ANDROID) {
-                        saveInstalledAppToDatabase(
-                            assetName = assetName,
-                            assetUrl = downloadUrl,
-                            assetSize = sizeBytes,
+                            sizeBytes = sizeBytes,
                             releaseTag = releaseTag,
                             isUpdate = isUpdate,
-                            filePath = filePath,
-                        )
-                    } else {
-                        viewModelScope.launch {
-                            _events.send(DetailsEvent.OnMessage(getString(Res.string.installer_saved_downloads)))
-                        }
-                    }
+                            downloadUrl = downloadUrl,
+                        ) ?: return@launch
 
-                    installer.install(filePath, ext)
-
-                    _state.value = _state.value.copy(downloadStage = DownloadStage.IDLE)
-                    currentAssetName = null
-                    appendLog(
+                    installAsset(
+                        isUpdate = isUpdate,
+                        filePath = filePath,
                         assetName = assetName,
-                        size = sizeBytes,
-                        tag = releaseTag,
-                        result =
-                            if (isUpdate) {
-                                LogResult.Updated
-                            } else {
-                                LogResult.Installed
-                            },
+                        downloadUrl = downloadUrl,
+                        sizeBytes = sizeBytes,
+                        releaseTag = releaseTag,
                     )
                 } catch (t: Throwable) {
                     logger.error("Install failed: ${t.message}")
@@ -1128,10 +1025,206 @@ class DetailsViewModel(
                         assetName = assetName,
                         size = sizeBytes,
                         tag = releaseTag,
-                        result = LogResult.Error(t.message),
+                        result = Error(t.message),
                     )
                 }
             }
+    }
+
+    private suspend fun installAsset(
+        isUpdate: Boolean,
+        filePath: String,
+        assetName: String,
+        downloadUrl: String,
+        sizeBytes: Long,
+        releaseTag: String,
+    ) {
+        _state.value = _state.value.copy(downloadStage = DownloadStage.INSTALLING)
+        val apkInfo = installer.getApkInfoExtractor().extractPackageInfo(filePath)
+        if (apkInfo != null) {
+            ApkPackageInfo(
+                packageName = apkInfo.packageName,
+                appName = apkInfo.appName,
+                versionName = apkInfo.versionName,
+                versionCode = apkInfo.versionCode,
+                signingFingerprint = apkInfo.signingFingerprint,
+            )
+        } else {
+            logger.error("Failed to extract APK info for $assetName")
+        }
+
+        apkInfo?.let {
+            val result =
+                checkFingerprints(
+                    apkPackageInfo = apkInfo,
+                )
+
+            result
+                .onFailure {
+                    appendLog(
+                        assetName = assetName,
+                        size = sizeBytes,
+                        tag = releaseTag,
+                        result = Error("Fingerprints does not match!"),
+                    )
+
+                    return
+                }
+        }
+
+        val ext = assetName.substringAfterLast('.', "").lowercase()
+        installer.install(filePath, ext)
+
+        if (platform == Platform.ANDROID) {
+            saveInstalledAppToDatabase(
+                assetName = assetName,
+                assetUrl = downloadUrl,
+                assetSize = sizeBytes,
+                releaseTag = releaseTag,
+                isUpdate = isUpdate,
+                filePath = filePath,
+            )
+        } else {
+            viewModelScope.launch {
+                _events.send(DetailsEvent.OnMessage(getString(Res.string.installer_saved_downloads)))
+            }
+        }
+
+        _state.value = _state.value.copy(downloadStage = DownloadStage.IDLE)
+        currentAssetName = null
+        appendLog(
+            assetName = assetName,
+            size = sizeBytes,
+            tag = releaseTag,
+            result =
+                if (isUpdate) {
+                    LogResult.Updated
+                } else {
+                    LogResult.Installed
+                },
+        )
+    }
+
+    private suspend fun checkFingerprints(apkPackageInfo: ApkPackageInfo): Result<Unit> {
+        val existingApp =
+            installedAppsRepository.getAppByPackage(apkPackageInfo.packageName)
+                ?: return Result.success(Unit)
+
+        if (existingApp.signingFingerprint == null) return Result.success(Unit)
+
+        if (apkPackageInfo.signingFingerprint == null) return Result.success(Unit)
+
+        return if (existingApp.signingFingerprint == apkPackageInfo.signingFingerprint) {
+            Result.success(Unit)
+        } else {
+            Result.failure(
+                IllegalStateException(
+                    "Signing key changed! Expected: ${existingApp.signingFingerprint}, got: ${apkPackageInfo.signingFingerprint}",
+                ),
+            )
+        }
+    }
+
+    private suspend fun downloadAsset(
+        assetName: String,
+        sizeBytes: Long,
+        releaseTag: String,
+        isUpdate: Boolean,
+        downloadUrl: String,
+    ): String? {
+        currentAssetName = assetName
+
+        appendLog(
+            assetName = assetName,
+            size = sizeBytes,
+            tag = releaseTag,
+            result =
+                if (isUpdate) {
+                    LogResult.UpdateStarted
+                } else {
+                    LogResult.DownloadStarted
+                },
+        )
+        _state.value =
+            _state.value.copy(
+                downloadError = null,
+                installError = null,
+                downloadProgressPercent = null,
+            )
+
+        val existingPath = downloader.getDownloadedFilePath(assetName)
+        val filePath: String
+
+        val existingFile = existingPath?.let { File(it) }
+        if (existingFile != null && existingFile.exists() && existingFile.length() == sizeBytes) {
+            logger.debug("Reusing already downloaded file: $assetName")
+            filePath = existingPath
+            _state.value =
+                _state.value.copy(
+                    downloadProgressPercent = 100,
+                    downloadedBytes = sizeBytes,
+                    totalBytes = sizeBytes,
+                    downloadStage = DownloadStage.VERIFYING,
+                )
+        } else {
+            _state.value =
+                _state.value.copy(
+                    downloadStage = DownloadStage.DOWNLOADING,
+                    downloadedBytes = 0L,
+                    totalBytes = sizeBytes,
+                )
+            downloader.download(downloadUrl, assetName).collect { p ->
+                _state.value =
+                    _state.value.copy(
+                        downloadProgressPercent = p.percent,
+                        downloadedBytes = p.bytesDownloaded,
+                        totalBytes = p.totalBytes ?: sizeBytes,
+                    )
+                if (p.percent == 100) {
+                    _state.value =
+                        _state.value.copy(downloadStage = DownloadStage.VERIFYING)
+                }
+            }
+
+            filePath = downloader.getDownloadedFilePath(assetName)
+                ?: throw IllegalStateException("Downloaded file not found")
+
+            cachedDownloadAssetName = assetName
+        }
+
+        appendLog(
+            assetName = assetName,
+            size = sizeBytes,
+            tag = releaseTag,
+            result = LogResult.Downloaded,
+        )
+        val ext = assetName.substringAfterLast('.', "").lowercase()
+
+        if (!installer.isSupported(ext)) {
+            throw IllegalStateException("Asset type .$ext not supported")
+        }
+
+        try {
+            installer.ensurePermissionsOrThrow(extOrMime = ext)
+        } catch (e: IllegalStateException) {
+            logger.warn("Install permission blocked: ${e.message}")
+            _state.value =
+                _state.value.copy(
+                    downloadStage = DownloadStage.IDLE,
+                    showExternalInstallerPrompt = true,
+                    pendingInstallFilePath = filePath,
+                )
+            currentAssetName = null
+            appendLog(
+                assetName = assetName,
+                size = sizeBytes,
+                tag = releaseTag,
+                result = LogResult.PermissionBlocked,
+            )
+            return null
+        }
+
+        return filePath
     }
 
     @OptIn(ExperimentalTime::class)
@@ -1146,42 +1239,39 @@ class DetailsViewModel(
         try {
             val repo = _state.value.repository ?: return
 
-            var packageName: String
-            var appName = repo.name
-            var versionName: String? = null
-            var versionCode = 0L
-
-            if (platform == Platform.ANDROID && assetName.lowercase().endsWith(".apk")) {
-                val apkInfo = installer.getApkInfoExtractor().extractPackageInfo(filePath)
-                if (apkInfo != null) {
-                    packageName = apkInfo.packageName
-                    appName = apkInfo.appName
-                    versionName = apkInfo.versionName
-                    versionCode = apkInfo.versionCode
-                    logger.debug(
-                        "Extracted APK info - package: $packageName, name: $appName, versionName: $versionName, versionCode: $versionCode",
-                    )
+            val apkInfo: ApkPackageInfo =
+                if (platform == Platform.ANDROID && assetName.lowercase().endsWith(".apk")) {
+                    val apkInfo = installer.getApkInfoExtractor().extractPackageInfo(filePath)
+                    if (apkInfo != null) {
+                        ApkPackageInfo(
+                            packageName = apkInfo.packageName,
+                            appName = apkInfo.appName,
+                            versionName = apkInfo.versionName,
+                            versionCode = apkInfo.versionCode,
+                            signingFingerprint = apkInfo.signingFingerprint,
+                        )
+                    } else {
+                        logger.error("Failed to extract APK info for $assetName")
+                        return
+                    }
                 } else {
-                    logger.error("Failed to extract APK info for $assetName")
                     return
                 }
-            } else {
-                packageName = "app.github.${repo.owner.login}.${repo.name}".lowercase()
-            }
 
             if (isUpdate) {
                 installedAppsRepository.updateAppVersion(
-                    packageName = packageName,
+                    packageName = apkInfo.packageName,
                     newTag = releaseTag,
                     newAssetName = assetName,
                     newAssetUrl = assetUrl,
-                    newVersionName = versionName ?: "unknown",
-                    newVersionCode = versionCode,
+                    newVersionName = apkInfo.versionName,
+                    newVersionCode = apkInfo.versionCode,
+                    signingFingerprint = apkInfo.signingFingerprint,
                 )
             } else {
                 val installedApp =
                     InstalledApp(
-                        packageName = packageName,
+                        packageName = apkInfo.packageName,
                         repoId = repo.id,
                         repoName = repo.name,
                         repoOwner = repo.owner.login,
@@ -1196,7 +1286,7 @@ class DetailsViewModel(
                         latestAssetName = assetName,
                         latestAssetUrl = assetUrl,
                         latestAssetSize = assetSize,
-                        appName = appName,
+                        appName = apkInfo.appName,
                         installSource = InstallSource.THIS_APP,
                         installedAt = System.now().toEpochMilliseconds(),
                         lastCheckedAt = System.now().toEpochMilliseconds(),
@@ -1207,10 +1297,11 @@ class DetailsViewModel(
                         systemArchitecture = installer.detectSystemArchitecture().name,
                         fileExtension = assetName.substringAfterLast('.', ""),
                         isPendingInstall = true,
-                        installedVersionName = versionName,
-                        installedVersionCode = versionCode,
-                        latestVersionName = versionName,
-                        latestVersionCode = versionCode,
+                        installedVersionName = apkInfo.versionName,
+                        installedVersionCode = apkInfo.versionCode,
+                        latestVersionName = apkInfo.versionName,
+                        latestVersionCode = apkInfo.versionCode,
+                        signingFingerprint = apkInfo.signingFingerprint,
                     )
 
                 installedAppsRepository.saveInstalledApp(installedApp)
@@ -1220,12 +1311,12 @@ class DetailsViewModel(
                 favouritesRepository.updateFavoriteInstallStatus(
                     repoId = repo.id,
                     installed = true,
-                    packageName = packageName,
+                    packageName = apkInfo.packageName,
                 )
             }
 
-            delay(500)
-            val updatedApp = installedAppsRepository.getAppByPackage(packageName)
+            delay(1000)
+            val updatedApp = installedAppsRepository.getAppByPackage(apkInfo.packageName)
             _state.value = _state.value.copy(installedApp = updatedApp)
 
             logger.debug("Successfully saved and reloaded app: ${updatedApp?.packageName}")
@@ -1354,8 +1445,8 @@ class DetailsViewModel(
         targetLanguageCode: String,
         updateState: (TranslationState) -> Unit,
         getCurrentState: () -> TranslationState,
-    ): Job {
-        return viewModelScope.launch {
+    ): Job =
+        viewModelScope.launch {
             try {
                 updateState(
                     getCurrentState().copy(
@@ -1402,7 +1493,6 @@ class DetailsViewModel(
                 )
             }
         }
-    }
 
     private fun normalizeVersion(version: String?): String = version?.removePrefix("v")?.removePrefix("V")?.trim() ?: ""
 

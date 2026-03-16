@@ -40,7 +40,7 @@ class AppsViewModel(
     private val shareManager: ShareManager,
 ) : ViewModel() {
     companion object {
-        private const val UPDATE_CHECK_COOLDOWN_MS = 30 * 60 * 1000L // 30 minutes
+        private const val UPDATE_CHECK_COOLDOWN_MS = 30 * 60 * 1000L
     }
 
     private var hasLoadedInitialData = false
@@ -209,12 +209,18 @@ class AppsViewModel(
                 _state.update { it.copy(appPendingUninstall = action.app) }
             }
 
-            // Link app to repo
-            AppsAction.OnAddByLinkClick -> openLinkSheet()
-            AppsAction.OnDismissLinkSheet -> dismissLinkSheet()
+            AppsAction.OnAddByLinkClick -> {
+                openLinkSheet()
+            }
+
+            AppsAction.OnDismissLinkSheet -> {
+                dismissLinkSheet()
+            }
+
             is AppsAction.OnDeviceAppSearchChange -> {
                 _state.update { it.copy(deviceAppSearchQuery = action.query) }
             }
+
             is AppsAction.OnDeviceAppSelected -> {
                 _state.update {
                     it.copy(
@@ -226,6 +232,7 @@ class AppsViewModel(
                     )
                 }
             }
+
             is AppsAction.OnRepoUrlChanged -> {
                 _state.update {
                     it.copy(
@@ -234,7 +241,11 @@ class AppsViewModel(
                     )
                 }
             }
-            AppsAction.OnValidateAndLinkRepo -> validateAndLinkRepo()
+
+            AppsAction.OnValidateAndLinkRepo -> {
+                validateAndLinkRepo()
+            }
+
             AppsAction.OnBackToAppPicker -> {
                 _state.update {
                     it.copy(
@@ -247,15 +258,19 @@ class AppsViewModel(
                 }
             }
 
-            // Export/Import
-            AppsAction.OnExportApps -> exportApps()
-            AppsAction.OnImportApps -> importAppsFromFile()
+            AppsAction.OnExportApps -> {
+                exportApps()
+            }
 
-            // Uninstall confirmation
+            AppsAction.OnImportApps -> {
+                importAppsFromFile()
+            }
+
             is AppsAction.OnUninstallConfirmed -> {
                 uninstallApp(action.app)
                 _state.update { it.copy(appPendingUninstall = null) }
             }
+
             AppsAction.OnDismissUninstallDialog -> {
                 _state.update { it.copy(appPendingUninstall = null) }
             }
@@ -379,7 +394,6 @@ class AppsViewModel(
                     val latestAssetUrl = primaryAsset.downloadUrl
                     val latestAssetName = primaryAsset.name
                     val latestVersion = latestRelease.tagName
-                    val latestAssetSize = primaryAsset.size
 
                     val ext = latestAssetName.substringAfterLast('.', "").lowercase()
                     installer.ensurePermissionsOrThrow(ext)
@@ -419,8 +433,6 @@ class AppsViewModel(
                         installer.getApkInfoExtractor().extractPackageInfo(filePath)
                             ?: throw IllegalStateException("Failed to extract APK info")
 
-                    // Save latest release metadata and mark as pending install
-                    // so PackageEventReceiver can verify the actual installation
                     val currentApp = installedAppsRepository.getAppByPackage(app.packageName)
                     if (currentApp != null) {
                         installedAppsRepository.updateApp(
@@ -446,9 +458,6 @@ class AppsViewModel(
                         throw e
                     }
 
-                    // Don't mark as updated here — installer.install() just launches the
-                    // system install dialog and returns immediately. PackageEventReceiver
-                    // will handle confirming the actual installation via broadcast.
                     updateAppState(app.packageName, UpdateState.Idle)
 
                     logger.debug("Launched installer for ${app.appName} $latestVersion, waiting for system confirmation")
@@ -553,7 +562,7 @@ class AppsViewModel(
 
                     logger.debug("Update all completed successfully")
                     _events.send(AppsEvent.ShowSuccess(getString(Res.string.all_apps_updated_successfully)))
-                } catch (e: CancellationException) {
+                } catch (_: CancellationException) {
                     logger.debug("Update all cancelled")
                 } catch (e: Exception) {
                     logger.error("Update all failed: ${e.message}")
@@ -687,8 +696,6 @@ class AppsViewModel(
         }
     }
 
-    // ── Link app to repo ──────────────────────────────────────────
-
     private fun openLinkSheet() {
         viewModelScope.launch {
             _state.update {
@@ -706,8 +713,10 @@ class AppsViewModel(
 
             try {
                 val trackedPackages = appsRepository.getTrackedPackageNames()
-                val deviceApps = appsRepository.getDeviceApps()
-                    .filter { it.packageName !in trackedPackages }
+                val deviceApps =
+                    appsRepository
+                        .getDeviceApps()
+                        .filter { it.packageName !in trackedPackages }
 
                 _state.update { it.copy(deviceApps = deviceApps) }
             } catch (e: Exception) {
@@ -737,11 +746,11 @@ class AppsViewModel(
         val selectedApp = _state.value.selectedDeviceApp ?: return
         val url = _state.value.repoUrl.trim()
 
-        // Parse owner/repo from URL
-        val (owner, repo) = parseGithubUrl(url) ?: run {
-            _state.update { it.copy(repoValidationError = "Invalid GitHub URL. Use format: github.com/owner/repo") }
-            return
-        }
+        val (owner, repo) =
+            parseGithubUrl(url) ?: run {
+                _state.update { it.copy(repoValidationError = "Invalid GitHub URL. Use format: github.com/owner/repo") }
+                return
+            }
 
         viewModelScope.launch {
             _state.update { it.copy(isValidatingRepo = true, repoValidationError = null) }
@@ -769,7 +778,7 @@ class AppsViewModel(
 
                 _events.send(AppsEvent.AppLinkedSuccessfully(selectedApp.appName))
                 _events.send(AppsEvent.ShowSuccess("${selectedApp.appName} linked to ${repoInfo.owner}/${repoInfo.name}"))
-            } catch (e: RateLimitException) {
+            } catch (_: RateLimitException) {
                 _state.update {
                     it.copy(
                         isValidatingRepo = false,
@@ -789,14 +798,16 @@ class AppsViewModel(
     }
 
     private fun parseGithubUrl(input: String): Pair<String, String>? {
-        val cleaned = input.trim()
-            .removePrefix("https://")
-            .removePrefix("http://")
-            .removePrefix("www.")
-            .removePrefix("github.com/")
-            .removeSuffix("/")
-            .split("?")[0]   // remove query params
-            .split("#")[0]   // remove fragment
+        val cleaned =
+            input
+                .trim()
+                .removePrefix("https://")
+                .removePrefix("http://")
+                .removePrefix("www.")
+                .removePrefix("github.com/")
+                .removeSuffix("/")
+                .split("?")[0]
+                .split("#")[0]
 
         val parts = cleaned.split("/")
         if (parts.size < 2) return null
@@ -809,8 +820,6 @@ class AppsViewModel(
 
         return owner to repo
     }
-
-    // ── Export/Import ─────────────────────────────────────────────
 
     private fun exportApps() {
         viewModelScope.launch {
@@ -847,8 +856,12 @@ class AppsViewModel(
             _events.send(
                 AppsEvent.ShowSuccess(
                     "Imported ${result.imported} apps" +
-                        if (result.skipped > 0) ", ${result.skipped} skipped" else "" +
-                            if (result.failed > 0) ", ${result.failed} failed" else "",
+                        if (result.skipped > 0) {
+                            ", ${result.skipped} skipped"
+                        } else {
+                            "" +
+                                if (result.failed > 0) ", ${result.failed} failed" else ""
+                        },
                 ),
             )
         } catch (e: Exception) {

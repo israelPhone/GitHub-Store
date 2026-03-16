@@ -18,14 +18,14 @@ import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import zed.rainxch.core.data.services.shizuku.ShizukuServiceManager
+import zed.rainxch.core.data.services.shizuku.model.ShizukuStatus
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.InstallerType
 import zed.rainxch.core.domain.network.Downloader
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.ThemesRepository
 import zed.rainxch.core.domain.system.Installer
-import zed.rainxch.core.data.services.shizuku.ShizukuServiceManager
-import zed.rainxch.core.data.services.shizuku.ShizukuStatus
 
 /**
  * Background worker that automatically downloads and silently installs
@@ -46,21 +46,20 @@ class AutoUpdateWorker(
     private val themesRepository: ThemesRepository by inject()
     private val shizukuServiceManager: ShizukuServiceManager by inject()
 
-    override suspend fun doWork(): Result =
-        try {
+    override suspend fun doWork(): Result {
+        return try {
             Logger.i { "AutoUpdateWorker: Starting auto-update" }
 
-            // Double-check preferences (they may have changed since scheduling)
             val autoUpdateEnabled = themesRepository.getAutoUpdateEnabled().first()
             val installerType = themesRepository.getInstallerType().first()
 
-            // Refresh Shizuku status directly — don't rely on app-process cached state,
-            // since this worker may run in a cold process where listeners weren't initialized.
             shizukuServiceManager.refreshStatus()
             val shizukuReady = shizukuServiceManager.status.value == ShizukuStatus.READY
 
             if (!autoUpdateEnabled || installerType != InstallerType.SHIZUKU || !shizukuReady) {
-                Logger.i { "AutoUpdateWorker: Conditions not met (autoUpdate=$autoUpdateEnabled, installer=$installerType, shizuku=$shizukuReady), skipping" }
+                Logger.i {
+                    "AutoUpdateWorker: Conditions not met (autoUpdate=$autoUpdateEnabled, installer=$installerType, shizuku=$shizukuReady), skipping"
+                }
                 return Result.success()
             }
 
@@ -91,7 +90,6 @@ class AutoUpdateWorker(
                 } catch (e: Exception) {
                     failedApps.add(app.appName)
                     Logger.e { "AutoUpdateWorker: Failed to update ${app.appName}: ${e.message}" }
-                    // Clear pending status on failure
                     try {
                         installedAppsRepository.updatePendingStatus(app.packageName, false)
                     } catch (clearEx: Exception) {
@@ -100,7 +98,6 @@ class AutoUpdateWorker(
                 }
             }
 
-            // Show summary notification
             showSummaryNotification(successfulApps, failedApps)
 
             Logger.i { "AutoUpdateWorker: Completed. Success: ${successfulApps.size}, Failed: ${failedApps.size}" }
@@ -113,24 +110,28 @@ class AutoUpdateWorker(
                 Result.failure()
             }
         }
+    }
 
     private suspend fun updateApp(app: InstalledApp) {
-        val assetUrl = app.latestAssetUrl
-            ?: throw IllegalStateException("No asset URL for ${app.appName}")
-        val assetName = app.latestAssetName
-            ?: throw IllegalStateException("No asset name for ${app.appName}")
-        val latestVersion = app.latestVersion
-            ?: throw IllegalStateException("No latest version for ${app.appName}")
+        val assetUrl =
+            app.latestAssetUrl
+                ?: throw IllegalStateException("No asset URL for ${app.appName}")
+        val assetName =
+            app.latestAssetName
+                ?: throw IllegalStateException("No asset name for ${app.appName}")
+        val latestVersion =
+            app.latestVersion
+                ?: throw IllegalStateException("No latest version for ${app.appName}")
 
         val ext = assetName.substringAfterLast('.', "").lowercase()
 
-        // Check if we already have a valid downloaded file
         val existingPath = downloader.getDownloadedFilePath(assetName)
         if (existingPath != null) {
             val file = java.io.File(existingPath)
             try {
                 val apkInfo = installer.getApkInfoExtractor().extractPackageInfo(existingPath)
-                val normalizedExisting = apkInfo?.versionName?.removePrefix("v")?.removePrefix("V") ?: ""
+                val normalizedExisting =
+                    apkInfo?.versionName?.removePrefix("v")?.removePrefix("V") ?: ""
                 val normalizedLatest = latestVersion.removePrefix("v").removePrefix("V")
                 if (normalizedExisting != normalizedLatest) {
                     file.delete()
@@ -142,17 +143,17 @@ class AutoUpdateWorker(
             }
         }
 
-        // Download the APK
         Logger.d { "AutoUpdateWorker: Downloading $assetName for ${app.appName}" }
         downloader.download(assetUrl, assetName).collect { /* consume flow to completion */ }
 
-        val filePath = downloader.getDownloadedFilePath(assetName)
-            ?: throw IllegalStateException("Downloaded file not found for ${app.appName}")
+        val filePath =
+            downloader.getDownloadedFilePath(assetName)
+                ?: throw IllegalStateException("Downloaded file not found for ${app.appName}")
 
-        val apkInfo = installer.getApkInfoExtractor().extractPackageInfo(filePath)
-            ?: throw IllegalStateException("Failed to extract APK info for ${app.appName}")
+        val apkInfo =
+            installer.getApkInfoExtractor().extractPackageInfo(filePath)
+                ?: throw IllegalStateException("Failed to extract APK info for ${app.appName}")
 
-        // Mark as pending install
         val currentApp = installedAppsRepository.getAppByPackage(app.packageName)
         if (currentApp != null) {
             installedAppsRepository.updateApp(
@@ -167,7 +168,6 @@ class AutoUpdateWorker(
             )
         }
 
-        // Silent install via Shizuku (ShizukuInstallerWrapper handles the actual Shizuku call)
         Logger.d { "AutoUpdateWorker: Installing ${app.appName} via Shizuku" }
         try {
             installer.install(filePath, ext)
@@ -216,7 +216,6 @@ class AutoUpdateWorker(
         successfulApps: List<String>,
         failedApps: List<String>,
     ) {
-        // Check notification permission for API 33+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val granted =
                 ContextCompat.checkSelfPermission(
@@ -228,17 +227,25 @@ class AutoUpdateWorker(
 
         if (successfulApps.isEmpty() && failedApps.isEmpty()) return
 
-        val title = when {
-            failedApps.isEmpty() -> "${successfulApps.size} app${if (successfulApps.size > 1) "s" else ""} updated"
-            successfulApps.isEmpty() -> "Failed to update ${failedApps.size} app${if (failedApps.size > 1) "s" else ""}"
-            else -> "${successfulApps.size} updated, ${failedApps.size} failed"
-        }
+        val title =
+            when {
+                failedApps.isEmpty() -> "${successfulApps.size} app${if (successfulApps.size > 1) "s" else ""} updated"
+                successfulApps.isEmpty() -> "Failed to update ${failedApps.size} app${if (failedApps.size > 1) "s" else ""}"
+                else -> "${successfulApps.size} updated, ${failedApps.size} failed"
+            }
 
-        val text = when {
-            failedApps.isEmpty() -> successfulApps.joinToString(", ")
-            successfulApps.isEmpty() -> failedApps.joinToString(", ")
-            else -> "Updated: ${successfulApps.joinToString(", ")}. Failed: ${failedApps.joinToString(", ")}"
-        }
+        val text =
+            when {
+                failedApps.isEmpty() -> successfulApps.joinToString(", ")
+
+                successfulApps.isEmpty() -> failedApps.joinToString(", ")
+
+                else -> "Updated: ${successfulApps.joinToString(", ")}. Failed: ${
+                    failedApps.joinToString(
+                        ", ",
+                    )
+                }"
+            }
 
         val launchIntent =
             applicationContext.packageManager
@@ -266,15 +273,16 @@ class AutoUpdateWorker(
                     } else {
                         android.R.drawable.stat_notify_error
                     },
-                )
-                .setContentTitle(title)
+                ).setContentTitle(title)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build()
 
-        NotificationManagerCompat.from(applicationContext).notify(SUMMARY_NOTIFICATION_ID, notification)
+        NotificationManagerCompat
+            .from(applicationContext)
+            .notify(SUMMARY_NOTIFICATION_ID, notification)
     }
 
     companion object {
