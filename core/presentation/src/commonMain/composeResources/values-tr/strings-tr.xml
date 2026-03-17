@@ -12,6 +12,7 @@
     <string name="cannot_launch">%1$s çalıştırılamadı</string>
     <string name="failed_to_open">%1$s açılamadı</string>
     <string name="failed_to_update">%1$s: %2$s güncellenemedi</string>
+    <string name="update_failed">Güncelleme başarısız</string>
     <string name="update_all_failed">Tümünü güncelleme başarısız: %1$s</string>
     <string name="all_apps_updated_successfully">Tüm uygulamalar başarılı şekilde güncellendi</string>
     <string name="no_updates_available">Güncelleme yok</string>

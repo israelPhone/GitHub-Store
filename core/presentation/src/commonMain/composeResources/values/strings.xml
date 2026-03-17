@@ -12,6 +12,7 @@
     <string name="cannot_launch">Cannot launch %1$s</string>
     <string name="failed_to_open">Failed to open %1$s</string>
     <string name="failed_to_update">Failed to update %1$s: %2$s</string>
+    <string name="update_failed">Update failed</string>
     <string name="update_all_failed">Update all failed: %1$s</string>
     <string name="all_apps_updated_successfully">All apps updated successfully</string>
     <string name="no_updates_available">No updates available</string>

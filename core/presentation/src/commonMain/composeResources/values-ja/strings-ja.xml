@@ -8,6 +8,7 @@
     <string name="cannot_launch">%1$s を起動できません</string>
     <string name="failed_to_open">%1$s を開けませんでした</string>
     <string name="failed_to_update">%1$s の更新に失敗しました：%2$s</string>
+    <string name="update_failed">更新に失敗しました</string>
     <string name="update_all_failed">すべての更新に失敗しました：%1$s</string>
     <string name="all_apps_updated_successfully">すべてのアプリが更新されました</string>
     <string name="no_updates_available">更新はありません</string>

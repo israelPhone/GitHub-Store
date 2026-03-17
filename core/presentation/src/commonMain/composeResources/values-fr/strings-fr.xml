@@ -8,6 +8,7 @@
     <string name="cannot_launch">Impossible de lancer %1$s</string>
     <string name="failed_to_open">Impossible d’ouvrir %1$s</string>
     <string name="failed_to_update">Échec de la mise à jour de %1$s : %2$s</string>
+    <string name="update_failed">Échec de la mise à jour</string>
     <string name="update_all_failed">Échec de la mise à jour globale : %1$s</string>
     <string name="all_apps_updated_successfully">Toutes les applications ont été mises à jour</string>
     <string name="no_updates_available">Aucune mise à jour disponible</string>

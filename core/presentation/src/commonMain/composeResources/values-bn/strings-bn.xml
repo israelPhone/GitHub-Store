@@ -12,6 +12,7 @@
     <string name="cannot_launch">%1$s চালু করা যায়নি</string>
     <string name="failed_to_open">%1$s খুলতে ব্যর্থ</string>
     <string name="failed_to_update">%1$s আপডেট করতে ব্যর্থ: %2$s</string>
+    <string name="update_failed">আপডেট ব্যর্থ</string>
     <string name="update_all_failed">সব আপডেট ব্যর্থ হয়েছে: %1$s</string>
     <string name="all_apps_updated_successfully">সব অ্যাপ সফলভাবে আপডেট হয়েছে</string>
     <string name="no_updates_available">কোনো আপডেট পাওয়া যায়নি</string>

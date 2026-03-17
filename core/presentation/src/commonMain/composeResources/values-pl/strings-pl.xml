@@ -9,6 +9,7 @@
     <string name="cannot_launch">Nie można uruchomić %1$s</string>
     <string name="failed_to_open">Nie udało się otworzyć %1$s</string>
     <string name="failed_to_update">Nie udało się zaktualizować %1$s: %2$s</string>
+    <string name="update_failed">Aktualizacja nie powiodła się</string>
     <string name="update_all_failed">Aktualizacja wszystkich nie powiodła się: %1$s</string>
     <string name="all_apps_updated_successfully">Wszystkie aplikacje zostały pomyślnie zaktualizowane</string>
     <string name="no_updates_available">Brak dostępnych aktualizacji</string>

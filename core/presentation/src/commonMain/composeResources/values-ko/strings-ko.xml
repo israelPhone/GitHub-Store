@@ -12,6 +12,7 @@
     <string name="cannot_launch">%1$s을(를) 실행할 수 없습니다</string>
     <string name="failed_to_open">%1$s을(를) 열지 못했습니다</string>
     <string name="failed_to_update">%1$s 업데이트 실패: %2$s</string>
+    <string name="update_failed">업데이트 실패</string>
     <string name="update_all_failed">모두 업데이트 실패: %1$s</string>
     <string name="all_apps_updated_successfully">모든 앱이 성공적으로 업데이트되었습니다</string>
     <string name="no_updates_available">사용 가능한 업데이트가 없습니다</string>
