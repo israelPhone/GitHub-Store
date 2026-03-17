@@ -21,7 +21,8 @@ import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ShareManager
-import zed.rainxch.core.presentation.model.DiscoveryRepository
+import zed.rainxch.core.presentation.model.DiscoveryRepositoryUi
+import zed.rainxch.core.presentation.utils.toUi
 import zed.rainxch.githubstore.core.presentation.res.*
 import zed.rainxch.home.domain.model.HomeCategory
 import zed.rainxch.home.domain.repository.HomeRepository
@@ -185,12 +186,12 @@ class HomeViewModel(
                                 val favourite = favoritesMap[repo.id]
                                 val starred = starredReposMap[repo.id]
 
-                                DiscoveryRepository(
+                                DiscoveryRepositoryUi(
                                     isInstalled = app != null,
                                     isFavourite = favourite != null,
                                     isStarred = starred != null,
                                     isUpdateAvailable = app?.isUpdateAvailable ?: false,
-                                    repository = repo,
+                                    repository = repo.toUi(),
                                 )
                             }
 
