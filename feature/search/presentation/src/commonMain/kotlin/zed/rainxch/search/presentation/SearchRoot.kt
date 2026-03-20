@@ -294,7 +294,13 @@ fun SearchScreen(
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.liquefiable(liquidState),
+        modifier = Modifier.then(
+            if (state.isLiquidGlassEnabled) {
+                Modifier.liquefiable(liquidState)
+            } else {
+                Modifier
+            },
+        ),
     ) { innerPadding ->
         Column(
             modifier =
@@ -519,7 +525,13 @@ fun SearchScreen(
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .liquefiable(liquidState),
+                                .then(
+                                    if (state.isLiquidGlassEnabled) {
+                                        Modifier.liquefiable(liquidState)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                     ) {
                         items(
                             items = state.repositories,
@@ -539,7 +551,13 @@ fun SearchScreen(
                                 modifier =
                                     Modifier
                                         .animateItem()
-                                        .liquefiable(liquidState),
+                                        .then(
+                                            if (state.isLiquidGlassEnabled) {
+                                                Modifier.liquefiable(liquidState)
+                                            } else {
+                                                Modifier
+                                            },
+                                        ),
                             )
                         }
 

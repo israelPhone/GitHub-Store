@@ -23,6 +23,7 @@ import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.utils.ShareManager
 import zed.rainxch.core.presentation.model.DiscoveryRepositoryUi
 import zed.rainxch.core.presentation.utils.toUi
@@ -40,6 +41,7 @@ class HomeViewModel(
     private val starredRepository: StarredRepository,
     private val logger: GitHubStoreLogger,
     private val shareManager: ShareManager,
+    private val tweaksRepository: TweaksRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentJob: Job? = null
@@ -58,6 +60,7 @@ class HomeViewModel(
                     observeInstalledApps()
                     observeFavourites()
                     observeStarredRepos()
+                    observeLiquidGlassEnabled()
 
                     hasLoadedInitialData = true
                 }
@@ -348,6 +351,16 @@ class HomeViewModel(
 
             HomeAction.OnAppsClick -> {
                 // Handled in composable
+            }
+        }
+    }
+
+    private fun observeLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isLiquidGlassEnabled = enabled)
+                }
             }
         }
     }

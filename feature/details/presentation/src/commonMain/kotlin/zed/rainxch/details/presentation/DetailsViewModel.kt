@@ -34,6 +34,7 @@ import zed.rainxch.core.domain.network.Downloader
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.StarredRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
 import zed.rainxch.core.domain.system.PackageMonitor
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
@@ -88,6 +89,7 @@ class DetailsViewModel(
     private val translationRepository: TranslationRepository,
     private val logger: GitHubStoreLogger,
     private val isComingFromUpdate: Boolean,
+    private val tweaksRepository: TweaksRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentDownloadJob: Job? = null
@@ -103,6 +105,7 @@ class DetailsViewModel(
             .onStart {
                 if (!hasLoadedInitialData) {
                     loadInitial()
+                    observeLiquidGlassEnabled()
 
                     hasLoadedInitialData = true
                 }
@@ -116,6 +119,16 @@ class DetailsViewModel(
     val events = _events.receiveAsFlow()
 
     private val rateLimited = AtomicBoolean(false)
+
+    private fun observeLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isLiquidGlassEnabled = enabled)
+                }
+            }
+        }
+    }
 
     private fun recomputeAssetsForRelease(release: GithubRelease?): Pair<List<GithubAsset>, GithubAsset?> {
         val installable =

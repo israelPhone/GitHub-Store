@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -58,6 +59,7 @@ fun LiquidGlassCategoryChips(
     categories: List<HomeCategory>,
     selectedCategory: HomeCategory,
     onCategorySelected: (HomeCategory) -> Unit,
+    isLiquidGlassEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val liquidState = LocalHomeTopBarLiquid.current
@@ -118,31 +120,39 @@ fun LiquidGlassCategoryChips(
     val borderColor = if (isDarkTheme) Color.White.copy(alpha = .10f) else Color.Transparent
 
     val containerShape = RoundedCornerShape(20.dp)
+    val useLiquid = isLiquidGlassEnabled && isLiquidFrostAvailable()
 
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
                 .clip(containerShape)
-                .background(
-                    if (isDarkTheme) {
-                        MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .30f)
+                .then(
+                    if (useLiquid) {
+                        Modifier
+                            .background(
+                                if (isDarkTheme) {
+                                    MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = .30f)
+                                } else {
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = .45f)
+                                },
+                            ).liquid(liquidState) {
+                                this.shape = containerShape
+                                this.frost = if (isDarkTheme) 14.dp else 12.dp
+                                this.curve = if (isDarkTheme) .30f else .40f
+                                this.refraction = if (isDarkTheme) .06f else .10f
+                                this.dispersion = if (isDarkTheme) .15f else .22f
+                                this.saturation = if (isDarkTheme) .35f else .50f
+                                this.contrast = if (isDarkTheme) 1.7f else 1.5f
+                            }
                     } else {
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = .45f)
-                    },
-                ).then(
-                    if (isLiquidFrostAvailable()) {
-                        Modifier.liquid(liquidState) {
-                            this.shape = containerShape
-                            this.frost = if (isDarkTheme) 14.dp else 12.dp
-                            this.curve = if (isDarkTheme) .30f else .40f
-                            this.refraction = if (isDarkTheme) .06f else .10f
-                            this.dispersion = if (isDarkTheme) .15f else .22f
-                            this.saturation = if (isDarkTheme) .35f else .50f
-                            this.contrast = if (isDarkTheme) 1.7f else 1.5f
-                        }
-                    } else {
-                        Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                        Modifier
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = containerShape,
+                            )
                     },
                 ),
     ) {

@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.map
 import zed.rainxch.core.domain.model.AppTheme
 import zed.rainxch.core.domain.model.FontTheme
 import zed.rainxch.core.domain.model.InstallerType
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 
-class ThemesRepositoryImpl(
+class TweaksRepositoryImpl(
     private val preferences: DataStore<Preferences>,
-) : ThemesRepository {
+) : TweaksRepository {
     private val THEME_KEY = stringPreferencesKey("app_theme")
     private val AMOLED_KEY = booleanPreferencesKey("amoled_theme")
     private val IS_DARK_THEME_KEY = booleanPreferencesKey("is_dark_theme")
@@ -25,6 +25,7 @@ class ThemesRepositoryImpl(
     private val AUTO_UPDATE_KEY = booleanPreferencesKey("auto_update_enabled")
     private val UPDATE_CHECK_INTERVAL_KEY = longPreferencesKey("update_check_interval_hours")
     private val INCLUDE_PRE_RELEASES_KEY = booleanPreferencesKey("include_pre_releases")
+    private val LIQUID_GLASS_ENABLED_KEY = booleanPreferencesKey("liquid_glass_enabled")
 
     override fun getThemeColor(): Flow<AppTheme> =
         preferences.data.map { prefs ->
@@ -87,12 +88,11 @@ class ThemesRepositoryImpl(
         }
     }
 
-    override fun getInstallerType(): Flow<InstallerType> {
-        return preferences.data.map { prefs ->
+    override fun getInstallerType(): Flow<InstallerType> =
+        preferences.data.map { prefs ->
             val name = prefs[INSTALLER_TYPE_KEY]
             InstallerType.fromName(name)
         }
-    }
 
     override suspend fun setInstallerType(type: InstallerType) {
         preferences.edit { prefs ->
@@ -130,6 +130,17 @@ class ThemesRepositoryImpl(
     override suspend fun setIncludePreReleases(enabled: Boolean) {
         preferences.edit { prefs ->
             prefs[INCLUDE_PRE_RELEASES_KEY] = enabled
+        }
+    }
+
+    override fun getLiquidGlassEnabled(): Flow<Boolean> =
+        preferences.data.map { prefs ->
+            prefs[LIQUID_GLASS_ENABLED_KEY] ?: true
+        }
+
+    override suspend fun setLiquidGlassEnabled(enabled: Boolean) {
+        preferences.edit { prefs ->
+            prefs[LIQUID_GLASS_ENABLED_KEY] = enabled
         }
     }
 

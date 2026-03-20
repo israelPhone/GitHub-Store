@@ -140,9 +140,11 @@ fun AppsRoot(
                 }
             }
 
-            is AppsEvent.AppLinkedSuccessfully -> { /* handled by ShowSuccess */ }
+            is AppsEvent.AppLinkedSuccessfully -> { // handled by ShowSuccess
+            }
 
-            is AppsEvent.ImportComplete -> { /* handled by ShowSuccess */ }
+            is AppsEvent.ImportComplete -> { // handled by ShowSuccess
+            }
         }
     }
 
@@ -247,7 +249,15 @@ fun AppsScreen(
                 modifier = Modifier.padding(bottomNavHeight + 16.dp),
             )
         },
-        modifier = Modifier.liquefiable(liquidState),
+        modifier =
+            Modifier
+                .then(
+                    if (state.isLiquidGlassEnabled) {
+                        Modifier.liquefiable(liquidState)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) { innerPadding ->
 
         // Link app bottom sheet
@@ -427,7 +437,15 @@ fun AppsScreen(
                                     onCancelClick = { onAction(AppsAction.OnCancelUpdate(appItem.installedApp.packageName)) },
                                     onUninstallClick = { onAction(AppsAction.OnUninstallApp(appItem.installedApp)) },
                                     onRepoClick = { onAction(AppsAction.OnNavigateToRepo(appItem.installedApp.repoId)) },
-                                    modifier = Modifier.liquefiable(liquidState),
+                                    modifier =
+                                        Modifier
+                                            .then(
+                                                if (state.isLiquidGlassEnabled) {
+                                                    Modifier.liquefiable(liquidState)
+                                                } else {
+                                                    Modifier
+                                                },
+                                            ),
                                 )
                             }
 

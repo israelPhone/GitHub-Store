@@ -23,7 +23,7 @@ import zed.rainxch.core.domain.model.GithubRelease
 import zed.rainxch.core.domain.model.InstallSource
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
 
 class InstalledAppsRepositoryImpl(
@@ -32,7 +32,7 @@ class InstalledAppsRepositoryImpl(
     private val historyDao: UpdateHistoryDao,
     private val installer: Installer,
     private val httpClient: HttpClient,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
 ) : InstalledAppsRepository {
     override suspend fun <R> executeInTransaction(block: suspend () -> R): R =
         database.useWriterConnection { transactor ->
@@ -78,7 +78,7 @@ class InstalledAppsRepositoryImpl(
         repo: String,
     ): GithubRelease? {
         return try {
-            val includePreReleases = themesRepository.getIncludePreReleases().first()
+            val includePreReleases = tweaksRepository.getIncludePreReleases().first()
 
             val releases =
                 httpClient

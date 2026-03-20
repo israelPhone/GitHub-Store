@@ -42,6 +42,7 @@ import zed.rainxch.githubstore.core.presentation.res.*
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.author(
+    isLiquidGlassEnabled: Boolean,
     author: GithubUserProfile?,
     onAction: (DetailsAction) -> Unit,
 ) {
@@ -59,7 +60,13 @@ fun LazyListScope.author(
             modifier =
                 Modifier
                     .padding(bottom = 12.dp)
-                    .liquefiable(liquidState),
+                    .then(
+                        if (isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
             fontWeight = FontWeight.Bold,
         )
 
@@ -90,7 +97,13 @@ fun LazyListScope.author(
                         Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .liquefiable(liquidState),
+                            .then(
+                                if (isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
                     loading = {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -110,7 +123,14 @@ fun LazyListScope.author(
                             text = it,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.liquefiable(liquidState),
+                            modifier =
+                                Modifier.then(
+                                    if (isLiquidGlassEnabled) {
+                                        Modifier.liquefiable(liquidState)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         )
                     }
 
@@ -122,7 +142,14 @@ fun LazyListScope.author(
                             maxLines = 2,
                             softWrap = false,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.liquefiable(liquidState),
+                            modifier =
+                                Modifier.then(
+                                    if (isLiquidGlassEnabled) {
+                                        Modifier.liquefiable(liquidState)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         )
                     }
 

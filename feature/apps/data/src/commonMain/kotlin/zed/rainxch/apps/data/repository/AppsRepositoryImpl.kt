@@ -24,7 +24,7 @@ import zed.rainxch.core.domain.model.InstallSource
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.PackageMonitor
 import zed.rainxch.core.domain.utils.AppLauncher
 import kotlin.time.Clock
@@ -35,7 +35,7 @@ class AppsRepositoryImpl(
     private val logger: GitHubStoreLogger,
     private val httpClient: HttpClient,
     private val packageMonitor: PackageMonitor,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
 ) : AppsRepository {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -64,7 +64,7 @@ class AppsRepositoryImpl(
         repo: String,
     ): GithubRelease? =
         try {
-            val includePreReleases = themesRepository.getIncludePreReleases().first()
+            val includePreReleases = tweaksRepository.getIncludePreReleases().first()
 
             val releases =
                 httpClient
@@ -110,7 +110,7 @@ class AppsRepositoryImpl(
                         }
                     }.getOrThrow()
 
-            val includePreReleases = themesRepository.getIncludePreReleases().first()
+            val includePreReleases = tweaksRepository.getIncludePreReleases().first()
             val latestTag =
                 try {
                     val releases =

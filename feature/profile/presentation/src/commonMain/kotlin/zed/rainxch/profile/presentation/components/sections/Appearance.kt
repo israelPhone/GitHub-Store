@@ -32,8 +32,6 @@ import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
@@ -123,6 +121,17 @@ fun LazyListScope.appearanceSection(
                         },
                     ),
                 )
+            },
+        )
+
+        VerticalSpacer(8.dp)
+
+        ToggleSettingCard(
+            title = stringResource(Res.string.liquid_glass_option_title),
+            description = stringResource(Res.string.liquid_glass_option_description),
+            checked = state.isLiquidGlassEnabled,
+            onCheckedChange = { enabled ->
+                onAction(ProfileAction.OnLiquidGlassEnabledChange(enabled))
             },
         )
 

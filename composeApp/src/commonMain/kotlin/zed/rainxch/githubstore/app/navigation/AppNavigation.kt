@@ -40,7 +40,10 @@ import zed.rainxch.search.presentation.SearchRoot
 import zed.rainxch.starred.presentation.StarredReposRoot
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(
+    navController: NavHostController,
+    isLiquidGlassEnabled: Boolean = true,
+) {
     val liquidState = rememberLiquidState()
     var bottomNavigationHeight by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
@@ -294,6 +297,7 @@ fun AppNavigation(navController: NavHostController) {
                         }
                     },
                     isUpdateAvailable = appsState.apps.any { it.installedApp.isUpdateAvailable },
+                    isLiquidGlassEnabled = isLiquidGlassEnabled,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)

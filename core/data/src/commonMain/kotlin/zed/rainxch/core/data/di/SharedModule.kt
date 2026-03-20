@@ -27,7 +27,7 @@ import zed.rainxch.core.data.repository.InstalledAppsRepositoryImpl
 import zed.rainxch.core.data.repository.ProxyRepositoryImpl
 import zed.rainxch.core.data.repository.RateLimitRepositoryImpl
 import zed.rainxch.core.data.repository.StarredRepositoryImpl
-import zed.rainxch.core.data.repository.ThemesRepositoryImpl
+import zed.rainxch.core.data.repository.TweaksRepositoryImpl
 import zed.rainxch.core.domain.getPlatform
 import zed.rainxch.core.domain.logging.GitHubStoreLogger
 import zed.rainxch.core.domain.model.Platform
@@ -38,7 +38,7 @@ import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.RateLimitRepository
 import zed.rainxch.core.domain.repository.StarredRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 
 val coreModule =
@@ -75,7 +75,7 @@ val coreModule =
                 historyDao = get(),
                 installer = get(),
                 httpClient = get(),
-                themesRepository = get(),
+                tweaksRepository = get(),
             )
         }
 
@@ -88,8 +88,8 @@ val coreModule =
             )
         }
 
-        single<ThemesRepository> {
-            ThemesRepositoryImpl(
+        single<TweaksRepository> {
+            TweaksRepositoryImpl(
                 preferences = get(),
             )
         }

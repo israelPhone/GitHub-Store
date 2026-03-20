@@ -31,7 +31,13 @@ fun LazyListScope.logs(state: DetailsState) {
             modifier =
                 Modifier
                     .padding(vertical = 8.dp)
-                    .liquefiable(liquidState),
+                    .then(
+                        if (state.isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
             fontWeight = FontWeight.Bold,
         )
     }
@@ -51,7 +57,14 @@ fun LazyListScope.logs(state: DetailsState) {
                 } else {
                     MaterialTheme.colorScheme.outline
                 },
-            modifier = Modifier.liquefiable(liquidState),
+            modifier =
+                Modifier.then(
+                    if (state.isLiquidGlassEnabled) {
+                        Modifier.liquefiable(liquidState)
+                    } else {
+                        Modifier
+                    },
+                ),
         )
     }
 }

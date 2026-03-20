@@ -206,8 +206,15 @@ fun HomeScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(horizontal = 8.dp)
-                        .liquefiable(liquidState)
-                        .liquefiable(homeTopbarLiquidState),
+                        .then(
+                            if (state.isLiquidGlassEnabled) {
+                                Modifier
+                                    .liquefiable(liquidState)
+                                    .liquefiable(homeTopbarLiquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
             ) {
                 FilterChips(state, onAction)
 
@@ -265,8 +272,15 @@ private fun MainState(
                     modifier =
                         Modifier
                             .animateItem()
-                            .liquefiable(bottomNavLiquidState)
-                            .liquefiable(homeTopBarLiquidState),
+                            .then(
+                                if (state.isLiquidGlassEnabled) {
+                                    Modifier
+                                        .liquefiable(bottomNavLiquidState)
+                                        .liquefiable(homeTopBarLiquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
                 )
             }
 
@@ -384,6 +398,7 @@ private fun FilterChips(
         onCategorySelected = { category ->
             onAction(HomeAction.SwitchCategory(category))
         },
+        isLiquidGlassEnabled = state.isLiquidGlassEnabled,
     )
 }
 

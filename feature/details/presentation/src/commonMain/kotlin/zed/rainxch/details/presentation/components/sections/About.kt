@@ -53,6 +53,7 @@ fun LazyListScope.about(
     readmeMarkdown: String,
     readmeLanguage: String?,
     isExpanded: Boolean,
+    isLiquidGlassEnabled: Boolean,
     onToggleExpanded: () -> Unit,
     collapsedHeight: Dp,
     translationState: TranslationState,
@@ -84,7 +85,13 @@ fun LazyListScope.about(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.liquefiable(liquidState),
+                    modifier = Modifier.then(
+                        if (isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
                 )
 
                 readmeLanguage?.let {
@@ -92,7 +99,13 @@ fun LazyListScope.about(
                         text = it,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.liquefiable(liquidState),
+                        modifier = Modifier.then(
+                            if (isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
                     )
                 }
             }
@@ -131,7 +144,13 @@ fun LazyListScope.about(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .liquefiable(liquidState)
+                        .then(
+                            if (isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        )
                         .animateContentSize(),
             )
         }

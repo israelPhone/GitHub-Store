@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -65,6 +66,7 @@ fun BottomNavigation(
     currentScreen: GithubStoreGraph,
     onNavigate: (GithubStoreGraph) -> Unit,
     isUpdateAvailable: Boolean,
+    isLiquidGlassEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val liquidState = LocalBottomNavigationLiquid.current
@@ -129,31 +131,36 @@ fun BottomNavigation(
         modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
+        val useLiquid = isLiquidGlassEnabled && isLiquidFrostAvailable()
+
         Box(
             modifier =
                 Modifier
                     .clip(CircleShape)
-                    .background(
-                        if (isLiquidFrostAvailable()) {
-                            MaterialTheme.colorScheme.surfaceContainerHighest.copy(
-                                alpha = if (isDarkTheme) .25f else .15f,
-                            )
-                        } else {
-                            MaterialTheme.colorScheme.surfaceContainerHighest
-                        },
-                    ).then(
-                        if (isLiquidFrostAvailable()) {
-                            Modifier.liquid(liquidState) {
-                                this.shape = CircleShape
-                                this.frost = if (isDarkTheme) 12.dp else 10.dp
-                                this.curve = if (isDarkTheme) .35f else .45f
-                                this.refraction = if (isDarkTheme) .08f else .12f
-                                this.dispersion = if (isDarkTheme) .18f else .25f
-                                this.saturation = if (isDarkTheme) .40f else .55f
-                                this.contrast = if (isDarkTheme) 1.8f else 1.6f
-                            }
+                    .then(
+                        if (useLiquid) {
+                            Modifier
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                                        alpha = if (isDarkTheme) .25f else .15f,
+                                    ),
+                                ).liquid(liquidState) {
+                                    this.shape = CircleShape
+                                    this.frost = if (isDarkTheme) 12.dp else 10.dp
+                                    this.curve = if (isDarkTheme) .35f else .45f
+                                    this.refraction = if (isDarkTheme) .08f else .12f
+                                    this.dispersion = if (isDarkTheme) .18f else .25f
+                                    this.saturation = if (isDarkTheme) .40f else .55f
+                                    this.contrast = if (isDarkTheme) 1.8f else 1.6f
+                                }
                         } else {
                             Modifier
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    shape = CircleShape,
+                                )
                         },
                     ).pointerInput(Unit) { },
         ) {

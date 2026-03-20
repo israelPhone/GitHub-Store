@@ -23,7 +23,7 @@ import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.StarredRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ClipboardHelper
 import zed.rainxch.core.domain.utils.ShareManager
@@ -50,7 +50,7 @@ class SearchViewModel(
     private val shareManager: ShareManager,
     private val platform: Platform,
     private val clipboardHelper: ClipboardHelper,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentSearchJob: Job? = null
@@ -72,6 +72,7 @@ class SearchViewModel(
                     observeInstalledApps()
                     observeFavouriteApps()
                     observeStarredRepos()
+                    observeLiquidGlassEnabled()
                     observeClipboardSetting()
                     checkClipboardForLinks()
 
@@ -82,6 +83,18 @@ class SearchViewModel(
                 started = SharingStarted.WhileSubscribed(5_000L),
                 initialValue = SearchState(),
             )
+
+    private fun observeLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(
+                        isLiquidGlassEnabled = enabled,
+                    )
+                }
+            }
+        }
+    }
 
     private val _events = Channel<SearchEvent>()
     val events = _events.receiveAsFlow()
@@ -101,7 +114,7 @@ class SearchViewModel(
 
     private fun observeClipboardSetting() {
         viewModelScope.launch {
-            themesRepository.getAutoDetectClipboardLinks().collect { enabled ->
+            tweaksRepository.getAutoDetectClipboardLinks().collect { enabled ->
                 _state.update { current ->
                     current.copy(
                         autoDetectClipboardEnabled = enabled,
@@ -116,7 +129,7 @@ class SearchViewModel(
 
     private fun checkClipboardForLinks() {
         viewModelScope.launch {
-            val enabled = themesRepository.getAutoDetectClipboardLinks().first()
+            val enabled = tweaksRepository.getAutoDetectClipboardLinks().first()
             if (!enabled) return@launch
 
             try {

@@ -66,12 +66,29 @@ sealed interface ProfileAction {
 
     data object OnProxyPasswordVisibilityToggle : ProfileAction
 
+    data class OnLiquidGlassEnabledChange(
+        val enabled: Boolean,
+    ) : ProfileAction
+
     data object OnProxySave : ProfileAction
-    data class OnInstallerTypeSelected(val type: InstallerType) : ProfileAction
+
+    data class OnInstallerTypeSelected(
+        val type: InstallerType,
+    ) : ProfileAction
+
     data object OnRequestShizukuPermission : ProfileAction
-    data class OnAutoUpdateToggled(val enabled: Boolean) : ProfileAction
-    data class OnUpdateCheckIntervalChanged(val hours: Long) : ProfileAction
-    data class OnIncludePreReleasesToggled(val enabled: Boolean) : ProfileAction
+
+    data class OnAutoUpdateToggled(
+        val enabled: Boolean,
+    ) : ProfileAction
+
+    data class OnUpdateCheckIntervalChanged(
+        val hours: Long,
+    ) : ProfileAction
+
+    data class OnIncludePreReleasesToggled(
+        val enabled: Boolean,
+    ) : ProfileAction
 
     data class OnAutoDetectClipboardToggled(
         val enabled: Boolean,

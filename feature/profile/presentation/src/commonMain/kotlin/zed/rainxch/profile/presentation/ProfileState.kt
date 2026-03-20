@@ -29,4 +29,5 @@ data class ProfileState(
     val autoUpdateEnabled: Boolean = false,
     val updateCheckIntervalHours: Long = 6L,
     val includePreReleases: Boolean = false,
+    val isLiquidGlassEnabled: Boolean = true,
 )

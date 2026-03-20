@@ -17,7 +17,7 @@ import zed.rainxch.core.data.services.UpdateScheduler
 import zed.rainxch.core.domain.model.InstallSource
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.PackageMonitor
 import zed.rainxch.githubstore.app.di.initKoin
 
@@ -83,7 +83,7 @@ class GithubStoreApp : Application() {
     private fun scheduleBackgroundUpdateChecks() {
         appScope.launch {
             try {
-                val intervalHours = get<ThemesRepository>().getUpdateCheckInterval().first()
+                val intervalHours = get<TweaksRepository>().getUpdateCheckInterval().first()
                 UpdateScheduler.schedule(
                     context = this@GithubStoreApp,
                     intervalHours = intervalHours,

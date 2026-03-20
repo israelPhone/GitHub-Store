@@ -55,7 +55,14 @@ fun LazyListScope.header(
                 installedApp = state.installedApp,
                 downloadStage = state.downloadStage,
                 downloadProgress = state.downloadProgressPercent,
-                modifier = Modifier.liquefiable(liquidState),
+                modifier =
+                    Modifier.then(
+                        if (state.isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
             )
         }
     }
@@ -106,6 +113,7 @@ fun LazyListScope.header(
             SmartInstallButton(
                 isDownloading = state.isDownloading,
                 isInstalling = state.isInstalling,
+                isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                 progress = state.downloadProgressPercent,
                 primaryAsset = state.primaryAsset,
                 state = state,
@@ -144,7 +152,14 @@ fun LazyListScope.header(
                             modifier = Modifier.size(24.dp),
                         )
                     },
-                    modifier = Modifier.liquefiable(liquidState),
+                    modifier =
+                        Modifier.then(
+                            if (state.isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -174,7 +189,14 @@ fun LazyListScope.header(
                             modifier = Modifier.size(24.dp),
                         )
                     },
-                    modifier = Modifier.liquefiable(liquidState),
+                    modifier =
+                        Modifier.then(
+                            if (state.isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -204,7 +226,14 @@ fun LazyListScope.header(
                             modifier = Modifier.size(24.dp),
                         )
                     },
-                    modifier = Modifier.liquefiable(liquidState),
+                    modifier =
+                        Modifier.then(
+                            if (state.isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
                 )
             }
         }

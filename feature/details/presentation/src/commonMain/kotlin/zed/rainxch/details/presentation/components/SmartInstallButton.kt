@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -58,7 +58,6 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.architecture_compatible
 import zed.rainxch.githubstore.core.presentation.res.cancel_download
 import zed.rainxch.githubstore.core.presentation.res.checking_attestation
-import zed.rainxch.githubstore.core.presentation.res.verified_build
 import zed.rainxch.githubstore.core.presentation.res.downloading
 import zed.rainxch.githubstore.core.presentation.res.install_latest
 import zed.rainxch.githubstore.core.presentation.res.install_version
@@ -69,6 +68,7 @@ import zed.rainxch.githubstore.core.presentation.res.show_install_options
 import zed.rainxch.githubstore.core.presentation.res.uninstall
 import zed.rainxch.githubstore.core.presentation.res.update_to_version
 import zed.rainxch.githubstore.core.presentation.res.updating
+import zed.rainxch.githubstore.core.presentation.res.verified_build
 import zed.rainxch.githubstore.core.presentation.res.verifying
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -76,6 +76,7 @@ import zed.rainxch.githubstore.core.presentation.res.verifying
 fun SmartInstallButton(
     isDownloading: Boolean,
     isInstalling: Boolean,
+    isLiquidGlassEnabled: Boolean,
     progress: Int?,
     primaryAsset: GithubAsset?,
     onAction: (DetailsAction) -> Unit,
@@ -111,95 +112,107 @@ fun SmartInstallButton(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-            // Uninstall button
-            ElevatedCard(
-                onClick = { onAction(DetailsAction.OnRequestUninstall) },
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .height(52.dp)
-                        .liquefiable(liquidState),
-                colors =
-                    CardDefaults.elevatedCardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                    ),
-                shape =
-                    RoundedCornerShape(
-                        topStart = 24.dp,
-                        bottomStart = 24.dp,
-                        topEnd = 6.dp,
-                        bottomEnd = 6.dp,
-                    ),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                // Uninstall button
+                ElevatedCard(
+                    onClick = { onAction(DetailsAction.OnRequestUninstall) },
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                            .then(
+                                if (isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                    colors =
+                        CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                        ),
+                    shape =
+                        RoundedCornerShape(
+                            topStart = 24.dp,
+                            bottomStart = 24.dp,
+                            topEnd = 6.dp,
+                            bottomEnd = 6.dp,
+                        ),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onErrorContainer,
-                        )
-                        Text(
-                            text = stringResource(Res.string.uninstall),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                            Text(
+                                text = stringResource(Res.string.uninstall),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
                     }
                 }
-            }
 
-            // Open button
-            ElevatedCard(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .height(52.dp)
-                        .liquefiable(liquidState),
-                colors =
-                    CardDefaults.elevatedCardColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                    ),
-                shape =
-                    RoundedCornerShape(
-                        topStart = 6.dp,
-                        bottomStart = 6.dp,
-                        topEnd = 24.dp,
-                        bottomEnd = 24.dp,
-                    ),
-                onClick = {
-                    onAction(DetailsAction.OpenApp)
-                },
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                // Open button
+                ElevatedCard(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                            .then(
+                                if (isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                    colors =
+                        CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    shape =
+                        RoundedCornerShape(
+                            topStart = 6.dp,
+                            bottomStart = 6.dp,
+                            topEnd = 24.dp,
+                            bottomEnd = 24.dp,
+                        ),
+                    onClick = {
+                        onAction(DetailsAction.OpenApp)
+                    },
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                        )
-                        Text(
-                            text = stringResource(Res.string.open_app),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
+                            Text(
+                                text = stringResource(Res.string.open_app),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
                     }
                 }
-            }
             }
 
             AttestationBadge(attestationStatus = state.attestationStatus)
@@ -265,7 +278,13 @@ fun SmartInstallButton(
                                 }
                             }
                         },
-                    ).liquefiable(liquidState),
+                    ).then(
+                        if (isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
             colors =
                 CardDefaults.elevatedCardColors(
                     containerColor = buttonColor,
@@ -573,6 +592,7 @@ private fun AttestationBadge(attestationStatus: AttestationStatus) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
                 AttestationStatus.VERIFIED -> {
                     Icon(
                         imageVector = Icons.Filled.VerifiedUser,
@@ -588,6 +608,7 @@ private fun AttestationBadge(attestationStatus: AttestationStatus) {
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
+
                 else -> {}
             }
         }
@@ -629,6 +650,7 @@ fun SmartInstallButtonDownloadingPreview() {
                         ),
                 ),
             onAction = {},
+            isLiquidGlassEnabled = true,
             state =
                 DetailsState(
                     isDownloading = true,

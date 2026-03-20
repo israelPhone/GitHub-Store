@@ -24,6 +24,7 @@ data class AppsState(
     val isCheckingForUpdates: Boolean = false,
     val lastCheckedTimestamp: Long? = null,
     val isRefreshing: Boolean = false,
+    val isLiquidGlassEnabled: Boolean = true,
     // Link app to repo
     val showLinkSheet: Boolean = false,
     val linkStep: LinkStep = LinkStep.PickApp,
