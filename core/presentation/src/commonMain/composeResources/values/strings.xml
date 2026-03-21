@@ -444,6 +444,8 @@
     <string name="auth_hint_try_again">Please try signing in again to get a new code.</string>
     <string name="auth_hint_check_connection">Please check your internet connection and try again.</string>
     <string name="auth_hint_denied">You denied the authorization request. Try again if this was unintentional.</string>
+    <string name="auth_check_status">I already authorized</string>
+    <string name="auth_polling_status">Checking…</string>
 
     <!-- Read More / Show Less -->
     <string name="read_more">Read More</string>
@@ -583,4 +585,14 @@
     <string name="imported_failed">, %1$d failed</string>
     <string name="update_package_mismatch">Package mismatch: the APK is %1$s, but the installed app is %2$s. Update blocked.</string>
     <string name="update_signing_key_mismatch">Signing key mismatch: the update was signed by a different developer. Update blocked.</string>
+
+    <string name="liquid_glass_option_title">Liquid Glass Effect</string>
+    <string name="liquid_glass_option_description">Enhance the interface with a smooth glass-like appearance</string>
+
+    <string name="hide_seen_title">Hide Seen Repositories</string>
+    <string name="hide_seen_description">Hide repositories you have already viewed from discovery feeds</string>
+    <string name="clear_seen_history">Clear Seen History</string>
+    <string name="clear_seen_history_description">Reset all seen repositories so they appear again in feeds</string>
+    <string name="seen_history_cleared">Seen history cleared</string>
+    <string name="seen_badge">Viewed</string>
 </resources>

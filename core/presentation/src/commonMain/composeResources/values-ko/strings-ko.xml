@@ -430,6 +430,9 @@
     <string name="auth_hint_try_again">새 코드를 받으려면 다시 로그인해 주세요.</string>
     <string name="auth_hint_check_connection">인터넷 연결을 확인하고 다시 시도하세요.</string>
     <string name="auth_hint_denied">인증 요청을 거부했습니다. 의도하지 않은 경우 다시 시도하세요.</string>
+    <string name="auth_check_status">이미 인증했습니다</string>
+    <string name="auth_polling_status">확인 중…</string>
+
     <!-- Read More / Show Less -->
     <string name="read_more">더 보기</string>
     <string name="show_less">간략히</string>
@@ -579,4 +582,13 @@
     <string name="select_language">언어 선택</string>
     <string name="update_package_mismatch">패키지 불일치: APK는 %1$s이지만 설치된 앱은 %2$s입니다. 업데이트가 차단되었습니다.</string>
     <string name="update_signing_key_mismatch">서명 키 불일치: 업데이트가 다른 개발자에 의해 서명되었습니다. 업데이트가 차단되었습니다.</string>
+    <string name="liquid_glass_option_title">리퀴드 글라스 효과</string>
+    <string name="liquid_glass_option_description">매끄러운 유리 같은 외관으로 인터페이스를 향상시킵니다</string>
+
+    <string name="hide_seen_title">본 저장소 숨기기</string>
+    <string name="hide_seen_description">이미 본 저장소를 디스커버리 피드에서 숨깁니다</string>
+    <string name="clear_seen_history">조회 기록 삭제</string>
+    <string name="clear_seen_history_description">모든 조회 기록을 초기화하여 피드에 다시 표시합니다</string>
+    <string name="seen_history_cleared">조회 기록이 삭제되었습니다</string>
+    <string name="seen_badge">확인함</string>
 </resources>

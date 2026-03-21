@@ -31,6 +31,7 @@ import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.network.Downloader
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ShareManager
@@ -45,6 +46,7 @@ class AppsViewModel(
     private val syncInstalledAppsUseCase: SyncInstalledAppsUseCase,
     private val logger: GitHubStoreLogger,
     private val shareManager: ShareManager,
+    private val tweaksRepository: TweaksRepository,
 ) : ViewModel() {
     companion object {
         private const val UPDATE_CHECK_COOLDOWN_MS = 30 * 60 * 1000L
@@ -61,6 +63,7 @@ class AppsViewModel(
             .onStart {
                 if (!hasLoadedInitialData) {
                     loadApps()
+                    observeLiquidGlassEnabled()
                     hasLoadedInitialData = true
                 }
             }.stateIn(
@@ -68,6 +71,18 @@ class AppsViewModel(
                 started = SharingStarted.WhileSubscribed(5_000L),
                 initialValue = AppsState(),
             )
+
+    private fun observeLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(
+                        isLiquidGlassEnabled = enabled,
+                    )
+                }
+            }
+        }
+    }
 
     private val _events = Channel<AppsEvent>()
     val events = _events.receiveAsFlow()

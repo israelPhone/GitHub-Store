@@ -10,7 +10,7 @@ import zed.rainxch.core.data.services.shizuku.model.ShizukuStatus
 import zed.rainxch.core.domain.model.GithubAsset
 import zed.rainxch.core.domain.model.InstallerType
 import zed.rainxch.core.domain.model.SystemArchitecture
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
 import zed.rainxch.core.domain.system.InstallerInfoExtractor
 
@@ -27,7 +27,7 @@ import zed.rainxch.core.domain.system.InstallerInfoExtractor
 class ShizukuInstallerWrapper(
     private val androidInstaller: Installer,
     private val shizukuServiceManager: ShizukuServiceManager,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
 ) : Installer {
     companion object {
         private const val TAG = "ShizukuInstaller"
@@ -46,7 +46,7 @@ class ShizukuInstallerWrapper(
      */
     fun observeInstallerPreference(scope: CoroutineScope) {
         scope.launch {
-            themesRepository.getInstallerType().collect { type ->
+            tweaksRepository.getInstallerType().collect { type ->
                 cachedInstallerType = type
                 Logger.d(TAG) { "Installer type changed to: $type" }
             }

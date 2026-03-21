@@ -76,13 +76,11 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.add_to_favourites
 import zed.rainxch.githubstore.core.presentation.res.cancel
 import zed.rainxch.githubstore.core.presentation.res.confirm_uninstall_message
-import zed.rainxch.githubstore.core.presentation.res.install_anyway
-import zed.rainxch.githubstore.core.presentation.res.signing_key_changed_message
-import zed.rainxch.githubstore.core.presentation.res.signing_key_changed_title
 import zed.rainxch.githubstore.core.presentation.res.confirm_uninstall_title
 import zed.rainxch.githubstore.core.presentation.res.dismiss
 import zed.rainxch.githubstore.core.presentation.res.downgrade_requires_uninstall
 import zed.rainxch.githubstore.core.presentation.res.downgrade_warning_message
+import zed.rainxch.githubstore.core.presentation.res.install_anyway
 import zed.rainxch.githubstore.core.presentation.res.install_permission_blocked_message
 import zed.rainxch.githubstore.core.presentation.res.install_permission_unavailable
 import zed.rainxch.githubstore.core.presentation.res.navigate_back
@@ -92,6 +90,8 @@ import zed.rainxch.githubstore.core.presentation.res.remove_from_favourites
 import zed.rainxch.githubstore.core.presentation.res.repository_not_starred
 import zed.rainxch.githubstore.core.presentation.res.repository_starred
 import zed.rainxch.githubstore.core.presentation.res.share_repository
+import zed.rainxch.githubstore.core.presentation.res.signing_key_changed_message
+import zed.rainxch.githubstore.core.presentation.res.signing_key_changed_title
 import zed.rainxch.githubstore.core.presentation.res.star_from_github
 import zed.rainxch.githubstore.core.presentation.res.uninstall
 import zed.rainxch.githubstore.core.presentation.res.uninstall_first
@@ -342,7 +342,14 @@ fun DetailsScreen(
                 )
             },
             containerColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier.liquefiable(liquidTopbarState),
+            modifier =
+                Modifier.then(
+                    if (state.isLiquidGlassEnabled) {
+                        Modifier.liquefiable(liquidTopbarState)
+                    } else {
+                        Modifier
+                    },
+                ),
         ) { innerPadding ->
 
             LanguagePicker(
@@ -404,8 +411,13 @@ fun DetailsScreen(
                             .fillMaxHeight()
                             .widthIn(max = 680.dp)
                             .fillMaxWidth()
-                            .liquefiable(liquidTopbarState)
-                            .padding(innerPadding),
+                            .then(
+                                if (state.isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidTopbarState)
+                                } else {
+                                    Modifier
+                                },
+                            ).padding(innerPadding),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
@@ -415,7 +427,10 @@ fun DetailsScreen(
                     )
 
                     state.stats?.let { stats ->
-                        stats(repoStats = stats)
+                        stats(
+                            isLiquidGlassEnabled = state.isLiquidGlassEnabled,
+                            repoStats = stats,
+                        )
                     }
 
                     if (state.isComingFromUpdate) {
@@ -423,6 +438,7 @@ fun DetailsScreen(
                             whatsNew(
                                 release = release,
                                 isExpanded = state.isWhatsNewExpanded,
+                                isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                                 onToggleExpanded = { onAction(DetailsAction.ToggleWhatsNewExpanded) },
                                 collapsedHeight = collapsedSectionHeight,
                                 translationState = state.whatsNewTranslation,
@@ -443,6 +459,7 @@ fun DetailsScreen(
                                 readmeMarkdown = state.readmeMarkdown,
                                 readmeLanguage = state.readmeLanguage,
                                 isExpanded = state.isAboutExpanded,
+                                isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                                 onToggleExpanded = { onAction(DetailsAction.ToggleAboutExpanded) },
                                 collapsedHeight = collapsedSectionHeight,
                                 translationState = state.aboutTranslation,
@@ -463,6 +480,7 @@ fun DetailsScreen(
                                 readmeMarkdown = state.readmeMarkdown,
                                 readmeLanguage = state.readmeLanguage,
                                 isExpanded = state.isAboutExpanded,
+                                isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                                 onToggleExpanded = { onAction(DetailsAction.ToggleAboutExpanded) },
                                 collapsedHeight = collapsedSectionHeight,
                                 translationState = state.aboutTranslation,
@@ -482,6 +500,7 @@ fun DetailsScreen(
                             whatsNew(
                                 release = release,
                                 isExpanded = state.isWhatsNewExpanded,
+                                isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                                 onToggleExpanded = { onAction(DetailsAction.ToggleWhatsNewExpanded) },
                                 collapsedHeight = collapsedSectionHeight,
                                 translationState = state.whatsNewTranslation,
@@ -506,6 +525,7 @@ fun DetailsScreen(
 
                     state.userProfile?.let { userProfile ->
                         author(
+                            isLiquidGlassEnabled = state.isLiquidGlassEnabled,
                             author = userProfile,
                             onAction = onAction,
                         )
@@ -670,12 +690,10 @@ private fun DetailsTopbar(
                         1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                     ),
                 ).then(
-                    if (isLiquidFrostAvailable()) {
+                    if (state.isLiquidGlassEnabled && isLiquidFrostAvailable()) {
                         Modifier.liquid(liquidTopbarState) {
                             this.shape = CutCornerShape(0.dp)
-                            if (isLiquidFrostAvailable()) {
-                                this.frost = 5.dp
-                            }
+                            this.frost = 5.dp
                             this.curve = .25f
                             this.refraction = .05f
                             this.dispersion = .1f

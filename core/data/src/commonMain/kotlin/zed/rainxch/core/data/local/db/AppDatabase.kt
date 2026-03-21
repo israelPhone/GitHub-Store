@@ -5,11 +5,13 @@ import androidx.room.RoomDatabase
 import zed.rainxch.core.data.local.db.dao.CacheDao
 import zed.rainxch.core.data.local.db.dao.FavoriteRepoDao
 import zed.rainxch.core.data.local.db.dao.InstalledAppDao
+import zed.rainxch.core.data.local.db.dao.SeenRepoDao
 import zed.rainxch.core.data.local.db.dao.StarredRepoDao
 import zed.rainxch.core.data.local.db.dao.UpdateHistoryDao
 import zed.rainxch.core.data.local.db.entities.CacheEntryEntity
 import zed.rainxch.core.data.local.db.entities.FavoriteRepoEntity
 import zed.rainxch.core.data.local.db.entities.InstalledAppEntity
+import zed.rainxch.core.data.local.db.entities.SeenRepoEntity
 import zed.rainxch.core.data.local.db.entities.StarredRepositoryEntity
 import zed.rainxch.core.data.local.db.entities.UpdateHistoryEntity
 
@@ -20,8 +22,9 @@ import zed.rainxch.core.data.local.db.entities.UpdateHistoryEntity
         UpdateHistoryEntity::class,
         StarredRepositoryEntity::class,
         CacheEntryEntity::class,
+        SeenRepoEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,4 +33,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val updateHistoryDao: UpdateHistoryDao
     abstract val starredReposDao: StarredRepoDao
     abstract val cacheDao: CacheDao
+    abstract val seenRepoDao: SeenRepoDao
 }

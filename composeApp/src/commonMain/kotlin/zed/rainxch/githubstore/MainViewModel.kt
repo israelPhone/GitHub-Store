@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 import zed.rainxch.core.domain.repository.AuthenticationState
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.RateLimitRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 
 class MainViewModel(
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
     private val installedAppsRepository: InstalledAppsRepository,
     private val authenticationState: AuthenticationState,
     private val rateLimitRepository: RateLimitRepository,
@@ -37,7 +37,7 @@ class MainViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository
+            tweaksRepository
                 .getThemeColor()
                 .collect { theme ->
                     _state.update {
@@ -46,7 +46,7 @@ class MainViewModel(
                 }
         }
         viewModelScope.launch {
-            themesRepository
+            tweaksRepository
                 .getAmoledTheme()
                 .collect { isAmoled ->
                     _state.update {
@@ -55,7 +55,7 @@ class MainViewModel(
                 }
         }
         viewModelScope.launch {
-            themesRepository
+            tweaksRepository
                 .getIsDarkTheme()
                 .collect { isDarkTheme ->
                     _state.update {
@@ -65,13 +65,19 @@ class MainViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository
+            tweaksRepository
                 .getFontTheme()
                 .collect { fontTheme ->
                     _state.update {
                         it.copy(currentFontTheme = fontTheme)
                     }
                 }
+        }
+
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update { it.copy(isLiquidGlassEnabled = enabled) }
+            }
         }
 
         viewModelScope.launch {

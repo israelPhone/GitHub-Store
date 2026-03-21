@@ -13,7 +13,7 @@ val appsModule =
                 logger = get(),
                 httpClient = get(),
                 packageMonitor = get(),
-                themesRepository = get(),
+                tweaksRepository = get(),
             )
         }
     }

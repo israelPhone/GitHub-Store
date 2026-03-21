@@ -53,6 +53,7 @@ import zed.rainxch.githubstore.core.presentation.res.*
 fun LazyListScope.whatsNew(
     release: GithubRelease,
     isExpanded: Boolean,
+    isLiquidGlassEnabled: Boolean,
     onToggleExpanded: () -> Unit,
     collapsedHeight: Dp,
     translationState: TranslationState,
@@ -79,7 +80,14 @@ fun LazyListScope.whatsNew(
                 text = stringResource(Res.string.whats_new),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.liquefiable(liquidState),
+                modifier =
+                    Modifier.then(
+                        if (isLiquidGlassEnabled) {
+                            Modifier.liquefiable(liquidState)
+                        } else {
+                            Modifier
+                        },
+                    ),
                 fontWeight = FontWeight.Bold,
             )
 
@@ -115,14 +123,28 @@ fun LazyListScope.whatsNew(
                         release.tagName,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.liquefiable(liquidState),
+                        modifier =
+                            Modifier.then(
+                                if (isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
                     )
 
                     Text(
                         release.publishedAt.take(10),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.liquefiable(liquidState),
+                        modifier =
+                            Modifier.then(
+                                if (isLiquidGlassEnabled) {
+                                    Modifier.liquefiable(liquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
                     )
                 }
             }
@@ -139,6 +161,7 @@ fun LazyListScope.whatsNew(
             release = release,
             collapsedHeight = collapsedHeight,
             isExpanded = isExpanded,
+            isLiquidGlassEnabled = isLiquidGlassEnabled,
             liquidState = liquidState,
             onToggleExpanded = onToggleExpanded,
         )
@@ -151,6 +174,7 @@ private fun ExpandableMarkdownContent(
     release: GithubRelease,
     collapsedHeight: Dp,
     isExpanded: Boolean,
+    isLiquidGlassEnabled: Boolean,
     liquidState: LiquidState,
     onToggleExpanded: () -> Unit,
 ) {
@@ -203,7 +227,13 @@ private fun ExpandableMarkdownContent(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .liquefiable(liquidState)
+                                .then(
+                                    if (isLiquidGlassEnabled) {
+                                        Modifier.liquefiable(liquidState)
+                                    } else {
+                                        Modifier
+                                    },
+                                )
                                 .onGloballyPositioned { coordinates ->
                                     val measured = coordinates.size.height.toFloat()
                                     if (measured > contentHeightPx) {

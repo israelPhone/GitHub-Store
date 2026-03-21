@@ -22,8 +22,9 @@ import zed.rainxch.core.domain.model.Platform
 import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ClipboardHelper
 import zed.rainxch.core.domain.utils.ShareManager
@@ -50,7 +51,8 @@ class SearchViewModel(
     private val shareManager: ShareManager,
     private val platform: Platform,
     private val clipboardHelper: ClipboardHelper,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentSearchJob: Job? = null
@@ -72,6 +74,9 @@ class SearchViewModel(
                     observeInstalledApps()
                     observeFavouriteApps()
                     observeStarredRepos()
+                    observeLiquidGlassEnabled()
+                    observeSeenRepos()
+                    observeHideSeenEnabled()
                     observeClipboardSetting()
                     checkClipboardForLinks()
 
@@ -82,6 +87,43 @@ class SearchViewModel(
                 started = SharingStarted.WhileSubscribed(5_000L),
                 initialValue = SearchState(),
             )
+
+    private fun observeLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(
+                        isLiquidGlassEnabled = enabled,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeSeenRepos() {
+        viewModelScope.launch {
+            seenReposRepository.getAllSeenRepoIds().collect { ids ->
+                _state.update { current ->
+                    current.copy(
+                        seenRepoIds = ids,
+                        repositories =
+                            current.repositories
+                                .map { repo ->
+                                    repo.copy(isSeen = repo.repository.id in ids)
+                                }.toImmutableList(),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeHideSeenEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getHideSeenEnabled().collect { enabled ->
+                _state.update { it.copy(isHideSeenEnabled = enabled) }
+            }
+        }
+    }
 
     private val _events = Channel<SearchEvent>()
     val events = _events.receiveAsFlow()
@@ -101,7 +143,7 @@ class SearchViewModel(
 
     private fun observeClipboardSetting() {
         viewModelScope.launch {
-            themesRepository.getAutoDetectClipboardLinks().collect { enabled ->
+            tweaksRepository.getAutoDetectClipboardLinks().collect { enabled ->
                 _state.update { current ->
                     current.copy(
                         autoDetectClipboardEnabled = enabled,
@@ -116,7 +158,7 @@ class SearchViewModel(
 
     private fun checkClipboardForLinks() {
         viewModelScope.launch {
-            val enabled = themesRepository.getAutoDetectClipboardLinks().first()
+            val enabled = tweaksRepository.getAutoDetectClipboardLinks().first()
             if (!enabled) return@launch
 
             try {
@@ -264,6 +306,8 @@ class SearchViewModel(
                         ).collect { paginatedRepos ->
                             currentPage = paginatedRepos.nextPageIndex
 
+                            val seenIds = _state.value.seenRepoIds
+
                             val newReposWithStatus =
                                 paginatedRepos.repos.map { repo ->
                                     val app = installedMap[repo.id]
@@ -274,6 +318,7 @@ class SearchViewModel(
                                         isInstalled = app != null,
                                         isFavourite = favourite != null,
                                         isStarred = starred != null,
+                                        isSeen = repo.id in seenIds,
                                         isUpdateAvailable = app?.isUpdateAvailable ?: false,
                                         repository = repo.toUi(),
                                     )

@@ -398,6 +398,9 @@
     <string name="auth_hint_try_again">请重新登录以获取新的验证码。</string>
     <string name="auth_hint_check_connection">请检查您的网络连接并重试。</string>
     <string name="auth_hint_denied">您拒绝了授权请求。如果是误操作，请重试。</string>
+    <string name="auth_check_status">我已经授权</string>
+    <string name="auth_polling_status">正在检查…</string>
+
     <!-- Read More / Show Less -->
     <string name="read_more">阅读更多</string>
     <string name="show_less">收起</string>
@@ -545,4 +548,13 @@
     <string name="select_language">选择语言</string>
     <string name="update_package_mismatch">包名不匹配：APK 为 %1$s，但已安装的应用为 %2$s。更新已阻止。</string>
     <string name="update_signing_key_mismatch">签名密钥不匹配：更新由不同的开发者签名。更新已阻止。</string>
+    <string name="liquid_glass_option_title">液态玻璃效果</string>
+    <string name="liquid_glass_option_description">以流畅的玻璃质感提升界面外观</string>
+
+    <string name="hide_seen_title">隐藏已浏览的仓库</string>
+    <string name="hide_seen_description">在发现信息流中隐藏你已经浏览过的仓库</string>
+    <string name="clear_seen_history">清除浏览记录</string>
+    <string name="clear_seen_history_description">重置所有已浏览的仓库，使其重新出现在信息流中</string>
+    <string name="seen_history_cleared">浏览记录已清除</string>
+    <string name="seen_badge">已浏览</string>
 </resources>

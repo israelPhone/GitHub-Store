@@ -294,7 +294,13 @@ fun SearchScreen(
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.liquefiable(liquidState),
+        modifier = Modifier.then(
+            if (state.isLiquidGlassEnabled) {
+                Modifier.liquefiable(liquidState)
+            } else {
+                Modifier
+            },
+        ),
     ) { innerPadding ->
         Column(
             modifier =
@@ -477,6 +483,16 @@ fun SearchScreen(
                 )
             }
 
+            val visibleRepos by remember(state.repositories, state.isHideSeenEnabled, state.seenRepoIds) {
+                derivedStateOf {
+                    if (state.isHideSeenEnabled && state.seenRepoIds.isNotEmpty()) {
+                        state.repositories.filter { it.repository.id !in state.seenRepoIds }
+                    } else {
+                        state.repositories
+                    }
+                }
+            }
+
             Box(Modifier.fillMaxSize()) {
                 if (state.isLoading && state.repositories.isEmpty()) {
                     Box(
@@ -509,7 +525,7 @@ fun SearchScreen(
                     }
                 }
 
-                if (state.repositories.isNotEmpty()) {
+                if (visibleRepos.isNotEmpty()) {
                     LazyVerticalStaggeredGrid(
                         state = listState,
                         columns = StaggeredGridCells.Adaptive(350.dp),
@@ -519,10 +535,16 @@ fun SearchScreen(
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .liquefiable(liquidState),
+                                .then(
+                                    if (state.isLiquidGlassEnabled) {
+                                        Modifier.liquefiable(liquidState)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                     ) {
                         items(
-                            items = state.repositories,
+                            items = visibleRepos,
                             key = { it.repository.id },
                         ) { discoveryRepository ->
                             RepositoryCard(
@@ -539,7 +561,13 @@ fun SearchScreen(
                                 modifier =
                                     Modifier
                                         .animateItem()
-                                        .liquefiable(liquidState),
+                                        .then(
+                                            if (state.isLiquidGlassEnabled) {
+                                                Modifier.liquefiable(liquidState)
+                                            } else {
+                                                Modifier
+                                            },
+                                        ),
                             )
                         }
 

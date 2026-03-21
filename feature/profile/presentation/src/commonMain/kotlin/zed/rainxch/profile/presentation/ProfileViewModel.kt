@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.core.domain.repository.ProxyRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.InstallerStatusProvider
 import zed.rainxch.core.domain.system.UpdateScheduleManager
 import zed.rainxch.core.domain.utils.BrowserHelper
@@ -27,39 +28,45 @@ import zed.rainxch.profile.presentation.model.ProxyType
 
 class ProfileViewModel(
     private val browserHelper: BrowserHelper,
-    private val themesRepository: ThemesRepository,
+    private val tweaksRepository: TweaksRepository,
     private val profileRepository: ProfileRepository,
     private val installerStatusProvider: InstallerStatusProvider,
     private val proxyRepository: ProxyRepository,
     private val updateScheduleManager: UpdateScheduleManager,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var userProfileJob: Job? = null
 
     private var hasLoadedInitialData = false
 
     private val _state = MutableStateFlow(ProfileState())
-    val state = _state
-        .onStart {
-            if (!hasLoadedInitialData) {
-                loadCurrentTheme()
-                collectIsUserLoggedIn()
-                loadUserProfile()
-                loadVersionName()
-                loadProxyConfig()
-                observeCacheSize()
-                loadInstallerPreference()
-                observeShizukuStatus()
-                loadAutoUpdatePreference()
-                loadUpdateCheckInterval()
-                loadIncludePreReleases()
+    val state =
+        _state
+            .onStart {
+                if (!hasLoadedInitialData) {
+                    loadCurrentTheme()
+                    loadUserProfile()
+                    loadVersionName()
+                    loadProxyConfig()
+                    loadInstallerPreference()
+                    loadAutoUpdatePreference()
+                    loadUpdateCheckInterval()
+                    loadIncludePreReleases()
+                    loadLiquidGlassEnabled()
+                    loadHideSeenEnabled()
 
-                hasLoadedInitialData = true
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = ProfileState(),
-        )
+                    observeLoggedInStatus()
+
+                    observeCacheSize()
+                    observeShizukuStatus()
+
+                    hasLoadedInitialData = true
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000L),
+                initialValue = ProfileState(),
+            )
 
     private val _events = Channel<ProfileEvent>()
     val events = _events.receiveAsFlow()
@@ -100,7 +107,7 @@ class ProfileViewModel(
         }
     }
 
-    private fun collectIsUserLoggedIn() {
+    private fun observeLoggedInStatus() {
         viewModelScope.launch {
             profileRepository.isUserLoggedIn
                 .collect { isLoggedIn ->
@@ -127,7 +134,7 @@ class ProfileViewModel(
 
     private fun loadCurrentTheme() {
         viewModelScope.launch {
-            themesRepository.getThemeColor().collect { theme ->
+            tweaksRepository.getThemeColor().collect { theme ->
                 _state.update {
                     it.copy(selectedThemeColor = theme)
                 }
@@ -135,7 +142,7 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository.getAmoledTheme().collect { isAmoled ->
+            tweaksRepository.getAmoledTheme().collect { isAmoled ->
                 _state.update {
                     it.copy(isAmoledThemeEnabled = isAmoled)
                 }
@@ -143,7 +150,7 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository.getIsDarkTheme().collect { isDarkTheme ->
+            tweaksRepository.getIsDarkTheme().collect { isDarkTheme ->
                 _state.update {
                     it.copy(isDarkTheme = isDarkTheme)
                 }
@@ -151,7 +158,7 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository.getFontTheme().collect { fontTheme ->
+            tweaksRepository.getFontTheme().collect { fontTheme ->
                 _state.update {
                     it.copy(selectedFontTheme = fontTheme)
                 }
@@ -159,7 +166,7 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
-            themesRepository.getAutoDetectClipboardLinks().collect { enabled ->
+            tweaksRepository.getAutoDetectClipboardLinks().collect { enabled ->
                 _state.update {
                     it.copy(autoDetectClipboardLinks = enabled)
                 }
@@ -205,7 +212,7 @@ class ProfileViewModel(
 
     private fun loadInstallerPreference() {
         viewModelScope.launch {
-            themesRepository.getInstallerType().collect { type ->
+            tweaksRepository.getInstallerType().collect { type ->
                 _state.update {
                     it.copy(installerType = type)
                 }
@@ -225,7 +232,7 @@ class ProfileViewModel(
 
     private fun loadAutoUpdatePreference() {
         viewModelScope.launch {
-            themesRepository.getAutoUpdateEnabled().collect { enabled ->
+            tweaksRepository.getAutoUpdateEnabled().collect { enabled ->
                 _state.update {
                     it.copy(autoUpdateEnabled = enabled)
                 }
@@ -235,7 +242,7 @@ class ProfileViewModel(
 
     private fun loadUpdateCheckInterval() {
         viewModelScope.launch {
-            themesRepository.getUpdateCheckInterval().collect { hours ->
+            tweaksRepository.getUpdateCheckInterval().collect { hours ->
                 _state.update {
                     it.copy(updateCheckIntervalHours = hours)
                 }
@@ -243,9 +250,29 @@ class ProfileViewModel(
         }
     }
 
+    private fun loadLiquidGlassEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getLiquidGlassEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isLiquidGlassEnabled = enabled)
+                }
+            }
+        }
+    }
+
+    private fun loadHideSeenEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getHideSeenEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isHideSeenEnabled = enabled)
+                }
+            }
+        }
+    }
+
     private fun loadIncludePreReleases() {
         viewModelScope.launch {
-            themesRepository.getIncludePreReleases().collect { enabled ->
+            tweaksRepository.getIncludePreReleases().collect { enabled ->
                 _state.update {
                     it.copy(includePreReleases = enabled)
                 }
@@ -280,13 +307,13 @@ class ProfileViewModel(
 
             is ProfileAction.OnThemeColorSelected -> {
                 viewModelScope.launch {
-                    themesRepository.setThemeColor(action.themeColor)
+                    tweaksRepository.setThemeColor(action.themeColor)
                 }
             }
 
             is ProfileAction.OnAmoledThemeToggled -> {
                 viewModelScope.launch {
-                    themesRepository.setAmoledTheme(action.enabled)
+                    tweaksRepository.setAmoledTheme(action.enabled)
                 }
             }
 
@@ -317,45 +344,50 @@ class ProfileViewModel(
             ProfileAction.OnLogoutDismiss -> {
                 _state.update {
                     it.copy(
-                        isLogoutDialogVisible = false
+                        isLogoutDialogVisible = false,
                     )
                 }
             }
 
+            is ProfileAction.OnLiquidGlassEnabledChange -> {
+                viewModelScope.launch {
+                    tweaksRepository.setLiquidGlassEnabled(action.enabled)
+                }
+            }
+
             ProfileAction.OnNavigateBackClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
             ProfileAction.OnLoginClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
             ProfileAction.OnFavouriteReposClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
             ProfileAction.OnStarredReposClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
-
             is ProfileAction.OnRepositoriesClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
             ProfileAction.OnSponsorClick -> {
-                /* Handed in composable */
+                // Handed in composable
             }
 
             is ProfileAction.OnFontThemeSelected -> {
                 viewModelScope.launch {
-                    themesRepository.setFontTheme(action.fontTheme)
+                    tweaksRepository.setFontTheme(action.fontTheme)
                 }
             }
 
             is ProfileAction.OnDarkThemeChange -> {
                 viewModelScope.launch {
-                    themesRepository.setDarkTheme(action.isDarkTheme)
+                    tweaksRepository.setDarkTheme(action.isDarkTheme)
                 }
             }
 
@@ -406,13 +438,26 @@ class ProfileViewModel(
 
             is ProfileAction.OnAutoDetectClipboardToggled -> {
                 viewModelScope.launch {
-                    themesRepository.setAutoDetectClipboardLinks(action.enabled)
+                    tweaksRepository.setAutoDetectClipboardLinks(action.enabled)
+                }
+            }
+
+            is ProfileAction.OnHideSeenToggled -> {
+                viewModelScope.launch {
+                    tweaksRepository.setHideSeenEnabled(action.enabled)
+                }
+            }
+
+            ProfileAction.OnClearSeenRepos -> {
+                viewModelScope.launch {
+                    seenReposRepository.clearAll()
+                    _events.send(ProfileEvent.OnSeenHistoryCleared)
                 }
             }
 
             is ProfileAction.OnInstallerTypeSelected -> {
                 viewModelScope.launch {
-                    themesRepository.setInstallerType(action.type)
+                    tweaksRepository.setInstallerType(action.type)
                 }
             }
 
@@ -422,20 +467,20 @@ class ProfileViewModel(
 
             is ProfileAction.OnAutoUpdateToggled -> {
                 viewModelScope.launch {
-                    themesRepository.setAutoUpdateEnabled(action.enabled)
+                    tweaksRepository.setAutoUpdateEnabled(action.enabled)
                 }
             }
 
             is ProfileAction.OnUpdateCheckIntervalChanged -> {
                 viewModelScope.launch {
-                    themesRepository.setUpdateCheckInterval(action.hours)
+                    tweaksRepository.setUpdateCheckInterval(action.hours)
                     updateScheduleManager.reschedule(action.hours)
                 }
             }
 
             is ProfileAction.OnIncludePreReleasesToggled -> {
                 viewModelScope.launch {
-                    themesRepository.setIncludePreReleases(action.enabled)
+                    tweaksRepository.setIncludePreReleases(action.enabled)
                 }
             }
 

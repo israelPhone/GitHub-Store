@@ -34,10 +34,7 @@ import zed.rainxch.core.presentation.utils.ObserveAsEvents
 import zed.rainxch.githubstore.core.presentation.res.*
 import zed.rainxch.profile.presentation.components.LogoutDialog
 import zed.rainxch.profile.presentation.components.sections.about
-import zed.rainxch.profile.presentation.components.sections.installationSection
-import zed.rainxch.profile.presentation.components.sections.updatesSection
 import zed.rainxch.profile.presentation.components.sections.logout
-import zed.rainxch.profile.presentation.components.sections.networkSection
 import zed.rainxch.profile.presentation.components.sections.othersSection
 import zed.rainxch.profile.presentation.components.sections.profile
 import zed.rainxch.profile.presentation.components.sections.settings
@@ -93,6 +90,12 @@ fun ProfileRoot(
             is ProfileEvent.OnCacheClearError -> {
                 coroutineScope.launch {
                     snackbarState.showSnackbar(event.message)
+                }
+            }
+
+            ProfileEvent.OnSeenHistoryCleared -> {
+                coroutineScope.launch {
+                    snackbarState.showSnackbar(getString(Res.string.seen_history_cleared))
                 }
             }
         }
@@ -166,7 +169,14 @@ fun ProfileScreen(
             TopAppBar()
         },
         containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.liquefiable(liquidState),
+        modifier =
+            Modifier.then(
+                if (state.isLiquidGlassEnabled) {
+                    Modifier.liquefiable(liquidState)
+                } else {
+                    Modifier
+                },
+            ),
     ) { innerPadding ->
         LazyColumn(
             modifier =
@@ -187,29 +197,6 @@ fun ProfileScreen(
             settings(
                 state = state,
                 onAction = onAction,
-            )
-
-            item {
-                Spacer(Modifier.height(32.dp))
-            }
-
-            networkSection(
-                state = state,
-                onAction = onAction,
-            )
-
-            item {
-                Spacer(Modifier.height(12.dp))
-            }
-
-            installationSection(
-                state = state,
-                onAction = onAction
-            )
-
-            updatesSection(
-                state = state,
-                onAction = onAction
             )
 
             item {

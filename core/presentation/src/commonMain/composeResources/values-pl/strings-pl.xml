@@ -395,6 +395,8 @@
     <string name="auth_hint_try_again">Spróbuj zalogować się ponownie, aby uzyskać nowy kod.</string>
     <string name="auth_hint_check_connection">Sprawdź połączenie internetowe i spróbuj ponownie.</string>
     <string name="auth_hint_denied">Odrzuciłeś żądanie autoryzacji. Spróbuj ponownie, jeśli było to niezamierzone.</string>
+    <string name="auth_check_status">Już autoryzowałem</string>
+    <string name="auth_polling_status">Sprawdzanie…</string>
 
     <!-- Read More / Show Less -->
     <string name="read_more">Czytaj więcej</string>
@@ -546,4 +548,13 @@
     <string name="select_language">Wybierz język</string>
     <string name="update_package_mismatch">Niezgodność pakietu: APK to %1$s, ale zainstalowana aplikacja to %2$s. Aktualizacja zablokowana.</string>
     <string name="update_signing_key_mismatch">Niezgodność klucza podpisu: aktualizacja została podpisana przez innego programistę. Aktualizacja zablokowana.</string>
+    <string name="liquid_glass_option_title">Efekt płynnego szkła</string>
+    <string name="liquid_glass_option_description">Ulepsz interfejs o gładki, szklany wygląd</string>
+
+    <string name="hide_seen_title">Ukryj przeglądane repozytoria</string>
+    <string name="hide_seen_description">Ukryj repozytoria, które już przeglądałeś, z kanałów odkrywania</string>
+    <string name="clear_seen_history">Wyczyść historię przeglądania</string>
+    <string name="clear_seen_history_description">Zresetuj wszystkie przeglądane repozytoria, aby ponownie pojawiły się w kanałach</string>
+    <string name="seen_history_cleared">Historia przeglądania wyczyszczona</string>
+    <string name="seen_badge">Przeglądane</string>
 </resources>

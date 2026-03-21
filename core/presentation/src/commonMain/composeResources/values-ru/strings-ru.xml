@@ -397,6 +397,8 @@
     <string name="auth_hint_try_again">Пожалуйста, попробуйте войти снова для получения нового кода.</string>
     <string name="auth_hint_check_connection">Проверьте подключение к интернету и попробуйте снова.</string>
     <string name="auth_hint_denied">Вы отклонили запрос авторизации. Попробуйте снова, если это было непреднамеренно.</string>
+    <string name="auth_check_status">Я уже авторизовался</string>
+    <string name="auth_polling_status">Проверка…</string>
 
     <!-- Read More / Show Less -->
     <string name="read_more">Читать далее</string>
@@ -546,4 +548,13 @@
     <string name="select_language">Выбрать язык</string>
     <string name="update_package_mismatch">Несоответствие пакета: APK — %1$s, но установленное приложение — %2$s. Обновление заблокировано.</string>
     <string name="update_signing_key_mismatch">Несоответствие ключа подписи: обновление подписано другим разработчиком. Обновление заблокировано.</string>
+    <string name="liquid_glass_option_title">Эффект жидкого стекла</string>
+    <string name="liquid_glass_option_description">Улучшите интерфейс с помощью гладкого стеклянного оформления</string>
+
+    <string name="hide_seen_title">Скрыть просмотренные репозитории</string>
+    <string name="hide_seen_description">Скрыть уже просмотренные репозитории из лент обнаружения</string>
+    <string name="clear_seen_history">Очистить историю просмотров</string>
+    <string name="clear_seen_history_description">Сбросить все просмотренные репозитории, чтобы они снова появились в лентах</string>
+    <string name="seen_history_cleared">История просмотров очищена</string>
+    <string name="seen_badge">Просмотрено</string>
 </resources>

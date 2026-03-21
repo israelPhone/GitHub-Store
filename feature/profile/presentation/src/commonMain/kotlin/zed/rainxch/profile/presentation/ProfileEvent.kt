@@ -18,4 +18,6 @@ sealed interface ProfileEvent {
     data class OnCacheClearError(
         val message: String,
     ) : ProfileEvent
+
+    data object OnSeenHistoryCleared : ProfileEvent
 }

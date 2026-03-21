@@ -397,6 +397,9 @@
     <string name="auth_hint_try_again">新しいコードを取得するために再度サインインしてください。</string>
     <string name="auth_hint_check_connection">インターネット接続を確認して再試行してください。</string>
     <string name="auth_hint_denied">認証リクエストを拒否しました。意図しない場合は再試行してください。</string>
+    <string name="auth_check_status">すでに認証しました</string>
+    <string name="auth_polling_status">確認中…</string>
+
     <!-- Read More / Show Less -->
     <string name="read_more">もっと読む</string>
     <string name="show_less">折りたたむ</string>
@@ -544,4 +547,13 @@
     <string name="select_language">言語を選択</string>
     <string name="update_package_mismatch">パッケージの不一致: APKは%1$sですが、インストール済みアプリは%2$sです。更新がブロックされました。</string>
     <string name="update_signing_key_mismatch">署名キーの不一致: 更新は別の開発者によって署名されています。更新がブロックされました。</string>
+    <string name="liquid_glass_option_title">リキッドグラスエフェクト</string>
+    <string name="liquid_glass_option_description">滑らかなガラスのような外観でインターフェースを向上させます</string>
+
+    <string name="hide_seen_title">閲覧済みリポジトリを非表示</string>
+    <string name="hide_seen_description">すでに閲覧したリポジトリをディスカバリーフィードから非表示にします</string>
+    <string name="clear_seen_history">閲覧履歴をクリア</string>
+    <string name="clear_seen_history_description">すべての閲覧済みリポジトリをリセットしてフィードに再表示します</string>
+    <string name="seen_history_cleared">閲覧履歴をクリアしました</string>
+    <string name="seen_badge">閲覧済み</string>
 </resources>

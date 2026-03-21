@@ -206,8 +206,15 @@ fun HomeScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(horizontal = 8.dp)
-                        .liquefiable(liquidState)
-                        .liquefiable(homeTopbarLiquidState),
+                        .then(
+                            if (state.isLiquidGlassEnabled) {
+                                Modifier
+                                    .liquefiable(liquidState)
+                                    .liquefiable(homeTopbarLiquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
             ) {
                 FilterChips(state, onAction)
 
@@ -237,7 +244,17 @@ private fun MainState(
     bottomNavLiquidState: LiquidState,
     homeTopBarLiquidState: LiquidState,
 ) {
-    if (state.repos.isNotEmpty()) {
+    val visibleRepos by remember(state.repos, state.isHideSeenEnabled, state.seenRepoIds) {
+        derivedStateOf {
+            if (state.isHideSeenEnabled && state.seenRepoIds.isNotEmpty()) {
+                state.repos.filter { it.repository.id !in state.seenRepoIds }
+            } else {
+                state.repos
+            }
+        }
+    }
+
+    if (visibleRepos.isNotEmpty()) {
         LazyVerticalStaggeredGrid(
             state = listState,
             columns = StaggeredGridCells.Adaptive(350.dp),
@@ -247,7 +264,7 @@ private fun MainState(
             modifier = Modifier.fillMaxSize(),
         ) {
             items(
-                items = state.repos,
+                items = visibleRepos,
                 key = { it.repository.id },
                 contentType = { "repo" },
             ) { discoveryRepository ->
@@ -265,8 +282,15 @@ private fun MainState(
                     modifier =
                         Modifier
                             .animateItem()
-                            .liquefiable(bottomNavLiquidState)
-                            .liquefiable(homeTopBarLiquidState),
+                            .then(
+                                if (state.isLiquidGlassEnabled) {
+                                    Modifier
+                                        .liquefiable(bottomNavLiquidState)
+                                        .liquefiable(homeTopBarLiquidState)
+                                } else {
+                                    Modifier
+                                },
+                            ),
                 )
             }
 
@@ -384,6 +408,7 @@ private fun FilterChips(
         onCategorySelected = { category ->
             onAction(HomeAction.SwitchCategory(category))
         },
+        isLiquidGlassEnabled = state.isLiquidGlassEnabled,
     )
 }
 

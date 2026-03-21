@@ -8,12 +8,12 @@ import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.SystemArchitecture
 import zed.rainxch.details.domain.model.ReleaseCategory
 import zed.rainxch.details.domain.model.RepoStats
+import zed.rainxch.details.presentation.model.AttestationStatus
 import zed.rainxch.details.presentation.model.DowngradeWarning
-import zed.rainxch.details.presentation.model.SigningKeyWarning
 import zed.rainxch.details.presentation.model.DownloadStage
 import zed.rainxch.details.presentation.model.InstallLogItem
+import zed.rainxch.details.presentation.model.SigningKeyWarning
 import zed.rainxch.details.presentation.model.TranslationState
-import zed.rainxch.details.presentation.model.AttestationStatus
 import zed.rainxch.details.presentation.model.TranslationTarget
 
 data class DetailsState(
@@ -54,6 +54,7 @@ data class DetailsState(
     val isTrackingApp: Boolean = false,
     val isAboutExpanded: Boolean = false,
     val isWhatsNewExpanded: Boolean = false,
+    val isLiquidGlassEnabled: Boolean = true,
     val aboutTranslation: TranslationState = TranslationState(),
     val whatsNewTranslation: TranslationState = TranslationState(),
     val isLanguagePickerVisible: Boolean = false,

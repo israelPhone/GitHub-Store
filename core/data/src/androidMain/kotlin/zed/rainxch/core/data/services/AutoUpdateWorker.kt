@@ -24,7 +24,7 @@ import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.model.InstallerType
 import zed.rainxch.core.domain.network.Downloader
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
-import zed.rainxch.core.domain.repository.ThemesRepository
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
 
 /**
@@ -43,15 +43,15 @@ class AutoUpdateWorker(
     private val installedAppsRepository: InstalledAppsRepository by inject()
     private val installer: Installer by inject()
     private val downloader: Downloader by inject()
-    private val themesRepository: ThemesRepository by inject()
+    private val tweaksRepository: TweaksRepository by inject()
     private val shizukuServiceManager: ShizukuServiceManager by inject()
 
     override suspend fun doWork(): Result {
         return try {
             Logger.i { "AutoUpdateWorker: Starting auto-update" }
 
-            val autoUpdateEnabled = themesRepository.getAutoUpdateEnabled().first()
-            val installerType = themesRepository.getInstallerType().first()
+            val autoUpdateEnabled = tweaksRepository.getAutoUpdateEnabled().first()
+            val installerType = tweaksRepository.getInstallerType().first()
 
             shizukuServiceManager.refreshStatus()
             val shizukuReady = shizukuServiceManager.status.value == ShizukuStatus.READY

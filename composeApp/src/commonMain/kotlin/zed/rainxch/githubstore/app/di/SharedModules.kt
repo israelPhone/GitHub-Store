@@ -9,7 +9,7 @@ val mainModule: Module =
     module {
         viewModel {
             MainViewModel(
-                themesRepository = get(),
+                tweaksRepository = get(),
                 installedAppsRepository = get(),
                 rateLimitRepository = get(),
                 syncUseCase = get(),

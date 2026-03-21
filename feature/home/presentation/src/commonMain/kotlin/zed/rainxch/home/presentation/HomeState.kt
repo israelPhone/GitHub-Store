@@ -19,4 +19,7 @@ data class HomeState(
     val isUpdateAvailable: Boolean = false,
     val currentPlatform: DiscoveryPlatform = DiscoveryPlatform.All,
     val isPlatformPopupVisible: Boolean = false,
+    val isLiquidGlassEnabled: Boolean = true,
+    val isHideSeenEnabled: Boolean = false,
+    val seenRepoIds: Set<Long> = emptySet(),
 )

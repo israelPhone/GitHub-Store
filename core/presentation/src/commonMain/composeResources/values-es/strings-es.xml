@@ -397,6 +397,8 @@
     <string name="auth_hint_try_again">Intenta iniciar sesión de nuevo para obtener un nuevo código.</string>
     <string name="auth_hint_check_connection">Revisa tu conexión a internet e intenta de nuevo.</string>
     <string name="auth_hint_denied">Rechazaste la solicitud de autorización. Intenta de nuevo si fue involuntario.</string>
+    <string name="auth_check_status">Ya he autorizado</string>
+    <string name="auth_polling_status">Comprobando…</string>
 
     <!-- Read More / Show Less -->
     <string name="read_more">Leer más</string>
@@ -543,4 +545,13 @@
     <string name="select_language">Seleccionar idioma</string>
     <string name="update_package_mismatch">Paquete no coincide: el APK es %1$s, pero la aplicación instalada es %2$s. Actualización bloqueada.</string>
     <string name="update_signing_key_mismatch">Clave de firma no coincide: la actualización fue firmada por un desarrollador diferente. Actualización bloqueada.</string>
+    <string name="liquid_glass_option_title">Efecto de cristal líquido</string>
+    <string name="liquid_glass_option_description">Mejora la interfaz con una apariencia suave tipo cristal</string>
+
+    <string name="hide_seen_title">Ocultar repositorios vistos</string>
+    <string name="hide_seen_description">Ocultar repositorios que ya has visto de las fuentes de descubrimiento</string>
+    <string name="clear_seen_history">Borrar historial de vistos</string>
+    <string name="clear_seen_history_description">Restablecer todos los repositorios vistos para que aparezcan de nuevo en las fuentes</string>
+    <string name="seen_history_cleared">Historial de vistos borrado</string>
+    <string name="seen_badge">Visto</string>
 </resources>

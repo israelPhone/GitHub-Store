@@ -15,7 +15,10 @@ import zed.rainxch.details.presentation.components.StatItem
 import zed.rainxch.details.presentation.utils.LocalTopbarLiquidState
 import zed.rainxch.githubstore.core.presentation.res.*
 
-fun LazyListScope.stats(repoStats: RepoStats) {
+fun LazyListScope.stats(
+    isLiquidGlassEnabled: Boolean,
+    repoStats: RepoStats,
+) {
     item {
         val liquidState = LocalTopbarLiquidState.current
 
@@ -31,7 +34,13 @@ fun LazyListScope.stats(repoStats: RepoStats) {
                 modifier =
                     Modifier
                         .weight(1.5f)
-                        .liquefiable(liquidState),
+                        .then(
+                            if (isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
             )
 
             StatItem(
@@ -40,7 +49,13 @@ fun LazyListScope.stats(repoStats: RepoStats) {
                 modifier =
                     Modifier
                         .weight(2f)
-                        .liquefiable(liquidState),
+                        .then(
+                            if (isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
             )
 
             StatItem(
@@ -49,7 +64,13 @@ fun LazyListScope.stats(repoStats: RepoStats) {
                 modifier =
                     Modifier
                         .weight(1f)
-                        .liquefiable(liquidState),
+                        .then(
+                            if (isLiquidGlassEnabled) {
+                                Modifier.liquefiable(liquidState)
+                            } else {
+                                Modifier
+                            },
+                        ),
             )
         }
     }
