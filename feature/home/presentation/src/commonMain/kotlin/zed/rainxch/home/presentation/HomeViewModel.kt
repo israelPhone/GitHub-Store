@@ -259,6 +259,29 @@ class HomeViewModel(
                 _state.update { it.copy(isLoadingTopicSupplement = true) }
 
                 try {
+                    // Phase 1: Load pre-fetched cached topic repos (instant, no API cost)
+                    homeRepository
+                        .getTopicRepositories(
+                            topic = topic,
+                            platform = platform,
+                        ).collect { paginatedRepos ->
+                            if (paginatedRepos.repos.isNotEmpty()) {
+                                val cachedReposWithStatus = mapReposToUi(paginatedRepos.repos)
+
+                                _state.update { currentState ->
+                                    val merged = (currentState.repos + cachedReposWithStatus)
+                                        .distinctBy { it.repository.fullName }
+
+                                    currentState.copy(
+                                        repos = merged.toImmutableList(),
+                                    )
+                                }
+
+                                logger.debug("Loaded ${paginatedRepos.repos.size} cached topic repos for ${topic.name}")
+                            }
+                        }
+
+                    // Phase 2: Supplement with live GitHub search (fills gaps)
                     homeRepository
                         .searchByTopic(
                             searchKeywords = topic.searchKeywords,

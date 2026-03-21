@@ -269,6 +269,27 @@ class HomeRepositoryImpl(
             )
         }.flowOn(Dispatchers.IO)
 
+    override fun getTopicRepositories(
+        topic: zed.rainxch.home.domain.model.TopicCategory,
+        platform: DiscoveryPlatform,
+    ): Flow<PaginatedDiscoveryRepositories> =
+        flow {
+            val cachedData = cachedDataSource.getCachedTopicRepos(topic, platform)
+
+            if (cachedData != null && cachedData.repositories.isNotEmpty()) {
+                logger.debug("Using cached topic data for ${topic.name}: ${cachedData.repositories.size} repos")
+
+                val repos = cachedData.repositories.map { it.toGithubRepoSummary() }
+                emit(
+                    PaginatedDiscoveryRepositories(
+                        repos = repos,
+                        hasMore = false,
+                        nextPageIndex = 2,
+                    ),
+                )
+            }
+        }.flowOn(Dispatchers.IO)
+
     override fun searchByTopic(
         searchKeywords: String,
         platform: DiscoveryPlatform,
