@@ -218,13 +218,22 @@ class AuthenticationViewModel(
 
     private fun startPolling(deviceCode: String) {
         pollingJob?.cancel()
+        val intervalMs = getPollingIntervalMs()
         pollingJob =
             viewModelScope.launch {
                 while (isActive) {
-                    delay(POLL_INTERVAL_MS)
+                    delay(intervalMs)
                     doPoll(deviceCode)
                 }
             }
+    }
+
+    private fun getPollingIntervalMs(): Long {
+        val loginState = _state.value.loginState
+        val intervalSec =
+            (loginState as? AuthLoginState.DevicePrompt)?.start?.intervalSec
+                ?: DEFAULT_POLL_INTERVAL_SEC
+        return (intervalSec * 1000).toLong()
     }
 
     private fun pollOnce(deviceCode: String) {
@@ -414,7 +423,7 @@ class AuthenticationViewModel(
         private const val KEY_INTERVAL_SEC = "auth_interval_sec"
         private const val KEY_EXPIRES_IN_SEC = "auth_expires_in_sec"
         private const val KEY_START_TIME_MILLIS = "auth_start_time_millis"
-        private const val POLL_INTERVAL_MS = 15_000L
+        private const val DEFAULT_POLL_INTERVAL_SEC = 5
 
         private val SAVED_STATE_KEYS =
             listOf(
