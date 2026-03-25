@@ -7,6 +7,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -51,14 +52,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -241,7 +238,7 @@ fun HomeScreen(
                         HomeTopAppBar(
                             currentPlatform = state.currentPlatform,
                             onChangePlatform = {
-                                onAction(HomeAction.SwitchFilterPlatform(it))
+                                onAction(HomeAction.SwitchDiscoveryPlatform(it))
                             },
                             isPlatformPopupVisible = state.isPlatformPopupVisible,
                             onTogglePlatformPopup = {
@@ -590,7 +587,11 @@ private fun HomeTopAppBar(
                 }
             }
 
-            if (isPlatformPopupVisible) {
+            AnimatedVisibility(
+                visible = isPlatformPopupVisible,
+                enter = slideInVertically(),
+                exit = slideOutVertically(),
+            ) {
                 Box {
                     PlatformsPopup(
                         onTogglePlatformPopup = onTogglePlatformPopup,
@@ -606,6 +607,7 @@ private fun HomeTopAppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PlatformsPopup(
     onTogglePlatformPopup: () -> Unit,
@@ -618,19 +620,20 @@ private fun PlatformsPopup(
         Column(
             modifier =
                 Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .padding(6.dp),
+                    .width(250.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
         ) {
             DiscoveryPlatform.entries.forEach { platform ->
                 Box(
                     modifier =
                         Modifier
+                            .fillMaxWidth()
                             .clickable(onClick = {
                                 onChangePlatform(platform)
                                 onTogglePlatformPopup()
                             })
-                            .padding(horizontal = 32.dp, vertical = 8.dp),
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -645,15 +648,14 @@ private fun PlatformsPopup(
                                 imageVector = Icons.Default.Done,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp),
                             )
                         }
 
                         Text(
                             text = platform.toLabel(),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.titleMediumEmphasized,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }

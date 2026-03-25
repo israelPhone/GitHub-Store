@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import zed.rainxch.core.domain.model.AppTheme
+import zed.rainxch.core.domain.model.DiscoveryPlatform
 import zed.rainxch.core.domain.model.FontTheme
 import zed.rainxch.core.domain.model.InstallerType
 import zed.rainxch.core.domain.repository.TweaksRepository
@@ -16,18 +17,6 @@ import zed.rainxch.core.domain.repository.TweaksRepository
 class TweaksRepositoryImpl(
     private val preferences: DataStore<Preferences>,
 ) : TweaksRepository {
-    private val THEME_KEY = stringPreferencesKey("app_theme")
-    private val AMOLED_KEY = booleanPreferencesKey("amoled_theme")
-    private val IS_DARK_THEME_KEY = booleanPreferencesKey("is_dark_theme")
-    private val FONT_KEY = stringPreferencesKey("font_theme")
-    private val AUTO_DETECT_CLIPBOARD_KEY = booleanPreferencesKey("auto_detect_clipboard_links")
-    private val INSTALLER_TYPE_KEY = stringPreferencesKey("installer_type")
-    private val AUTO_UPDATE_KEY = booleanPreferencesKey("auto_update_enabled")
-    private val UPDATE_CHECK_INTERVAL_KEY = longPreferencesKey("update_check_interval_hours")
-    private val INCLUDE_PRE_RELEASES_KEY = booleanPreferencesKey("include_pre_releases")
-    private val LIQUID_GLASS_ENABLED_KEY = booleanPreferencesKey("liquid_glass_enabled")
-    private val HIDE_SEEN_ENABLED_KEY = booleanPreferencesKey("hide_seen_enabled")
-
     override fun getThemeColor(): Flow<AppTheme> =
         preferences.data.map { prefs ->
             val themeName = prefs[THEME_KEY]
@@ -156,7 +145,32 @@ class TweaksRepositoryImpl(
         }
     }
 
+    override fun getDiscoveryPlatform(): Flow<DiscoveryPlatform> =
+        preferences.data.map { prefs ->
+            val platform = prefs[DISCOVERY_PLATFORM_KEY]
+            DiscoveryPlatform.fromName(platform)
+        }
+
+    override suspend fun setDiscoveryPlatform(platform: DiscoveryPlatform) {
+        preferences.edit { prefs ->
+            prefs[DISCOVERY_PLATFORM_KEY] = platform.name
+        }
+    }
+
     companion object {
-        const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 6L
+        private const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 6L
+
+        private val THEME_KEY = stringPreferencesKey("app_theme")
+        private val AMOLED_KEY = booleanPreferencesKey("amoled_theme")
+        private val IS_DARK_THEME_KEY = booleanPreferencesKey("is_dark_theme")
+        private val FONT_KEY = stringPreferencesKey("font_theme")
+        private val DISCOVERY_PLATFORM_KEY = stringPreferencesKey("discovery_platform")
+        private val AUTO_DETECT_CLIPBOARD_KEY = booleanPreferencesKey("auto_detect_clipboard_links")
+        private val INSTALLER_TYPE_KEY = stringPreferencesKey("installer_type")
+        private val AUTO_UPDATE_KEY = booleanPreferencesKey("auto_update_enabled")
+        private val UPDATE_CHECK_INTERVAL_KEY = longPreferencesKey("update_check_interval_hours")
+        private val INCLUDE_PRE_RELEASES_KEY = booleanPreferencesKey("include_pre_releases")
+        private val LIQUID_GLASS_ENABLED_KEY = booleanPreferencesKey("liquid_glass_enabled")
+        private val HIDE_SEEN_ENABLED_KEY = booleanPreferencesKey("hide_seen_enabled")
     }
 }
