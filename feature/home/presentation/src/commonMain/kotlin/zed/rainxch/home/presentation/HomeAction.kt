@@ -32,7 +32,7 @@ sealed interface HomeAction {
         val topic: TopicCategory?,
     ) : HomeAction
 
-    data class SwitchFilterPlatform(
+    data class SwitchDiscoveryPlatform(
         val platform: DiscoveryPlatform,
     ) : HomeAction
 

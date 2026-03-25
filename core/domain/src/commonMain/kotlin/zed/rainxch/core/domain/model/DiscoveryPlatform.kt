@@ -6,4 +6,9 @@ enum class DiscoveryPlatform {
     Macos,
     Windows,
     Linux,
+    ;
+
+    companion object {
+        fun fromName(name: String?): DiscoveryPlatform = DiscoveryPlatform.entries.find { it.name == name } ?: All
+    }
 }

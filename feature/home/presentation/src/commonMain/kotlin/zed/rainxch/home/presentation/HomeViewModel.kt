@@ -6,6 +6,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,8 +24,8 @@ import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
-import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.repository.TweaksRepository
+import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ShareManager
 import zed.rainxch.core.presentation.model.DiscoveryRepositoryUi
 import zed.rainxch.core.presentation.utils.toUi
@@ -66,6 +67,7 @@ class HomeViewModel(
                     observeStarredRepos()
                     observeLiquidGlassEnabled()
                     observeSeenRepos()
+                    observeDiscoveryPlatform()
                     observeHideSeenEnabled()
 
                     hasLoadedInitialData = true
@@ -120,6 +122,18 @@ class HomeViewModel(
         }
     }
 
+    private fun observeDiscoveryPlatform() {
+        viewModelScope.launch {
+            tweaksRepository.getDiscoveryPlatform().collect { platform ->
+                _state.update {
+                    it.copy(
+                        currentPlatform = platform,
+                    )
+                }
+            }
+        }
+    }
+
     private fun loadRepos(
         isInitial: Boolean = false,
         category: HomeCategory? = null,
@@ -140,20 +154,29 @@ class HomeViewModel(
         }
 
         val targetCategory = category ?: _state.value.currentCategory
-        val targetPlatform = platform ?: _state.value.currentPlatform
+        val targetPlatformDeffered =
+            viewModelScope.async {
+                tweaksRepository.getDiscoveryPlatform().first()
+            }
         val targetTopic = if (topicExplicitlySet) topic else _state.value.selectedTopic
 
         logger.debug("Loading repos: category=$targetCategory, topic=$targetTopic, page=$nextPageIndex, isInitial=$isInitial")
 
         return viewModelScope
             .launch {
+                val targetPlatform = platform ?: targetPlatformDeffered.await()
+
+                if (platform != null) {
+                    tweaksRepository.setDiscoveryPlatform(targetPlatform)
+                }
+
                 _state.update {
                     it.copy(
                         isLoading = isInitial,
                         isLoadingMore = !isInitial,
                         errorMessage = null,
-                        currentCategory = targetCategory,
                         currentPlatform = targetPlatform,
+                        currentCategory = targetCategory,
                         selectedTopic = targetTopic,
                         repos = if (isInitial) persistentListOf() else it.repos,
                     )
@@ -269,8 +292,9 @@ class HomeViewModel(
                                 val cachedReposWithStatus = mapReposToUi(paginatedRepos.repos)
 
                                 _state.update { currentState ->
-                                    val merged = (currentState.repos + cachedReposWithStatus)
-                                        .distinctBy { it.repository.fullName }
+                                    val merged =
+                                        (currentState.repos + cachedReposWithStatus)
+                                            .distinctBy { it.repository.fullName }
 
                                     currentState.copy(
                                         repos = merged.toImmutableList(),
@@ -291,8 +315,9 @@ class HomeViewModel(
                             val newReposWithStatus = mapReposToUi(paginatedRepos.repos)
 
                             _state.update { currentState ->
-                                val merged = (currentState.repos + newReposWithStatus)
-                                    .distinctBy { it.repository.fullName }
+                                val merged =
+                                    (currentState.repos + newReposWithStatus)
+                                        .distinctBy { it.repository.fullName }
 
                                 currentState.copy(
                                     repos = merged.toImmutableList(),
@@ -309,9 +334,7 @@ class HomeViewModel(
             }
     }
 
-    private suspend fun mapReposToUi(
-        repos: List<zed.rainxch.core.domain.model.GithubRepoSummary>,
-    ): List<DiscoveryRepositoryUi> {
+    private suspend fun mapReposToUi(repos: List<zed.rainxch.core.domain.model.GithubRepoSummary>): List<DiscoveryRepositoryUi> {
         val installedAppsMap =
             installedAppsRepository
                 .getAllInstalledApps()
@@ -421,7 +444,7 @@ class HomeViewModel(
                 }
             }
 
-            is HomeAction.SwitchFilterPlatform -> {
+            is HomeAction.SwitchDiscoveryPlatform -> {
                 if (_state.value.currentPlatform != action.platform) {
                     nextPageIndex = 1
                     switchCategoryJob?.cancel()
@@ -429,7 +452,7 @@ class HomeViewModel(
                         viewModelScope.launch {
                             loadRepos(isInitial = true, platform = action.platform)?.join()
                                 ?: return@launch
-                            _events.send(HomeEvent.OnScrollToListTop)
+                            _events.send(OnScrollToListTop)
                         }
                 }
             }

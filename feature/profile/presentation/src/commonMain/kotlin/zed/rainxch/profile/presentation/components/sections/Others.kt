@@ -1,6 +1,7 @@
 package zed.rainxch.profile.presentation.components.sections
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +32,7 @@ import zed.rainxch.githubstore.core.presentation.res.*
 import zed.rainxch.profile.presentation.ProfileAction
 import zed.rainxch.profile.presentation.ProfileState
 import zed.rainxch.profile.presentation.components.SectionHeader
+import zed.rainxch.profile.presentation.components.ToggleSettingCard
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.othersSection(
@@ -98,6 +101,70 @@ fun LazyListScope.othersSection(
                         fontWeight = FontWeight.Bold,
                     )
                 }
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        ToggleSettingCard(
+            title = stringResource(Res.string.auto_detect_clipboard_links),
+            description = stringResource(Res.string.auto_detect_clipboard_description),
+            checked = state.autoDetectClipboardLinks,
+            onCheckedChange = { enabled ->
+                onAction(ProfileAction.OnAutoDetectClipboardToggled(enabled))
+            },
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        ToggleSettingCard(
+            title = stringResource(Res.string.hide_seen_title),
+            description = stringResource(Res.string.hide_seen_description),
+            checked = state.isHideSeenEnabled,
+            onCheckedChange = { enabled ->
+                onAction(ProfileAction.OnHideSeenToggled(enabled))
+            },
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        ClearSeenHistoryCard(
+            onClick = {
+                onAction(ProfileAction.OnClearSeenRepos)
+            },
+        )
+    }
+}
+
+@Composable
+private fun ClearSeenHistoryCard(onClick: () -> Unit) {
+    ExpressiveCard {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onClick)
+                    .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = stringResource(Res.string.clear_seen_history),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(Res.string.clear_seen_history_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

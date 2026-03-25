@@ -63,6 +63,7 @@ import zed.rainxch.githubstore.core.presentation.res.*
 import zed.rainxch.profile.presentation.ProfileAction
 import zed.rainxch.profile.presentation.ProfileState
 import zed.rainxch.profile.presentation.components.SectionHeader
+import zed.rainxch.profile.presentation.components.ToggleSettingCard
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.appearanceSection(
@@ -74,7 +75,7 @@ fun LazyListScope.appearanceSection(
             text = stringResource(Res.string.section_appearance),
         )
 
-        VerticalSpacer(8.dp)
+        Spacer(Modifier.height(8.dp))
 
         ThemeSelectionCard(
             isDarkTheme = state.isDarkTheme,
@@ -83,7 +84,7 @@ fun LazyListScope.appearanceSection(
             },
         )
 
-        VerticalSpacer(12.dp)
+        Spacer(Modifier.height(12.dp))
 
         ThemeColorCard(
             selectedThemeColor = state.selectedThemeColor,
@@ -92,7 +93,7 @@ fun LazyListScope.appearanceSection(
             },
         )
 
-        VerticalSpacer(16.dp)
+        Spacer(Modifier.height(16.dp))
 
         if (state.isDarkTheme == true || (state.isDarkTheme == null && isSystemInDarkTheme())) {
             ToggleSettingCard(
@@ -104,7 +105,7 @@ fun LazyListScope.appearanceSection(
                 },
             )
 
-            VerticalSpacer(8.dp)
+            Spacer(Modifier.height(8.dp))
         }
 
         ToggleSettingCard(
@@ -124,7 +125,7 @@ fun LazyListScope.appearanceSection(
             },
         )
 
-        VerticalSpacer(8.dp)
+        Spacer(Modifier.height(8.dp))
 
         ToggleSettingCard(
             title = stringResource(Res.string.liquid_glass_option_title),
@@ -134,42 +135,7 @@ fun LazyListScope.appearanceSection(
                 onAction(ProfileAction.OnLiquidGlassEnabledChange(enabled))
             },
         )
-
-        VerticalSpacer(8.dp)
-
-        ToggleSettingCard(
-            title = stringResource(Res.string.auto_detect_clipboard_links),
-            description = stringResource(Res.string.auto_detect_clipboard_description),
-            checked = state.autoDetectClipboardLinks,
-            onCheckedChange = { enabled ->
-                onAction(ProfileAction.OnAutoDetectClipboardToggled(enabled))
-            },
-        )
-
-        VerticalSpacer(8.dp)
-
-        ToggleSettingCard(
-            title = stringResource(Res.string.hide_seen_title),
-            description = stringResource(Res.string.hide_seen_description),
-            checked = state.isHideSeenEnabled,
-            onCheckedChange = { enabled ->
-                onAction(ProfileAction.OnHideSeenToggled(enabled))
-            },
-        )
-
-        VerticalSpacer(8.dp)
-
-        ClearSeenHistoryCard(
-            onClick = {
-                onAction(ProfileAction.OnClearSeenRepos)
-            },
-        )
     }
-}
-
-@Composable
-private fun VerticalSpacer(height: Dp) {
-    Spacer(Modifier.height(height))
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -290,7 +256,7 @@ private fun ThemeColorCard(
                 fontWeight = FontWeight.SemiBold,
             )
 
-            VerticalSpacer(12.dp)
+            Spacer(Modifier.height(12.dp))
 
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -396,93 +362,5 @@ private fun ThemeColorOption(
                 },
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
         )
-    }
-}
-
-@Composable
-private fun ToggleSettingCard(
-    title: String,
-    description: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    ExpressiveCard {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .toggleable(
-                        value = checked,
-                        onValueChange = onCheckedChange,
-                        role = Role.Switch,
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(),
-                    ).padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(end = 16.dp),
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                VerticalSpacer(4.dp)
-
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ClearSeenHistoryCard(
-    onClick: () -> Unit,
-) {
-    ExpressiveCard {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onClick)
-                    .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = stringResource(Res.string.clear_seen_history),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                VerticalSpacer(4.dp)
-
-                Text(
-                    text = stringResource(Res.string.clear_seen_history_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }
