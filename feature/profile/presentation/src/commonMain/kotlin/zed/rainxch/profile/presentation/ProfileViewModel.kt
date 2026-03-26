@@ -38,6 +38,7 @@ class ProfileViewModel(
     private var userProfileJob: Job? = null
 
     private var hasLoadedInitialData = false
+    private var cacheSizeJob: Job? = null
 
     private val _state = MutableStateFlow(ProfileState())
     val state =
@@ -72,13 +73,15 @@ class ProfileViewModel(
     val events = _events.receiveAsFlow()
 
     private fun refreshCacheSize() {
-        viewModelScope.launch {
-            profileRepository.observeCacheSize().collect { sizeBytes ->
-                _state.update {
-                    it.copy(cacheSize = formatCacheSize(sizeBytes))
+        if (cacheSizeJob?.isActive == true) return
+        cacheSizeJob =
+            viewModelScope.launch {
+                profileRepository.observeCacheSize().collect { sizeBytes ->
+                    _state.update {
+                        it.copy(cacheSize = formatCacheSize(sizeBytes))
+                    }
                 }
             }
-        }
     }
 
     private fun formatCacheSize(bytes: Long): String {
@@ -312,6 +315,8 @@ class ProfileViewModel(
                     runCatching {
                         profileRepository.clearCache()
                     }.onSuccess {
+                        cacheSizeJob?.cancel()
+                        cacheSizeJob = null
                         refreshCacheSize()
                         _events.send(ProfileEvent.OnCacheCleared)
                     }.onFailure { error ->
