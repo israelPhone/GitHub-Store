@@ -34,6 +34,8 @@ sealed interface ProfileAction {
 
     data object OnLoginClick : ProfileAction
 
+    data object OnRefreshCacheSize : ProfileAction
+
     data object OnClearCacheClick : ProfileAction
 
     data object OnClearDownloadsConfirm : ProfileAction

@@ -167,6 +167,20 @@
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
 
+# ── Shizuku (Silent Install) ─────────────────────────────────────────────
+# The UserService class name is passed to Shizuku via ComponentName — R8 must
+# not rename or remove it, otherwise bindUserService() silently fails.
+-keep class zed.rainxch.core.data.services.shizuku.ShizukuInstallerServiceImpl { *; }
+
+# AIDL-generated Stub/Proxy classes for IPC between app and privileged process
+-keep class zed.rainxch.core.data.services.shizuku.IShizukuInstallerService { *; }
+-keep class zed.rainxch.core.data.services.shizuku.IShizukuInstallerService$Stub { *; }
+-keep class zed.rainxch.core.data.services.shizuku.IShizukuInstallerService$Stub$Proxy { *; }
+
+# Shizuku library internals (binder listeners, service args, provider)
+-keep class rikka.shizuku.** { *; }
+-dontwarn rikka.shizuku.**
+
 # ── Enum safety ────────────────────────────────────────────────────────────
 # Keep all enum values and valueOf methods (used by serialization/Room)
 -keepclassmembers enum * {

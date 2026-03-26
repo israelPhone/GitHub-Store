@@ -57,12 +57,11 @@ class ProfileViewModel(
                     loadScrollbarEnabled()
 
                     observeLoggedInStatus()
-
-                    observeCacheSize()
                     observeShizukuStatus()
 
                     hasLoadedInitialData = true
                 }
+                refreshCacheSize()
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
@@ -72,7 +71,7 @@ class ProfileViewModel(
     private val _events = Channel<ProfileEvent>()
     val events = _events.receiveAsFlow()
 
-    private fun observeCacheSize() {
+    private fun refreshCacheSize() {
         viewModelScope.launch {
             profileRepository.observeCacheSize().collect { sizeBytes ->
                 _state.update {
@@ -299,6 +298,10 @@ class ProfileViewModel(
                 )
             }
 
+            ProfileAction.OnRefreshCacheSize -> {
+                refreshCacheSize()
+            }
+
             ProfileAction.OnClearCacheClick -> {
                 _state.update { it.copy(isClearDownloadsDialogVisible = true) }
             }
@@ -309,7 +312,7 @@ class ProfileViewModel(
                     runCatching {
                         profileRepository.clearCache()
                     }.onSuccess {
-                        observeCacheSize()
+                        refreshCacheSize()
                         _events.send(ProfileEvent.OnCacheCleared)
                     }.onFailure { error ->
                         _events.send(
