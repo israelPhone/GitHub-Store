@@ -581,4 +581,7 @@
     <string name="recent_searches">最近搜索</string>
     <string name="clear_all_history">清除全部</string>
     <string name="remove_search_history_item">移除</string>
+
+    <string name="bottom_nav_profile_tweaks">调整</string>
+    <string name="tweaks_title">调整</string>
 </resources>

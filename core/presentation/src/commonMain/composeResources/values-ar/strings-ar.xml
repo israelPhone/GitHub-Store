@@ -618,4 +618,7 @@
     <string name="recent_searches">عمليات البحث الأخيرة</string>
     <string name="clear_all_history">مسح الكل</string>
     <string name="remove_search_history_item">إزالة</string>
+
+    <string name="bottom_nav_profile_tweaks">تعديلات</string>
+    <string name="tweaks_title">تعديلات</string>
 </resources>

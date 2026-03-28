@@ -616,4 +616,7 @@
     <string name="recent_searches">हाल की खोजें</string>
     <string name="clear_all_history">सभी साफ करें</string>
     <string name="remove_search_history_item">हटाएँ</string>
+
+    <string name="bottom_nav_profile_tweaks">ट्वीक्स</string>
+    <string name="tweaks_title">ट्वीक्स</string>
 </resources>

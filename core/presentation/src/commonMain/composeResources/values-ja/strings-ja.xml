@@ -580,4 +580,7 @@
     <string name="recent_searches">最近の検索</string>
     <string name="clear_all_history">すべてクリア</string>
     <string name="remove_search_history_item">削除</string>
+
+    <string name="bottom_nav_profile_tweaks">調整</string>
+    <string name="tweaks_title">調整</string>
 </resources>

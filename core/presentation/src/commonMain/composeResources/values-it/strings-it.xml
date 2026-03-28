@@ -617,4 +617,7 @@
     <string name="recent_searches">Ricerche recenti</string>
     <string name="clear_all_history">Cancella tutto</string>
     <string name="remove_search_history_item">Rimuovi</string>
+
+    <string name="bottom_nav_profile_tweaks">Modifiche</string>
+    <string name="tweaks_title">Modifiche</string>
 </resources>

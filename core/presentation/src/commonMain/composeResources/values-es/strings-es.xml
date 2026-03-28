@@ -578,4 +578,7 @@
     <string name="recent_searches">Búsquedas recientes</string>
     <string name="clear_all_history">Borrar todo</string>
     <string name="remove_search_history_item">Eliminar</string>
+
+    <string name="bottom_nav_profile_tweaks">Ajustes</string>
+    <string name="tweaks_title">Ajustes</string>
 </resources>

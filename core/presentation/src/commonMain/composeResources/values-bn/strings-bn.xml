@@ -617,4 +617,7 @@
     <string name="recent_searches">সাম্প্রতিক অনুসন্ধান</string>
     <string name="clear_all_history">সব মুছুন</string>
     <string name="remove_search_history_item">সরান</string>
+
+    <string name="bottom_nav_profile_tweaks">টুইকস</string>
+    <string name="tweaks_title">টুইকস</string>
 </resources>

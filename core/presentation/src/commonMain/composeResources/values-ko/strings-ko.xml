@@ -615,4 +615,7 @@
     <string name="recent_searches">최근 검색</string>
     <string name="clear_all_history">모두 지우기</string>
     <string name="remove_search_history_item">삭제</string>
+
+    <string name="bottom_nav_profile_tweaks">조정</string>
+    <string name="tweaks_title">조정</string>
 </resources>

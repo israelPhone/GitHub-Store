@@ -581,4 +581,7 @@
     <string name="recent_searches">Ostatnie wyszukiwania</string>
     <string name="clear_all_history">Wyczyść wszystko</string>
     <string name="remove_search_history_item">Usuń</string>
+
+    <string name="bottom_nav_profile_tweaks">Ustawienia</string>
+    <string name="tweaks_title">Ustawienia</string>
 </resources>

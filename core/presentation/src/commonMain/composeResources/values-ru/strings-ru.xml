@@ -581,4 +581,7 @@
     <string name="recent_searches">Недавние поиски</string>
     <string name="clear_all_history">Очистить всё</string>
     <string name="remove_search_history_item">Удалить</string>
+
+    <string name="bottom_nav_profile_tweaks">Настройки</string>
+    <string name="tweaks_title">Настройки</string>
 </resources>

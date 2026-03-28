@@ -615,4 +615,7 @@
     <string name="recent_searches">Son aramalar</string>
     <string name="clear_all_history">Tümünü temizle</string>
     <string name="remove_search_history_item">Kaldır</string>
+
+    <string name="bottom_nav_profile_tweaks">İnce Ayarlar</string>
+    <string name="tweaks_title">İnce Ayarlar</string>
 </resources>
