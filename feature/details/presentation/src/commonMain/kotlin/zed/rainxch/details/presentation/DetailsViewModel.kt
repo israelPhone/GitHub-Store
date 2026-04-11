@@ -416,10 +416,19 @@ class DetailsViewModel(
         val currentVariant = installedApp.preferredAssetVariant
         val currentTokens = installedApp.preferredAssetTokens
         val currentGlob = installedApp.assetGlobPattern
+        val newSiblingCount = installable.size.takeIf { it > 0 }
+        val sameVariant =
+            if (fingerprint.variant == null && currentVariant == null) {
+                true
+            } else {
+                fingerprint.variant?.equals(currentVariant, ignoreCase = true) == true
+            }
         val isSameFingerprint =
-            fingerprint.variant?.equals(currentVariant, ignoreCase = true) == true &&
+            sameVariant &&
                 serializedTokens == currentTokens &&
-                fingerprint.glob == currentGlob
+                fingerprint.glob == currentGlob &&
+                pickedIndex == installedApp.pickedAssetIndex &&
+                newSiblingCount == installedApp.pickedAssetSiblingCount
 
         // Treat the app as "previously unpinned" only when *all* identity
         // layers are blank — otherwise we'd nag every time the user
@@ -441,7 +450,7 @@ class DetailsViewModel(
                     tokens = serializedTokens,
                     glob = fingerprint.glob,
                     pickedIndex = pickedIndex,
-                    siblingCount = installable.size.takeIf { it > 0 },
+                    siblingCount = newSiblingCount,
                 )
                 if (isFirstPin) {
                     val label = fingerprint.variant
