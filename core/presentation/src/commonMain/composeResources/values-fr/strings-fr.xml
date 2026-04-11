@@ -592,4 +592,31 @@
     <string name="bottom_nav_profile_tweaks">Réglages</string>
     <string name="tweaks_title">Réglages</string>
     <string name="pre_releases">Pré-versions</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">Filtre d\'assets</string>
+    <string name="asset_filter_placeholder">ex : ente-auth</string>
+    <string name="asset_filter_help">Seuls les assets correspondant à ce motif (regex) seront installés. Utile pour les monorepos contenant plusieurs apps.</string>
+    <string name="asset_filter_invalid">Regex invalide</string>
+    <string name="asset_filter_no_match">Aucun asset ne correspond à ce filtre</string>
+    <string name="asset_none_available">Aucun asset installable dans cette version</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">%1$d sur %2$d asset affiché</item>
+        <item quantity="other">%1$d sur %2$d assets affichés</item>
+    </plurals>
+    <string name="fallback_older_releases_title">Recourir aux anciennes versions</string>
+    <string name="fallback_older_releases_description">Parcourir les versions précédentes jusqu\'à en trouver une qui corresponde au filtre. Nécessaire pour les monorepos où la dernière version appartient à une autre app.</string>
+    <string name="advanced_settings_title">Filtre avancé</string>
+    <string name="advanced_settings_description">Configurez comment cette app est identifiée dans le dépôt. Utile lorsque le dépôt contient plusieurs apps.</string>
+    <string name="advanced_settings_open">Ouvrir le filtre avancé</string>
+    <string name="advanced_save">Enregistrer</string>
+    <string name="advanced_preview_title">Aperçu</string>
+    <string name="advanced_preview_refresh">Actualiser l\'aperçu</string>
+    <string name="advanced_preview_pending">Saisissez un filtre pour prévisualiser les assets correspondants.</string>
+    <string name="advanced_preview_no_match">Aucune version récente ne contient d\'asset correspondant. Activez le repli vers les anciennes versions ou ajustez le regex.</string>
+    <string name="advanced_preview_failed">Impossible de charger l\'aperçu. Vérifiez votre connexion et réessayez.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">Correspondance dans %1$s · %2$d asset</item>
+        <item quantity="other">Correspondance dans %1$s · %2$d assets</item>
+    </plurals>
 </resources>

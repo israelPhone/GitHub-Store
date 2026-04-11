@@ -594,4 +594,35 @@
     <string name="bottom_nav_profile_tweaks">Настройки</string>
     <string name="tweaks_title">Настройки</string>
     <string name="pre_releases">Пре-релизы</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">Фильтр ассетов</string>
+    <string name="asset_filter_placeholder">напр. ente-auth</string>
+    <string name="asset_filter_help">Будут установлены только ассеты, соответствующие этому шаблону (regex). Полезно для монорепо с несколькими приложениями.</string>
+    <string name="asset_filter_invalid">Недопустимое регулярное выражение</string>
+    <string name="asset_filter_no_match">Ни один ассет не соответствует фильтру</string>
+    <string name="asset_none_available">В этом релизе нет устанавливаемых ассетов</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">Показан %1$d из %2$d ассета</item>
+        <item quantity="few">Показано %1$d из %2$d ассетов</item>
+        <item quantity="many">Показано %1$d из %2$d ассетов</item>
+        <item quantity="other">Показано %1$d из %2$d ассетов</item>
+    </plurals>
+    <string name="fallback_older_releases_title">Возврат к старым релизам</string>
+    <string name="fallback_older_releases_description">Просматривать предыдущие релизы, пока не найдётся соответствующий фильтру. Необходимо для монорепо, где последний релиз принадлежит другому приложению.</string>
+    <string name="advanced_settings_title">Расширенный фильтр</string>
+    <string name="advanced_settings_description">Настройте, как это приложение определяется в репозитории. Используйте эти настройки, если репо содержит несколько приложений.</string>
+    <string name="advanced_settings_open">Открыть расширенный фильтр</string>
+    <string name="advanced_save">Сохранить</string>
+    <string name="advanced_preview_title">Предпросмотр</string>
+    <string name="advanced_preview_refresh">Обновить предпросмотр</string>
+    <string name="advanced_preview_pending">Введите фильтр, чтобы увидеть подходящие ассеты.</string>
+    <string name="advanced_preview_no_match">В последних релизах нет подходящих ассетов. Включите возврат к старым релизам или измените regex.</string>
+    <string name="advanced_preview_failed">Не удалось загрузить предпросмотр. Проверьте подключение и попробуйте снова.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">Совпадение в %1$s · %2$d ассет</item>
+        <item quantity="few">Совпадение в %1$s · %2$d ассета</item>
+        <item quantity="many">Совпадение в %1$s · %2$d ассетов</item>
+        <item quantity="other">Совпадение в %1$s · %2$d ассетов</item>
+    </plurals>
 </resources>

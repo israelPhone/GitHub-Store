@@ -8,6 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -19,11 +20,14 @@ import zed.rainxch.core.data.local.db.entities.UpdateHistoryEntity
 import zed.rainxch.core.data.mappers.toDomain
 import zed.rainxch.core.data.mappers.toEntity
 import zed.rainxch.core.data.network.executeRequest
+import zed.rainxch.core.domain.model.GithubAsset
 import zed.rainxch.core.domain.model.GithubRelease
 import zed.rainxch.core.domain.model.InstallSource
 import zed.rainxch.core.domain.model.InstalledApp
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.MatchingPreview
 import zed.rainxch.core.domain.system.Installer
+import zed.rainxch.core.domain.util.AssetFilter
 
 class InstalledAppsRepositoryImpl(
     private val database: AppDatabase,
@@ -32,6 +36,22 @@ class InstalledAppsRepositoryImpl(
     private val installer: Installer,
     private val httpClient: HttpClient,
 ) : InstalledAppsRepository {
+    private companion object {
+        /**
+         * How many releases the update checker fetches in one request.
+         * Picked to balance:
+         *  - Monorepos that ship multiple sibling apps in close succession
+         *    (need a few releases of headroom to find a match for the
+         *    targeted app via [InstalledApp.fallbackToOlderReleases])
+         *  - Avoiding unnecessary GitHub API quota burn for the common case
+         *    of a single-app repo where 1 release is enough.
+         *
+         * 50 is the GitHub API per_page maximum that doesn't require
+         * pagination, and is enough to cover ~3 months of daily releases.
+         */
+        const val RELEASE_WINDOW = 50
+    }
+
     override suspend fun <R> executeInTransaction(block: suspend () -> R): R =
         database.useWriterConnection { transactor ->
             transactor.immediateTransaction {
@@ -71,91 +91,179 @@ class InstalledAppsRepositoryImpl(
         installedAppsDao.deleteByPackageName(packageName)
     }
 
-    private suspend fun fetchLatestPublishedRelease(
+    /**
+     * Fetches up to [RELEASE_WINDOW] releases for [owner]/[repo], filters
+     * out drafts, applies the pre-release flag, and returns them sorted by
+     * `publishedAt` descending. Empty list on failure (logged at error).
+     */
+    private suspend fun fetchReleaseWindow(
         owner: String,
         repo: String,
         includePreReleases: Boolean,
-    ): GithubRelease? {
+    ): List<GithubRelease> {
         return try {
             val releases =
                 httpClient
                     .executeRequest<List<ReleaseNetwork>> {
                         get("/repos/$owner/$repo/releases") {
                             header(HttpHeaders.Accept, "application/vnd.github+json")
-                            parameter("per_page", 10)
+                            parameter("per_page", RELEASE_WINDOW)
                         }
-                    }.getOrNull() ?: return null
+                    }.getOrNull() ?: return emptyList()
 
-            val latest =
-                releases
-                    .asSequence()
-                    .filter { it.draft != true }
-                    .filter { includePreReleases || it.prerelease != true }
-                    .maxByOrNull { it.publishedAt ?: it.createdAt ?: "" }
-                    ?: return null
-
-            latest.toDomain()
+            releases
+                .asSequence()
+                .filter { it.draft != true }
+                .filter { includePreReleases || it.prerelease != true }
+                .sortedByDescending { it.publishedAt ?: it.createdAt ?: "" }
+                .map { it.toDomain() }
+                .toList()
+        } catch (e: CancellationException) {
+            // Structured concurrency: cancellation must propagate. Never
+            // silently convert a cancelled fetch into an empty result.
+            throw e
         } catch (e: Exception) {
-            Logger.e { "Failed to fetch latest release for $owner/$repo: ${e.message}" }
-            null
+            Logger.e { "Failed to fetch releases for $owner/$repo: ${e.message}" }
+            emptyList()
         }
+    }
+
+    /**
+     * Result of [resolveTrackedRelease] — a candidate release plus the asset
+     * the installer should download for it. `null` when no release in the
+     * window contains a usable asset (after filter + arch matching).
+     */
+    private data class ResolvedRelease(
+        val release: GithubRelease,
+        val primaryAsset: GithubAsset,
+    )
+
+    /**
+     * Walks [releases] (already in newest-first order) and returns the first
+     * release whose installable asset list — after applying [filter] — yields
+     * a primary asset for the current architecture. When [filter] is null,
+     * only the first release in the window is considered: this preserves the
+     * pre-existing behaviour for apps that don't track a monorepo.
+     *
+     * When [filter] is non-null and [fallbackToOlderReleases] is false, the
+     * walker still only inspects the first release. The semantics are:
+     *   "Apply the filter to the latest release, but don't dig further."
+     * This matches Obtainium's defaults and avoids accidental downgrades for
+     * apps where the user just wants a stricter asset picker.
+     */
+    private fun resolveTrackedRelease(
+        releases: List<GithubRelease>,
+        filter: AssetFilter?,
+        fallbackToOlderReleases: Boolean,
+    ): ResolvedRelease? {
+        if (releases.isEmpty()) return null
+
+        val candidates =
+            if (filter != null && fallbackToOlderReleases) {
+                releases
+            } else {
+                releases.take(1)
+            }
+
+        for (release in candidates) {
+            val installableForPlatform =
+                release.assets.filter { installer.isAssetInstallable(it.name) }
+            val installableForApp =
+                if (filter == null) installableForPlatform
+                else installableForPlatform.filter { filter.matches(it.name) }
+
+            if (installableForApp.isEmpty()) continue
+            val primary = installer.choosePrimaryAsset(installableForApp) ?: continue
+            return ResolvedRelease(release, primary)
+        }
+
+        return null
     }
 
     override suspend fun checkForUpdates(packageName: String): Boolean {
         val app = installedAppsDao.getAppByPackage(packageName) ?: return false
 
         try {
-            val latestRelease =
-                fetchLatestPublishedRelease(
+            val releases =
+                fetchReleaseWindow(
                     owner = app.repoOwner,
                     repo = app.repoName,
                     includePreReleases = app.includePreReleases,
                 )
 
-            if (latestRelease != null) {
-                val normalizedInstalledTag = normalizeVersion(app.installedVersion)
-                val normalizedLatestTag = normalizeVersion(latestRelease.tagName)
+            if (releases.isEmpty()) {
+                // The repo has no visible releases (or the fetch failed
+                // softly). Drop any stale update metadata so the badge
+                // doesn't outlive the release that set it.
+                installedAppsDao.clearUpdateMetadata(packageName, System.currentTimeMillis())
+                return false
+            }
 
-                val installableAssets =
-                    latestRelease.assets.filter { asset ->
-                        installer.isAssetInstallable(asset.name)
-                    }
-                val primaryAsset = installer.choosePrimaryAsset(installableAssets)
+            // Compile the per-app filter once. Invalid regexes are treated as
+            // "no filter" so we don't break the app silently — the user is
+            // told about the syntax error in the advanced settings sheet.
+            val compiledFilter =
+                AssetFilter.parse(app.assetFilterRegex)
+                    ?.onFailure { error ->
+                        Logger.w {
+                            "Invalid asset filter for $packageName " +
+                                "(${app.assetFilterRegex}): ${error.message} — ignoring"
+                        }
+                    }?.getOrNull()
 
-                // Only flag as update if the latest version is actually newer
-                // (not just different — avoids false "downgrade" notifications)
-                val isUpdateAvailable =
-                    if (normalizedInstalledTag == normalizedLatestTag) {
-                        false
-                    } else {
-                        isVersionNewer(normalizedLatestTag, normalizedInstalledTag)
-                    }
-
-                Logger.d {
-                    "Update check for ${app.appName}: " +
-                        "installedTag=${app.installedVersion}, latestTag=${latestRelease.tagName}, " +
-                        "installedCode=${app.installedVersionCode}, " +
-                        "isUpdate=$isUpdateAvailable"
-                }
-
-                installedAppsDao.updateVersionInfo(
-                    packageName = packageName,
-                    available = isUpdateAvailable,
-                    version = latestRelease.tagName,
-                    assetName = primaryAsset?.name,
-                    assetUrl = primaryAsset?.downloadUrl,
-                    assetSize = primaryAsset?.size,
-                    releaseNotes = latestRelease.description ?: "",
-                    timestamp = System.currentTimeMillis(),
-                    latestVersionName = latestRelease.tagName,
-                    latestVersionCode = null,
-                    latestReleasePublishedAt = latestRelease.publishedAt,
+            val resolved =
+                resolveTrackedRelease(
+                    releases = releases,
+                    filter = compiledFilter,
+                    fallbackToOlderReleases = app.fallbackToOlderReleases,
                 )
 
-                return isUpdateAvailable
-            } else {
-                installedAppsDao.updateLastChecked(packageName, System.currentTimeMillis())
+            if (resolved == null) {
+                Logger.d {
+                    "No matching release found for ${app.appName} in window of ${releases.size}; " +
+                        "filter=${app.assetFilterRegex}, fallback=${app.fallbackToOlderReleases}"
+                }
+                // Filter matches nothing in the fetched window — clear
+                // any cached latest-release metadata so the UI doesn't
+                // keep pointing at an asset that no longer matches.
+                installedAppsDao.clearUpdateMetadata(packageName, System.currentTimeMillis())
+                return false
             }
+
+            val (matchedRelease, primaryAsset) = resolved
+            val normalizedInstalledTag = normalizeVersion(app.installedVersion)
+            val normalizedLatestTag = normalizeVersion(matchedRelease.tagName)
+
+            val isUpdateAvailable =
+                if (normalizedInstalledTag == normalizedLatestTag) {
+                    false
+                } else {
+                    isVersionNewer(normalizedLatestTag, normalizedInstalledTag)
+                }
+
+            Logger.d {
+                "Update check for ${app.appName}: " +
+                    "installedTag=${app.installedVersion}, " +
+                    "matchedTag=${matchedRelease.tagName}, " +
+                    "matchedAsset=${primaryAsset.name}, " +
+                    "isUpdate=$isUpdateAvailable"
+            }
+
+            installedAppsDao.updateVersionInfo(
+                packageName = packageName,
+                available = isUpdateAvailable,
+                version = matchedRelease.tagName,
+                assetName = primaryAsset.name,
+                assetUrl = primaryAsset.downloadUrl,
+                assetSize = primaryAsset.size,
+                releaseNotes = matchedRelease.description ?: "",
+                timestamp = System.currentTimeMillis(),
+                latestVersionName = matchedRelease.tagName,
+                latestVersionCode = null,
+                latestReleasePublishedAt = matchedRelease.publishedAt,
+            )
+
+            return isUpdateAvailable
         } catch (e: Exception) {
             Logger.e { "Failed to check updates for $packageName: ${e.message}" }
             installedAppsDao.updateLastChecked(packageName, System.currentTimeMillis())
@@ -245,6 +353,79 @@ class InstalledAppsRepositoryImpl(
         enabled: Boolean,
     ) {
         installedAppsDao.updateIncludePreReleases(packageName, enabled)
+    }
+
+    override suspend fun setAssetFilter(
+        packageName: String,
+        regex: String?,
+        fallbackToOlderReleases: Boolean,
+    ) {
+        val normalized = regex?.trim()?.takeIf { it.isNotEmpty() }
+        installedAppsDao.updateAssetFilter(
+            packageName = packageName,
+            regex = normalized,
+            fallback = fallbackToOlderReleases,
+        )
+
+        // Persisting is the authoritative operation — if the follow-up
+        // re-check fails (network down, rate limited, cancelled) we still
+        // keep the new filter. The next periodic worker run will catch up.
+        try {
+            checkForUpdates(packageName)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Logger.w {
+                "Saved new asset filter for $packageName but immediate " +
+                    "re-check failed: ${e.message}"
+            }
+        }
+    }
+
+    override suspend fun previewMatchingAssets(
+        owner: String,
+        repo: String,
+        regex: String?,
+        includePreReleases: Boolean,
+        fallbackToOlderReleases: Boolean,
+    ): MatchingPreview {
+        val parseResult = AssetFilter.parse(regex)
+        if (parseResult != null && parseResult.isFailure) {
+            return MatchingPreview(
+                release = null,
+                matchedAssets = emptyList(),
+                regexError = parseResult.exceptionOrNull()?.message,
+            )
+        }
+        val filter = parseResult?.getOrNull()
+
+        val releases = fetchReleaseWindow(owner, repo, includePreReleases)
+        if (releases.isEmpty()) {
+            return MatchingPreview(release = null, matchedAssets = emptyList())
+        }
+
+        val candidates =
+            if (filter != null && fallbackToOlderReleases) {
+                releases
+            } else {
+                releases.take(1)
+            }
+
+        for (release in candidates) {
+            val installableForPlatform =
+                release.assets.filter { installer.isAssetInstallable(it.name) }
+            val matched =
+                if (filter == null) installableForPlatform
+                else installableForPlatform.filter { filter.matches(it.name) }
+            if (matched.isNotEmpty()) {
+                return MatchingPreview(release = release, matchedAssets = matched)
+            }
+        }
+
+        return MatchingPreview(
+            release = releases.firstOrNull(),
+            matchedAssets = emptyList(),
+        )
     }
 
     private fun normalizeVersion(version: String): String = version.removePrefix("v").removePrefix("V").trim()

@@ -628,4 +628,31 @@
     <string name="bottom_nav_profile_tweaks">İnce Ayarlar</string>
     <string name="tweaks_title">İnce Ayarlar</string>
     <string name="pre_releases">Ön sürümler</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">Varlık filtresi</string>
+    <string name="asset_filter_placeholder">örn. ente-auth</string>
+    <string name="asset_filter_help">Yalnızca bu desene (regex) uyan varlıklar yüklenir. Birden fazla uygulama içeren monorepolar için kullanışlıdır.</string>
+    <string name="asset_filter_invalid">Geçersiz regex</string>
+    <string name="asset_filter_no_match">Bu filtreye uyan varlık yok</string>
+    <string name="asset_none_available">Bu sürümde yüklenebilir varlık yok</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">%2$d varlığın %1$d tanesi gösteriliyor</item>
+        <item quantity="other">%2$d varlığın %1$d tanesi gösteriliyor</item>
+    </plurals>
+    <string name="fallback_older_releases_title">Eski sürümlere geri dön</string>
+    <string name="fallback_older_releases_description">Filtreye uyan biri bulunana kadar önceki sürümlere göz at. Son sürümün başka bir uygulamaya ait olduğu monorepolar için gereklidir.</string>
+    <string name="advanced_settings_title">Gelişmiş filtre</string>
+    <string name="advanced_settings_description">Bu uygulamanın depoda nasıl eşleştiğini yapılandırın. Depo birden fazla uygulama dağıttığında bu ayarları kullanın.</string>
+    <string name="advanced_settings_open">Gelişmiş filtreyi aç</string>
+    <string name="advanced_save">Kaydet</string>
+    <string name="advanced_preview_title">Önizleme</string>
+    <string name="advanced_preview_refresh">Önizlemeyi yenile</string>
+    <string name="advanced_preview_pending">Eşleşen varlıkları önizlemek için bir filtre yazın.</string>
+    <string name="advanced_preview_no_match">Son sürümlerde eşleşen varlık yok. Eski sürümlere geri dönmeyi etkinleştirin veya regex\'i ayarlayın.</string>
+    <string name="advanced_preview_failed">Önizleme yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">%1$s sürümünde eşleşti · %2$d varlık</item>
+        <item quantity="other">%1$s sürümünde eşleşti · %2$d varlık</item>
+    </plurals>
 </resources>

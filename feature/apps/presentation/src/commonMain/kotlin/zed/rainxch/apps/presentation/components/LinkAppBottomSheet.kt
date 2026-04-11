@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -45,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.AppsAction
 import zed.rainxch.apps.presentation.AppsState
@@ -98,11 +101,17 @@ fun LinkAppBottomSheet(
                 )
 
                 LinkStep.PickAsset -> PickAssetStep(
-                    assets = state.linkInstallableAssets,
+                    allAssets = state.linkInstallableAssets,
+                    visibleAssets = state.filteredLinkAssets,
                     selectedAsset = state.linkSelectedAsset,
                     downloadProgress = state.linkDownloadProgress,
                     validationStatus = state.linkValidationStatus,
                     validationError = state.repoValidationError,
+                    filterValue = state.linkAssetFilter,
+                    filterError = state.linkAssetFilterError,
+                    fallbackEnabled = state.linkFallbackToOlder,
+                    onFilterChanged = { onAction(AppsAction.OnLinkAssetFilterChanged(it)) },
+                    onFallbackToggled = { onAction(AppsAction.OnLinkFallbackToggled(it)) },
                     onAssetSelected = { onAction(AppsAction.OnLinkAssetSelected(it)) },
                     onBack = { onAction(AppsAction.OnBackToEnterUrl) },
                 )
@@ -367,11 +376,17 @@ private fun EnterUrlStep(
 
 @Composable
 private fun PickAssetStep(
-    assets: List<GithubAssetUi>,
+    allAssets: List<GithubAssetUi>,
+    visibleAssets: List<GithubAssetUi>,
     selectedAsset: GithubAssetUi?,
     downloadProgress: Int?,
     validationStatus: String?,
     validationError: String?,
+    filterValue: String,
+    filterError: String?,
+    fallbackEnabled: Boolean,
+    onFilterChanged: (String) -> Unit,
+    onFallbackToggled: (Boolean) -> Unit,
     onAssetSelected: (GithubAssetUi) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -411,13 +426,95 @@ private fun PickAssetStep(
 
         Spacer(Modifier.height(12.dp))
 
+        // Asset filter — for monorepos that ship multiple apps from the
+        // same repo. Live-narrows the visible list and is persisted with
+        // the link, so the update checker only ever resolves matching APKs.
+        OutlinedTextField(
+            value = filterValue,
+            onValueChange = onFilterChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.asset_filter_label)) },
+            placeholder = { Text(stringResource(Res.string.asset_filter_placeholder)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.FilterAlt,
+                    contentDescription = null,
+                )
+            },
+            singleLine = true,
+            isError = filterError != null,
+            supportingText = {
+                Text(
+                    text =
+                        when {
+                            filterError != null -> stringResource(Res.string.asset_filter_invalid)
+                            visibleAssets.isEmpty() && filterValue.isNotBlank() ->
+                                stringResource(Res.string.asset_filter_no_match)
+                            filterValue.isNotBlank() ->
+                                // Pass the total asset count as the plural
+                                // quantity so Polish/Russian inflection picks
+                                // the right form based on the *collection*
+                                // size, and supply both counts as format args.
+                                pluralStringResource(
+                                    Res.plurals.asset_filter_visible_count,
+                                    allAssets.size,
+                                    visibleAssets.size,
+                                    allAssets.size,
+                                )
+                            else -> stringResource(Res.string.asset_filter_help)
+                        },
+                    color =
+                        if (filterError != null) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                )
+            },
+            enabled = !isProcessing,
+            shape = RoundedCornerShape(12.dp),
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        // Fall-back-to-older-releases toggle. Only meaningful when a filter
+        // is set; in monorepos, the latest release is often for the wrong
+        // app, so the checker needs to walk back to find this app's APK.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = !isProcessing) { onFallbackToggled(!fallbackEnabled) }
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.fallback_older_releases_title),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    text = stringResource(Res.string.fallback_older_releases_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = fallbackEnabled,
+                onCheckedChange = onFallbackToggled,
+                enabled = !isProcessing,
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp),
+                .height(260.dp),
         ) {
             items(
-                items = assets,
+                items = visibleAssets,
                 key = { it.id },
             ) { asset ->
                 val isSelected = selectedAsset?.id == asset.id
@@ -473,6 +570,42 @@ private fun PickAssetStep(
                 HorizontalDivider(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                 )
+            }
+
+            if (visibleAssets.isEmpty()) {
+                item {
+                    // Three distinct empty states:
+                    //  - No installable assets at all in the repo release
+                    //    (defensive: validateAndLinkRepo short-circuits
+                    //    this today, but guard in case flows change)
+                    //  - Filter regex is invalid (shown in error color)
+                    //  - Filter is valid but matched nothing
+                    val (message, isError) = when {
+                        allAssets.isEmpty() ->
+                            stringResource(Res.string.asset_none_available) to false
+                        filterError != null ->
+                            stringResource(Res.string.asset_filter_invalid) to true
+                        else ->
+                            stringResource(Res.string.asset_filter_no_match) to false
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color =
+                                if (isError) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                        )
+                    }
+                }
             }
         }
 

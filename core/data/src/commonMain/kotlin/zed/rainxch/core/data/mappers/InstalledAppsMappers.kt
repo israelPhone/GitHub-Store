@@ -38,6 +38,8 @@ fun InstalledApp.toEntity(): InstalledAppEntity =
         latestReleasePublishedAt = latestReleasePublishedAt,
         signingFingerprint = signingFingerprint,
         includePreReleases = includePreReleases,
+        assetFilterRegex = assetFilterRegex,
+        fallbackToOlderReleases = fallbackToOlderReleases,
     )
 
 fun InstalledAppEntity.toDomain(): InstalledApp =
@@ -75,4 +77,6 @@ fun InstalledAppEntity.toDomain(): InstalledApp =
         latestReleasePublishedAt = latestReleasePublishedAt,
         signingFingerprint = signingFingerprint,
         includePreReleases = includePreReleases,
+        assetFilterRegex = assetFilterRegex,
+        fallbackToOlderReleases = fallbackToOlderReleases,
     )

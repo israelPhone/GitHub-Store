@@ -27,7 +27,7 @@ import zed.rainxch.core.data.local.db.entities.UpdateHistoryEntity
         SeenRepoEntity::class,
         SearchHistoryEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

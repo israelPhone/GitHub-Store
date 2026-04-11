@@ -594,4 +594,29 @@
     <string name="bottom_nav_profile_tweaks">调整</string>
     <string name="tweaks_title">调整</string>
     <string name="pre_releases">预发布版本</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">资产过滤器</string>
+    <string name="asset_filter_placeholder">例如：ente-auth</string>
+    <string name="asset_filter_help">仅安装与此模式 (regex) 匹配的资产。适用于包含多个应用的单一仓库。</string>
+    <string name="asset_filter_invalid">无效的正则表达式</string>
+    <string name="asset_filter_no_match">没有匹配此过滤器的资产</string>
+    <string name="asset_none_available">此版本中没有可安装的资产</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="other">显示 %2$d 个资产中的 %1$d 个</item>
+    </plurals>
+    <string name="fallback_older_releases_title">回退到旧版本</string>
+    <string name="fallback_older_releases_description">遍历过去的版本，直到找到匹配过滤器的版本。最新版本属于其他应用的单一仓库需要此功能。</string>
+    <string name="advanced_settings_title">高级过滤器</string>
+    <string name="advanced_settings_description">配置此应用在仓库中的匹配方式。当仓库包含多个应用时使用这些设置。</string>
+    <string name="advanced_settings_open">打开高级过滤器</string>
+    <string name="advanced_save">保存</string>
+    <string name="advanced_preview_title">预览</string>
+    <string name="advanced_preview_refresh">刷新预览</string>
+    <string name="advanced_preview_pending">输入过滤器以预览匹配的资产。</string>
+    <string name="advanced_preview_no_match">最近的版本中没有匹配的资产。请启用回退到旧版本或调整正则表达式。</string>
+    <string name="advanced_preview_failed">无法加载预览。请检查您的连接并重试。</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="other">在 %1$s 中匹配 · %2$d 个资产</item>
+    </plurals>
 </resources>

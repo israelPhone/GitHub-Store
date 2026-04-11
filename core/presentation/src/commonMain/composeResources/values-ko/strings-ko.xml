@@ -628,4 +628,29 @@
     <string name="bottom_nav_profile_tweaks">조정</string>
     <string name="tweaks_title">조정</string>
     <string name="pre_releases">프리릴리스</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">에셋 필터</string>
+    <string name="asset_filter_placeholder">예: ente-auth</string>
+    <string name="asset_filter_help">이 패턴 (regex)과 일치하는 에셋만 설치됩니다. 여러 앱을 배포하는 모노레포에 유용합니다.</string>
+    <string name="asset_filter_invalid">잘못된 정규식</string>
+    <string name="asset_filter_no_match">이 필터와 일치하는 에셋이 없습니다</string>
+    <string name="asset_none_available">이 릴리스에 설치 가능한 에셋이 없습니다</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="other">%2$d개 중 %1$d개 에셋 표시 중</item>
+    </plurals>
+    <string name="fallback_older_releases_title">이전 릴리스로 폴백</string>
+    <string name="fallback_older_releases_description">필터와 일치하는 릴리스를 찾을 때까지 이전 릴리스를 거슬러 올라갑니다. 최신 릴리스가 다른 앱에 속한 모노레포에서 필요합니다.</string>
+    <string name="advanced_settings_title">고급 필터</string>
+    <string name="advanced_settings_description">이 앱이 저장소 내에서 어떻게 식별되는지 구성합니다. 저장소에 여러 앱이 포함된 경우 사용하세요.</string>
+    <string name="advanced_settings_open">고급 필터 열기</string>
+    <string name="advanced_save">저장</string>
+    <string name="advanced_preview_title">미리보기</string>
+    <string name="advanced_preview_refresh">미리보기 새로고침</string>
+    <string name="advanced_preview_pending">일치하는 에셋을 미리 보려면 필터를 입력하세요.</string>
+    <string name="advanced_preview_no_match">최근 릴리스에 일치하는 에셋이 없습니다. 이전 릴리스 폴백을 활성화하거나 정규식을 조정해보세요.</string>
+    <string name="advanced_preview_failed">미리보기를 불러올 수 없습니다. 연결을 확인하고 다시 시도하세요.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="other">%1$s에서 일치 · %2$d개 에셋</item>
+    </plurals>
 </resources>

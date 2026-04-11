@@ -630,4 +630,31 @@
     <string name="bottom_nav_profile_tweaks">Modifiche</string>
     <string name="tweaks_title">Modifiche</string>
     <string name="pre_releases">Pre-release</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">Filtro asset</string>
+    <string name="asset_filter_placeholder">es. ente-auth</string>
+    <string name="asset_filter_help">Verranno installati solo gli asset che corrispondono a questo pattern (regex). Utile per monorepo con più app.</string>
+    <string name="asset_filter_invalid">Regex non valida</string>
+    <string name="asset_filter_no_match">Nessun asset corrisponde a questo filtro</string>
+    <string name="asset_none_available">Nessun asset installabile in questa release</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">Mostrato %1$d di %2$d asset</item>
+        <item quantity="other">Mostrati %1$d di %2$d asset</item>
+    </plurals>
+    <string name="fallback_older_releases_title">Risalire alle release precedenti</string>
+    <string name="fallback_older_releases_description">Scorri le release precedenti finché una non corrisponde al filtro. Necessario per i monorepo in cui l\'ultima release riguarda un\'altra app.</string>
+    <string name="advanced_settings_title">Filtro avanzato</string>
+    <string name="advanced_settings_description">Configura come questa app viene identificata nel repository. Usa queste impostazioni quando il repo contiene più app.</string>
+    <string name="advanced_settings_open">Apri filtro avanzato</string>
+    <string name="advanced_save">Salva</string>
+    <string name="advanced_preview_title">Anteprima</string>
+    <string name="advanced_preview_refresh">Aggiorna anteprima</string>
+    <string name="advanced_preview_pending">Inserisci un filtro per visualizzare gli asset corrispondenti.</string>
+    <string name="advanced_preview_no_match">Nessuna release recente contiene asset corrispondenti. Attiva il fallback alle release precedenti o modifica la regex.</string>
+    <string name="advanced_preview_failed">Impossibile caricare l\'anteprima. Controlla la connessione e riprova.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">Corrispondenza in %1$s · %2$d asset</item>
+        <item quantity="other">Corrispondenza in %1$s · %2$d asset</item>
+    </plurals>
 </resources>

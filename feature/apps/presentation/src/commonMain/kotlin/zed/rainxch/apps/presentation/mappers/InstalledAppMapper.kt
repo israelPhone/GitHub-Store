@@ -38,6 +38,8 @@ fun InstalledApp.toUi(): InstalledAppUi =
         appName = appName,
         signingFingerprint = signingFingerprint,
         includePreReleases = includePreReleases,
+        assetFilterRegex = assetFilterRegex,
+        fallbackToOlderReleases = fallbackToOlderReleases,
     )
 
 fun InstalledAppUi.toDomain(): InstalledApp =
@@ -75,4 +77,6 @@ fun InstalledAppUi.toDomain(): InstalledApp =
         appName = appName,
         signingFingerprint = signingFingerprint,
         includePreReleases = includePreReleases,
+        assetFilterRegex = assetFilterRegex,
+        fallbackToOlderReleases = fallbackToOlderReleases,
     )

@@ -594,4 +594,35 @@
     <string name="bottom_nav_profile_tweaks">Ustawienia</string>
     <string name="tweaks_title">Ustawienia</string>
     <string name="pre_releases">Wersje wstępne</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">Filtr zasobów</string>
+    <string name="asset_filter_placeholder">np. ente-auth</string>
+    <string name="asset_filter_help">Zainstalowane zostaną tylko zasoby pasujące do tego wzorca (regex). Przydatne w monorepach z wieloma aplikacjami.</string>
+    <string name="asset_filter_invalid">Nieprawidłowy regex</string>
+    <string name="asset_filter_no_match">Żaden zasób nie pasuje do tego filtra</string>
+    <string name="asset_none_available">Brak instalowalnych zasobów w tej wersji</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">Pokazano %1$d z %2$d zasobu</item>
+        <item quantity="few">Pokazano %1$d z %2$d zasobów</item>
+        <item quantity="many">Pokazano %1$d z %2$d zasobów</item>
+        <item quantity="other">Pokazano %1$d z %2$d zasobów</item>
+    </plurals>
+    <string name="fallback_older_releases_title">Wróć do starszych wydań</string>
+    <string name="fallback_older_releases_description">Przeszukaj wcześniejsze wydania, aż znajdziesz pasujące do filtra. Wymagane dla monorepów, w których najnowsze wydanie należy do innej aplikacji.</string>
+    <string name="advanced_settings_title">Filtr zaawansowany</string>
+    <string name="advanced_settings_description">Skonfiguruj sposób identyfikacji tej aplikacji w repozytorium. Użyj tych ustawień, gdy repo zawiera wiele aplikacji.</string>
+    <string name="advanced_settings_open">Otwórz filtr zaawansowany</string>
+    <string name="advanced_save">Zapisz</string>
+    <string name="advanced_preview_title">Podgląd</string>
+    <string name="advanced_preview_refresh">Odśwież podgląd</string>
+    <string name="advanced_preview_pending">Wpisz filtr, aby zobaczyć pasujące zasoby.</string>
+    <string name="advanced_preview_no_match">Żadne ostatnie wydanie nie zawiera pasujących zasobów. Włącz powrót do starszych wydań lub dostosuj regex.</string>
+    <string name="advanced_preview_failed">Nie można załadować podglądu. Sprawdź połączenie i spróbuj ponownie.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">Pasuje w %1$s · %2$d zasób</item>
+        <item quantity="few">Pasuje w %1$s · %2$d zasoby</item>
+        <item quantity="many">Pasuje w %1$s · %2$d zasobów</item>
+        <item quantity="other">Pasuje w %1$s · %2$d zasobów</item>
+    </plurals>
 </resources>

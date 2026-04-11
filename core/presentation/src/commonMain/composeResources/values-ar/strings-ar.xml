@@ -631,4 +631,31 @@
     <string name="bottom_nav_profile_tweaks">تعديلات</string>
     <string name="tweaks_title">تعديلات</string>
     <string name="pre_releases">إصدارات تجريبية</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">عامل تصفية الأصول</string>
+    <string name="asset_filter_placeholder">مثال: ente-auth</string>
+    <string name="asset_filter_help">سيتم تثبيت الأصول المطابقة لهذا النمط (regex) فقط. مفيد للمستودعات التي تحتوي على عدة تطبيقات.</string>
+    <string name="asset_filter_invalid">تعبير عادي غير صالح</string>
+    <string name="asset_filter_no_match">لا توجد أصول مطابقة لهذا الفلتر</string>
+    <string name="asset_none_available">لا توجد أصول قابلة للتثبيت في هذا الإصدار</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">عرض %1$d من %2$d أصل</item>
+        <item quantity="other">عرض %1$d من %2$d أصل</item>
+    </plurals>
+    <string name="fallback_older_releases_title">الرجوع إلى الإصدارات الأقدم</string>
+    <string name="fallback_older_releases_description">المرور عبر الإصدارات السابقة حتى يتطابق أحدها مع الفلتر. مطلوب للمستودعات التي يكون فيها أحدث إصدار لتطبيق آخر.</string>
+    <string name="advanced_settings_title">فلتر متقدم</string>
+    <string name="advanced_settings_description">قم بضبط كيفية مطابقة هذا التطبيق في المستودع. استخدم هذه الإعدادات عندما يحتوي المستودع على عدة تطبيقات.</string>
+    <string name="advanced_settings_open">فتح الفلتر المتقدم</string>
+    <string name="advanced_save">حفظ</string>
+    <string name="advanced_preview_title">معاينة</string>
+    <string name="advanced_preview_refresh">تحديث المعاينة</string>
+    <string name="advanced_preview_pending">اكتب فلترًا لمعاينة الأصول المطابقة.</string>
+    <string name="advanced_preview_no_match">لا توجد إصدارات حديثة تحتوي على أصول مطابقة. حاول تفعيل الرجوع إلى الإصدارات الأقدم أو ضبط النمط.</string>
+    <string name="advanced_preview_failed">تعذر تحميل المعاينة. تحقق من اتصالك وحاول مرة أخرى.</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">مطابقة في %1$s · %2$d أصل</item>
+        <item quantity="other">مطابقة في %1$s · %2$d أصل</item>
+    </plurals>
 </resources>

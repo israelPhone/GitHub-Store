@@ -630,4 +630,31 @@
     <string name="bottom_nav_profile_tweaks">টুইকস</string>
     <string name="tweaks_title">টুইকস</string>
     <string name="pre_releases">প্রি-রিলিজ</string>
+
+    <!-- Monorepo support -->
+    <string name="asset_filter_label">অ্যাসেট ফিল্টার</string>
+    <string name="asset_filter_placeholder">যেমন: ente-auth</string>
+    <string name="asset_filter_help">শুধুমাত্র এই প্যাটার্নের (regex) সাথে মেলে এমন অ্যাসেট ইনস্টল করা হবে। মনোরিপোর জন্য উপযোগী।</string>
+    <string name="asset_filter_invalid">অবৈধ regex</string>
+    <string name="asset_filter_no_match">এই ফিল্টারের সাথে মেলে এমন কোনো অ্যাসেট নেই</string>
+    <string name="asset_none_available">এই রিলিজে কোনো ইনস্টলযোগ্য অ্যাসেট নেই</string>
+    <plurals name="asset_filter_visible_count">
+        <item quantity="one">%2$d-এর মধ্যে %1$d দেখানো হচ্ছে</item>
+        <item quantity="other">%2$d-এর মধ্যে %1$d দেখানো হচ্ছে</item>
+    </plurals>
+    <string name="fallback_older_releases_title">পুরোনো রিলিজে ফিরে যান</string>
+    <string name="fallback_older_releases_description">ফিল্টারের সাথে মেলে এমন একটি না পাওয়া পর্যন্ত পূর্ববর্তী রিলিজগুলো দেখুন। মনোরিপোর জন্য প্রয়োজনীয় যেখানে সর্বশেষ রিলিজ অন্য অ্যাপের।</string>
+    <string name="advanced_settings_title">উন্নত ফিল্টার</string>
+    <string name="advanced_settings_description">এই অ্যাপটি কীভাবে রিপোজিটরিতে মিলবে তা কনফিগার করুন। যখন রিপো একাধিক অ্যাপ পাঠায় তখন এই সেটিংস ব্যবহার করুন।</string>
+    <string name="advanced_settings_open">উন্নত ফিল্টার খুলুন</string>
+    <string name="advanced_save">সংরক্ষণ</string>
+    <string name="advanced_preview_title">প্রিভিউ</string>
+    <string name="advanced_preview_refresh">প্রিভিউ রিফ্রেশ</string>
+    <string name="advanced_preview_pending">মেলে এমন অ্যাসেট প্রিভিউ করতে একটি ফিল্টার টাইপ করুন।</string>
+    <string name="advanced_preview_no_match">সাম্প্রতিক উইন্ডোতে কোনো রিলিজে মিলে যাওয়া অ্যাসেট নেই। পুরোনো রিলিজে ফিরে যাওয়া সক্রিয় করুন বা regex সমন্বয় করুন।</string>
+    <string name="advanced_preview_failed">প্রিভিউ লোড করা যায়নি। আপনার সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <plurals name="advanced_preview_release">
+        <item quantity="one">%1$s-এ মিলেছে · %2$d অ্যাসেট</item>
+        <item quantity="other">%1$s-এ মিলেছে · %2$d অ্যাসেট</item>
+    </plurals>
 </resources>
