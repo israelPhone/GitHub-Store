@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import zed.rainxch.core.domain.model.AppLanguages
 import zed.rainxch.core.domain.model.AppTheme
 import zed.rainxch.core.domain.model.DiscoveryPlatform
 import zed.rainxch.core.domain.model.FontTheme
@@ -211,6 +212,28 @@ class TweaksRepositoryImpl(
         }
     }
 
+    override fun getAppLanguage(): Flow<String?> =
+        preferences.data.map { prefs ->
+            // Treat blank *or* unknown tags as "unset" — guards against
+            // stale writes from older builds that shipped a language
+            // we no longer bundle resources for, which would otherwise
+            // pin the UI to an unresolvable locale.
+            prefs[APP_LANGUAGE_KEY]
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() && AppLanguages.containsTag(it) }
+        }
+
+    override suspend fun setAppLanguage(tag: String?) {
+        preferences.edit { prefs ->
+            val normalized = tag?.trim().orEmpty()
+            if (normalized.isEmpty() || !AppLanguages.containsTag(normalized)) {
+                prefs.remove(APP_LANGUAGE_KEY)
+            } else {
+                prefs[APP_LANGUAGE_KEY] = normalized
+            }
+        }
+    }
+
     companion object {
         private const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 6L
 
@@ -231,5 +254,6 @@ class TweaksRepositoryImpl(
         private val TRANSLATION_PROVIDER_KEY = stringPreferencesKey("translation_provider")
         private val YOUDAO_APP_KEY = stringPreferencesKey("youdao_app_key")
         private val YOUDAO_APP_SECRET = stringPreferencesKey("youdao_app_secret")
+        private val APP_LANGUAGE_KEY = stringPreferencesKey("app_language")
     }
 }

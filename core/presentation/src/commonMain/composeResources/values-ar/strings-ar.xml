@@ -113,6 +113,13 @@
 
     <!-- Sections -->
     <string name="section_appearance">المظهر</string>
+    <string name="section_language">اللغة</string>
+    <string name="language_intro">تجاوز لغة واجهة التطبيق.</string>
+    <string name="language_picker_title">لغة التطبيق</string>
+    <string name="language_picker_description">يغير القوائم والأزرار والرسائل في جميع أنحاء التطبيق. لا يغير المحتوى القادم من GitHub.</string>
+    <string name="language_follow_system">اتباع النظام</string>
+    <string name="language_restart_required">أعد التشغيل لتطبيق اللغة الجديدة.</string>
+    <string name="language_restart_action">إعادة التشغيل</string>
     <string name="section_network">الشبكة</string>
     <string name="section_about">حول</string>
 

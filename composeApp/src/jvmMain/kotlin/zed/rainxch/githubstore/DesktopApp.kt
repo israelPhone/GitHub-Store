@@ -12,8 +12,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.core.context.GlobalContext
+import zed.rainxch.core.data.services.LocalizationManager
+import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.githubstore.app.desktop.KeyboardNavigation
 import zed.rainxch.githubstore.app.desktop.KeyboardNavigationEvent
 import zed.rainxch.githubstore.app.di.initKoin
@@ -23,7 +29,14 @@ import zed.rainxch.githubstore.core.presentation.res.app_name
 import java.awt.Desktop
 import kotlin.system.exitProcess
 
+private const val LANGUAGE_PREF_READ_TIMEOUT_MS = 2000L
+
 fun main(args: Array<String>) {
+    // Install first so anything that blows up during Koin init or
+    // resource loading leaves a diagnosable trail on disk (see
+    // `CrashReporter.resolveLogDir` for the per-OS path).
+    CrashReporter.install()
+
     // Reduce JVM DNS cache TTL so network changes (VPN on/off) are picked up quickly.
     // Default JVM caches positive lookups for 30s and negative lookups forever,
     // which breaks connectivity when a VPN changes DNS/routing mid-session.
@@ -31,6 +44,31 @@ fun main(args: Array<String>) {
     java.security.Security.setProperty("networkaddress.cache.negative.ttl", "5")
 
     initKoin()
+
+    // Apply persisted UI language before any Compose code runs — same
+    // reasoning as on Android (see `MainActivity.onCreate`). Desktop
+    // Compose has no runtime `recreate()` equivalent, so mid-session
+    // language swaps surface as a "restart required" snackbar from the
+    // Tweaks screen; this block just covers the cold-start path so
+    // users see their chosen language immediately on next launch.
+    //
+    // Timeout guards against a stalled DataStore read blocking window
+    // creation and deep-link dispatch — we fall back to system language
+    // rather than hang the launch.
+    runBlocking {
+        val koin = GlobalContext.get()
+        val tweaksRepo = koin.get<TweaksRepository>()
+        val localization = koin.get<LocalizationManager>()
+        val tag =
+            try {
+                withTimeoutOrNull(LANGUAGE_PREF_READ_TIMEOUT_MS) {
+                    tweaksRepo.getAppLanguage().first()
+                }
+            } catch (_: Exception) {
+                null
+            }
+        localization.setActiveLanguageTag(tag)
+    }
 
     val deepLinkArg = args.firstOrNull()
 
