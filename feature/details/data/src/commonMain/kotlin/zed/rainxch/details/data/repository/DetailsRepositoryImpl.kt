@@ -60,16 +60,27 @@ class DetailsRepositoryImpl(
 
     /**
      * Decides whether a backend failure should trigger the direct-to-GitHub
-     * fallback. Only infrastructure errors should — backend 4xx responses
-     * are real answers (cached negative hits, auth failures, etc.) that
-     * GitHub would return equivalently, so retrying via GitHub direct
-     * just adds latency without changing the outcome.
+     * fallback. **Side effect:** rethrows `CancellationException` to preserve
+     * structured concurrency — callers don't need a separate CE check before
+     * invoking this.
+     *
+     * Returns `true` for:
+     *   - Any non-[BackendException] throwable (network errors, timeouts,
+     *     parse failures — all treated as infra)
+     *   - [BackendException] with status in 500..599
+     *
+     * Returns `false` for:
+     *   - [BackendException] with status in 400..499 — backend's answer is
+     *     authoritative (cached 404, 401 auth failure, 429 rate limit, etc.)
+     *     and GitHub-direct would return the same answer. **Note:** this
+     *     includes 429 and 408 — if the backend is rate-limiting us or
+     *     timing out on its own pipeline, retrying via GitHub direct
+     *     doesn't help and only burns more quota.
      */
-    private fun shouldFallbackToGithub(cause: Throwable): Boolean =
+    private fun shouldFallbackToGithubOrRethrow(cause: Throwable): Boolean =
         when (cause) {
             is CancellationException -> throw cause
             is BackendException -> cause.statusCode in 500..599
-            // Network/timeout/parse — treated as infra error, retry via GitHub
             else -> true
         }
 
@@ -148,7 +159,7 @@ class DetailsRepositoryImpl(
                 return result
             },
             onFailure = { e ->
-                if (!shouldFallbackToGithub(e)) {
+                if (!shouldFallbackToGithubOrRethrow(e)) {
                     // Backend 4xx — GitHub would give the same answer.
                     // Serve stale if we have it, otherwise propagate the
                     // error so the VM can show the right state.
@@ -262,7 +273,7 @@ class DetailsRepositoryImpl(
                 return result
             },
             onFailure = { e ->
-                if (!shouldFallbackToGithub(e)) {
+                if (!shouldFallbackToGithubOrRethrow(e)) {
                     cacheManager.getStale<List<GithubRelease>>(cacheKey)?.let { stale ->
                         logger.debug("Backend 4xx for releases $owner/$repo, serving stale cache")
                         return stale
@@ -375,7 +386,7 @@ class DetailsRepositoryImpl(
                 logger.debug("Backend readme decode failed for $owner/$repo, falling back to raw URL")
             },
             onFailure = { e ->
-                if (!shouldFallbackToGithub(e)) {
+                if (!shouldFallbackToGithubOrRethrow(e)) {
                     cacheManager.getStale<CachedReadme>(cacheKey)?.let { stale ->
                         logger.debug("Backend 4xx for readme $owner/$repo, serving stale cache")
                         return Triple(stale.content, stale.languageCode, stale.path)
@@ -413,11 +424,13 @@ class DetailsRepositoryImpl(
         repo: String,
         defaultBranch: String,
     ): Triple<String, String?, String>? {
-        // GitHub's contents API base64-encodes with embedded newlines.
-        val raw = dto.content.replace("\n", "").replace("\r", "")
+        // GitHub's contents API base64-encodes with embedded newlines; Mime
+        // variant tolerates all whitespace transparently so we don't have
+        // to pre-strip. Narrow catch: only IAE is decode-related, other
+        // throwables (OOM, etc.) propagate.
         val decoded = try {
-            Base64.Default.decode(raw).decodeToString()
-        } catch (e: Throwable) {
+            Base64.Mime.decode(dto.content).decodeToString()
+        } catch (e: IllegalArgumentException) {
             logger.warn("Failed to base64-decode backend readme for $owner/$repo: ${e.message}")
             return null
         }
@@ -474,44 +487,57 @@ class DetailsRepositoryImpl(
         // Backend doesn't have openIssues/license, so supplement with a
         // best-effort GitHub call for those fields. If GitHub is blocked
         // (e.g. for users in China), we still show the backend data.
-        backendApiClient.getRepo(owner, repo).getOrNull()?.let { backendRepo ->
-            logger.debug("Backend hit for repo stats $owner/$repo")
+        val backendResult = backendApiClient.getRepo(owner, repo)
+        backendResult.fold(
+            onSuccess = { backendRepo ->
+                logger.debug("Backend hit for repo stats $owner/$repo")
 
-            // Explicit try/catch (not runCatching) so cancellation
-            // propagates — runCatching would swallow it and break
-            // structured concurrency.
-            val githubInfo =
-                try {
-                    httpClient.executeRequest<RepoInfoNetwork> {
-                        get("/repos/$owner/$repo") {
-                            header(HttpHeaders.Accept, "application/vnd.github+json")
-                        }
-                    }.getOrNull()
-                } catch (e: CancellationException) {
+                // Explicit try/catch (not runCatching) so cancellation
+                // propagates — runCatching would swallow it and break
+                // structured concurrency.
+                val githubInfo =
+                    try {
+                        httpClient.executeRequest<RepoInfoNetwork> {
+                            get("/repos/$owner/$repo") {
+                                header(HttpHeaders.Accept, "application/vnd.github+json")
+                            }
+                        }.getOrNull()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        logger.debug("GitHub enrichment failed for $owner/$repo: ${e.message}")
+                        null
+                    }
+
+                // If the GitHub enrichment didn't land, reuse the stale
+                // cached openIssues/license from a previous successful
+                // resolve. Prevents a transient GitHub failure from
+                // clobbering real values with zeros/nulls.
+                val stale = if (githubInfo == null) cacheManager.getStale<RepoStats>(cacheKey) else null
+
+                val result = RepoStats(
+                    stars = backendRepo.stargazersCount,
+                    forks = backendRepo.forksCount,
+                    openIssues = githubInfo?.openIssues ?: stale?.openIssues ?: 0,
+                    license = githubInfo?.license?.spdxId
+                        ?: githubInfo?.license?.name
+                        ?: stale?.license,
+                    totalDownloads = backendRepo.downloadCount,
+                )
+                cacheManager.put(cacheKey, result, REPO_STATS)
+                return result
+            },
+            onFailure = { e ->
+                if (!shouldFallbackToGithubOrRethrow(e)) {
+                    cacheManager.getStale<RepoStats>(cacheKey)?.let { stale ->
+                        logger.debug("Backend 4xx for stats $owner/$repo, serving stale cache")
+                        return stale
+                    }
                     throw e
-                } catch (e: Exception) {
-                    logger.debug("GitHub enrichment failed for $owner/$repo: ${e.message}")
-                    null
                 }
-
-            // If the GitHub enrichment didn't land, reuse the stale
-            // cached openIssues/license from a previous successful
-            // resolve. Prevents a transient GitHub failure from
-            // clobbering real values with zeros/nulls.
-            val stale = if (githubInfo == null) cacheManager.getStale<RepoStats>(cacheKey) else null
-
-            val result = RepoStats(
-                stars = backendRepo.stargazersCount,
-                forks = backendRepo.forksCount,
-                openIssues = githubInfo?.openIssues ?: stale?.openIssues ?: 0,
-                license = githubInfo?.license?.spdxId
-                    ?: githubInfo?.license?.name
-                    ?: stale?.license,
-                totalDownloads = backendRepo.downloadCount,
-            )
-            cacheManager.put(cacheKey, result, REPO_STATS)
-            return result
-        }
+                logger.debug("Backend infra error for stats $owner/$repo (${e.message}), falling back to GitHub")
+            },
+        )
 
         // Fallback to GitHub API
         return try {
@@ -562,7 +588,7 @@ class DetailsRepositoryImpl(
                 return result
             },
             onFailure = { e ->
-                if (!shouldFallbackToGithub(e)) {
+                if (!shouldFallbackToGithubOrRethrow(e)) {
                     cacheManager.getStale<GithubUserProfile>(cacheKey)?.let { stale ->
                         logger.debug("Backend 4xx for profile $username, serving stale cache")
                         return stale

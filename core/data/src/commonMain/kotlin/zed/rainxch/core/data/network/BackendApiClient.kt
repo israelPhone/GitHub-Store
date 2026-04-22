@@ -94,7 +94,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -104,7 +104,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -128,7 +128,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -154,7 +154,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -175,7 +175,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -200,7 +200,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -220,7 +220,7 @@ class BackendApiClient(
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -229,11 +229,15 @@ class BackendApiClient(
             val token = currentUserGithubToken()
             val response = httpClient.get("user/$username") {
                 if (token != null) header(X_GITHUB_TOKEN_HEADER, token)
+                timeout {
+                    requestTimeoutMillis = 15_000
+                    socketTimeoutMillis = 15_000
+                }
             }
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -249,7 +253,7 @@ class BackendApiClient(
                 response.status == HttpStatusCode.TooManyRequests ->
                     Result.failure(RateLimitedException())
                 else ->
-                    Result.failure(BackendException(response.status.value, "HTTP ${response.status.value}"))
+                    Result.failure(BackendException(response.status.value))
             }
         }
 
@@ -270,7 +274,7 @@ class BackendApiClient(
 
 class BackendException(
     val statusCode: Int,
-    message: String,
+    message: String = "HTTP $statusCode",
 ) : Exception(message)
 
 class RateLimitedException : Exception("Rate limited by backend (429)")

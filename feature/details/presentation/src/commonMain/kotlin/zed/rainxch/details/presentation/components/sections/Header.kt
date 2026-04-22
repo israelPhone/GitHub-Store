@@ -74,9 +74,12 @@ fun LazyListScope.header(
     //   2. retry in flight — show spinner
     //   3. repo truly has no releases — show "no releases published" empty state
     // Initial page load (isLoading) is intentionally excluded — the top-level
-    // loading spinner covers it, no need to double up.
+    // loading spinner covers it, no need to double up. Same for repository
+    // not loaded yet: the release-specific states only make sense once we
+    // know the repo exists (matches the VM's retryReleases() guard).
     val releasesStatus: ReleasesStatus? =
         when {
+            state.repository == null -> null
             state.releasesLoadFailed -> ReleasesStatus.FAILED
             state.isRetryingReleases -> ReleasesStatus.RETRYING
             !state.isLoading && state.allReleases.isEmpty() -> ReleasesStatus.EMPTY

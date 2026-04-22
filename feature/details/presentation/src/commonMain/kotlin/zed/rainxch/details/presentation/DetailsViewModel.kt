@@ -513,6 +513,7 @@ class DetailsViewModel(
         val repo = _state.value.repository ?: return
         if (_state.value.isRetryingReleases) return
         viewModelScope.launch {
+            val prevCategory = _state.value.selectedReleaseCategory
             _state.update { it.copy(isRetryingReleases = true, releasesLoadFailed = false) }
             try {
                 val releases =
@@ -521,8 +522,21 @@ class DetailsViewModel(
                         repo = repo.name,
                         defaultBranch = repo.defaultBranch,
                     )
-                val selected =
-                    releases.firstOrNull { !it.isPrerelease } ?: releases.firstOrNull()
+                // Prefer a release that matches the user's previous category.
+                // Only fall back to the generic "first stable, else first" rule
+                // when no release exists in that category — in which case reset
+                // the category too so the UI doesn't end up with a category
+                // selected but no matching release.
+                val byPrevCategory = when (prevCategory) {
+                    ReleaseCategory.STABLE -> releases.firstOrNull { !it.isPrerelease }
+                    ReleaseCategory.PRE_RELEASE -> releases.firstOrNull { it.isPrerelease }
+                    ReleaseCategory.ALL -> releases.firstOrNull()
+                }
+                val selected = byPrevCategory
+                    ?: releases.firstOrNull { !it.isPrerelease }
+                    ?: releases.firstOrNull()
+                val resolvedCategory =
+                    if (byPrevCategory != null) prevCategory else ReleaseCategory.STABLE
                 val (installable, primary) =
                     recomputeAssetsForRelease(selected, _state.value.installedApp)
                 _state.update {
@@ -531,11 +545,13 @@ class DetailsViewModel(
                         releasesLoadFailed = false,
                         isRetryingReleases = false,
                         selectedRelease = selected,
-                        selectedReleaseCategory = ReleaseCategory.STABLE,
+                        selectedReleaseCategory = resolvedCategory,
                         installableAssets = installable,
                         primaryAsset = primary,
                     )
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: RateLimitException) {
                 _state.update {
                     it.copy(isRetryingReleases = false, releasesLoadFailed = true)
@@ -2083,7 +2099,17 @@ class DetailsViewModel(
                 val installedApp = installedAppDeferred.await()
 
                 if (rateLimited.get()) {
-                    _state.value = _state.value.copy(isLoading = false, errorMessage = null)
+                    // Any deferred tripping the rate-limit flag leaves the UI
+                    // in an incomplete state. Flag the releases section as
+                    // failed so it renders its FAILED card with a Retry
+                    // affordance instead of the misleading EMPTY card ("no
+                    // releases published yet") — the default would be EMPTY
+                    // because allReleases stays at its initial empty list.
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = null,
+                        releasesLoadFailed = true,
+                    )
                     return@launch
                 }
 
