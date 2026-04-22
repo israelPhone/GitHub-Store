@@ -167,6 +167,8 @@ class DetailsViewModel(
                 loadInitial()
             }
 
+            DetailsAction.RetryReleases -> retryReleases()
+
             DetailsAction.OnDismissDowngradeWarning -> {
                 dismissDowngradeWarning()
             }
@@ -504,6 +506,46 @@ class DetailsViewModel(
 
     private fun observeLiquidGlassEnabled() {
         viewModelScope.launch {
+        }
+    }
+
+    private fun retryReleases() {
+        val repo = _state.value.repository ?: return
+        if (_state.value.isRetryingReleases) return
+        viewModelScope.launch {
+            _state.update { it.copy(isRetryingReleases = true, releasesLoadFailed = false) }
+            try {
+                val releases =
+                    detailsRepository.getAllReleases(
+                        owner = repo.owner.login,
+                        repo = repo.name,
+                        defaultBranch = repo.defaultBranch,
+                    )
+                val selected =
+                    releases.firstOrNull { !it.isPrerelease } ?: releases.firstOrNull()
+                val (installable, primary) =
+                    recomputeAssetsForRelease(selected, _state.value.installedApp)
+                _state.update {
+                    it.copy(
+                        allReleases = releases,
+                        releasesLoadFailed = false,
+                        isRetryingReleases = false,
+                        selectedRelease = selected,
+                        selectedReleaseCategory = ReleaseCategory.STABLE,
+                        installableAssets = installable,
+                        primaryAsset = primary,
+                    )
+                }
+            } catch (_: RateLimitException) {
+                _state.update {
+                    it.copy(isRetryingReleases = false, releasesLoadFailed = true)
+                }
+            } catch (t: Throwable) {
+                logger.warn("Retry failed to load releases: ${t.message}")
+                _state.update {
+                    it.copy(isRetryingReleases = false, releasesLoadFailed = true)
+                }
+            }
         }
     }
 
@@ -1951,13 +1993,13 @@ class DetailsViewModel(
                                 owner = owner,
                                 repo = name,
                                 defaultBranch = repo.defaultBranch,
-                            )
+                            ) to false
                         } catch (_: RateLimitException) {
                             rateLimited.set(true)
-                            emptyList()
+                            emptyList<GithubRelease>() to true
                         } catch (t: Throwable) {
                             logger.warn("Failed to load releases: ${t.message}")
-                            emptyList()
+                            emptyList<GithubRelease>() to true
                         }
                     }
 
@@ -2034,7 +2076,7 @@ class DetailsViewModel(
                 val isObtainiumEnabled = platform == Platform.ANDROID
                 val isAppManagerEnabled = platform == Platform.ANDROID
 
-                val allReleases = allReleasesDeferred.await()
+                val (allReleases, releasesFailed) = allReleasesDeferred.await()
                 val stats = statsDeferred.await()
                 val readme = readmeDeferred.await()
                 val userProfile = userProfileDeferred.await()
@@ -2064,6 +2106,8 @@ class DetailsViewModel(
                         errorMessage = null,
                         repository = repo,
                         allReleases = allReleases,
+                        releasesLoadFailed = releasesFailed,
+                        isRetryingReleases = false,
                         selectedRelease = selectedRelease,
                         selectedReleaseCategory = ReleaseCategory.STABLE,
                         stats = stats,

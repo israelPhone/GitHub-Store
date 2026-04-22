@@ -6,6 +6,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import zed.rainxch.core.data.cache.CacheManager
 import zed.rainxch.core.data.cache.CacheManager.CacheTtl.README
 import zed.rainxch.core.data.cache.CacheManager.CacheTtl.RELEASES
@@ -232,6 +233,19 @@ class DetailsRepositoryImpl(
                 cacheManager.put(cacheKey, result, RELEASES)
             }
             result
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SerializationException) {
+            // Parse failure signals a DTO/API drift — surface loudly so it's
+            // findable in logs and crash reports. Still prefer returning a
+            // stale cache rather than throwing, so the UI can keep rendering
+            // the last known good data while we figure out the new shape.
+            logger.error("Failed to parse releases for $owner/$repo: ${e.message}", e)
+            cacheManager.getStale<List<GithubRelease>>(cacheKey)?.let { stale ->
+                logger.debug("Serving stale cache for releases $owner/$repo after parse failure")
+                return stale
+            }
+            throw e
         } catch (e: Exception) {
             cacheManager.getStale<List<GithubRelease>>(cacheKey)?.let { stale ->
                 logger.debug("Network error, using stale cache for releases $owner/$repo")
