@@ -1,6 +1,6 @@
 <div align="center">
   <br/>
-  <img src="media-resources/app_icon.png" width="200" />
+  <img src="media-resources/app_icon.png" width="200" alt="GitHub Store app icon" />
 
 # GitHub Store
 
