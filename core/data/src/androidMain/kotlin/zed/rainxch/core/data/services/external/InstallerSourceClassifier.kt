@@ -17,15 +17,15 @@ class InstallerSourceClassifier(
 
         val flags = applicationInfo?.flags ?: 0
         val isSystem = flags and ApplicationInfo.FLAG_SYSTEM != 0
-        val isUpdatedSystem = flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+
+        // FLAG_SYSTEM apps that received an OTA update get FLAG_UPDATED_SYSTEM_APP added
+        // *without* losing FLAG_SYSTEM. Treat any FLAG_SYSTEM app as SYSTEM regardless of
+        // update status — Samsung / Pixel / OEM-bundled apps almost never come from GitHub.
+        if (isSystem) return InstallerKind.SYSTEM
+        if (OEM_PACKAGE_PREFIXES.any { packageName.startsWith(it) }) return InstallerKind.STORE_OEM_OTHER
 
         val installer = installerPackageNameFor(packageName)
-
-        if (installer == null && isSystem && !isUpdatedSystem) {
-            return InstallerKind.SYSTEM
-        }
-
-        return mapInstaller(installer, isSystem = isSystem && !isUpdatedSystem)
+        return mapInstaller(installer, isSystem = false)
     }
 
     fun classifyByInstaller(installerPackageName: String?): InstallerKind = mapInstaller(installerPackageName, isSystem = false)
@@ -104,6 +104,37 @@ class InstallerSourceClassifier(
                 "com.android.shell",
                 "com.android.packageinstaller",
                 "com.google.android.packageinstaller",
+            )
+
+        // Catch-all for OEM apps that lost FLAG_SYSTEM after a self-update or
+        // were preloaded as not-quite-system (Samsung does both). These are
+        // never GitHub-published; the wizard surfacing them is just noise.
+        private val OEM_PACKAGE_PREFIXES =
+            listOf(
+                "com.samsung.",
+                "com.sec.",
+                "com.lge.",
+                "com.huawei.",
+                "com.honor.",
+                "com.miui.",
+                "com.xiaomi.",
+                "com.mi.",
+                "com.oneplus.",
+                "com.oppo.",
+                "com.heytap.",
+                "com.coloros.",
+                "com.realme.",
+                "com.vivo.",
+                "com.iqoo.",
+                "com.motorola.",
+                "com.lenovo.",
+                "com.asus.",
+                "com.sony.",
+                "com.nokia.",
+                "com.htc.",
+                "com.amazon.",
+                "com.google.android.",
+                "com.android.",
             )
     }
 }
