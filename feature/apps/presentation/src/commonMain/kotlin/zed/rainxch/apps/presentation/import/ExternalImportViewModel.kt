@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import zed.rainxch.apps.domain.repository.AppsRepository
 import zed.rainxch.apps.presentation.import.model.CandidateUi
 import zed.rainxch.apps.presentation.import.model.ImportPhase
 import zed.rainxch.apps.presentation.import.model.RepoSuggestionUi
 import zed.rainxch.apps.presentation.import.model.SuggestionSource
 import zed.rainxch.core.domain.logging.GitHubStoreLogger
+import zed.rainxch.core.domain.model.DeviceApp
 import zed.rainxch.core.domain.repository.ExternalImportRepository
 import zed.rainxch.core.domain.system.ExternalAppCandidate
 import zed.rainxch.core.domain.system.InstallerKind
@@ -29,8 +31,10 @@ import zed.rainxch.core.domain.system.RepoMatchSuggestion
 
 class ExternalImportViewModel(
     private val externalImportRepository: ExternalImportRepository,
+    private val appsRepository: AppsRepository,
     private val logger: GitHubStoreLogger,
 ) : ViewModel() {
+    private var candidatesByPackage: Map<String, ExternalAppCandidate> = emptyMap()
     private var hasStarted = false
     private var scanJob: Job? = null
 
@@ -127,6 +131,7 @@ class ExternalImportViewModel(
                 externalImportRepository.runFullScan()
 
                 val candidates = externalImportRepository.pendingCandidatesFlow().first()
+                candidatesByPackage = candidates.associateBy { it.packageName }
 
                 _state.update {
                     it.copy(
@@ -136,13 +141,8 @@ class ExternalImportViewModel(
                 }
 
                 val matches = externalImportRepository.resolveMatches(candidates)
-                val summary = externalImportRepository.importAutoMatched(matches)
-
-                val autoLinkedPackages =
-                    matches
-                        .filter { it.topConfidence >= AUTO_LINK_THRESHOLD }
-                        .map { it.packageName }
-                        .toSet()
+                val autoLinked = autoMaterialize(matches)
+                val autoLinkedPackages = autoLinked.toSet()
 
                 val reviewCandidates =
                     candidates.filter { it.packageName !in autoLinkedPackages }
@@ -162,7 +162,7 @@ class ExternalImportViewModel(
                             phase = ImportPhase.Done,
                             cards = persistentListOf(),
                             currentCardIndex = 0,
-                            autoImported = summary.linked,
+                            autoImported = autoLinked.size,
                             showCompletionToast = true,
                         )
                     }
@@ -174,7 +174,7 @@ class ExternalImportViewModel(
                             cards = cards,
                             currentCardIndex = 0,
                             currentExpanded = false,
-                            autoImported = summary.linked,
+                            autoImported = autoLinked.size,
                         )
                     }
                 }
@@ -230,37 +230,105 @@ class ExternalImportViewModel(
         val current = _state.value.currentCard ?: return
         val preselected = current.preselectedSuggestion
         val source = if (suggestion == preselected) "preselected" else "alternative"
+        val candidate = candidatesByPackage[current.packageName]
 
         viewModelScope.launch {
-            val result =
-                try {
-                    externalImportRepository.linkManually(
-                        packageName = current.packageName,
-                        owner = suggestion.owner,
-                        repo = suggestion.repo,
-                        source = source,
-                    )
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Result.failure(e)
-                }
+            if (candidate == null) {
+                logger.error("Cannot materialize ${current.packageName}: candidate missing from snapshot")
+                _events.send(ExternalImportEvent.ShowError("Couldn't link this app — try again."))
+                return@launch
+            }
 
-            if (result.isFailure) {
-                logger.error(
-                    "Manual link failed for ${current.packageName}: " +
-                        "${result.exceptionOrNull()?.message}",
-                )
-                _events.send(
-                    ExternalImportEvent.ShowError(
-                        result.exceptionOrNull()?.message ?: "Link failed",
-                    ),
-                )
+            val materialized = materializeAndMark(candidate, suggestion.owner, suggestion.repo, source)
+            if (!materialized) {
+                _events.send(ExternalImportEvent.ShowError("Couldn't reach GitHub. Try again later."))
                 return@launch
             }
             advanceAfter { it.copy(manuallyLinked = it.manuallyLinked + 1) }
         }
     }
+
+    private suspend fun autoMaterialize(matches: List<RepoMatchResult>): List<String> {
+        val linked = mutableListOf<String>()
+        matches.forEach { result ->
+            val top = result.topSuggestion ?: return@forEach
+            if (top.confidence < AUTO_LINK_THRESHOLD) return@forEach
+            val candidate = candidatesByPackage[result.packageName] ?: return@forEach
+
+            val ok =
+                materializeAndMark(
+                    candidate = candidate,
+                    owner = top.owner,
+                    repo = top.repo,
+                    source = "auto-${top.source.name.lowercase()}",
+                )
+            if (ok) linked += result.packageName
+        }
+        return linked
+    }
+
+    private suspend fun materializeAndMark(
+        candidate: ExternalAppCandidate,
+        owner: String,
+        repo: String,
+        source: String,
+    ): Boolean {
+        val repoInfo =
+            try {
+                appsRepository.fetchRepoInfo(owner, repo)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.error("fetchRepoInfo($owner/$repo) failed: ${e.message}")
+                null
+            }
+        if (repoInfo == null) {
+            logger.warn("Skipping link for ${candidate.packageName}: repo $owner/$repo not found")
+            return false
+        }
+
+        val deviceApp = candidate.toDeviceApp()
+        try {
+            appsRepository.linkAppToRepo(deviceApp, repoInfo)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("linkAppToRepo failed for ${candidate.packageName}: ${e.message}")
+            return false
+        }
+
+        val linkResult =
+            try {
+                externalImportRepository.linkManually(
+                    packageName = candidate.packageName,
+                    owner = owner,
+                    repo = repo,
+                    source = source,
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        if (linkResult.isFailure) {
+            logger.error(
+                "external_links upsert failed for ${candidate.packageName}: " +
+                    "${linkResult.exceptionOrNull()?.message}",
+            )
+            // installed_apps row is already written; the audit trail is
+            // ahead but recoverable on the next scan via mergeCandidate.
+        }
+        return true
+    }
+
+    private fun ExternalAppCandidate.toDeviceApp(): DeviceApp =
+        DeviceApp(
+            packageName = packageName,
+            appName = appLabel,
+            versionName = versionName,
+            versionCode = versionCode,
+            signingFingerprint = signingFingerprint,
+        )
 
     private suspend fun advanceAfter(transform: (ExternalImportState) -> ExternalImportState) {
         val nextIndex = _state.value.currentCardIndex + 1
