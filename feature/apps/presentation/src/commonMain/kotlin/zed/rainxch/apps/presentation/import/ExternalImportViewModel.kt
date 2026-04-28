@@ -67,6 +67,11 @@ class ExternalImportViewModel(
     // wiping rows that pre-existed (e.g., the user had previously linked the
     // app through some other path before auto-link added an entry to it).
     private var autoLinkedHadInstalledRow: Map<String, Boolean> = emptyMap()
+    // Per-package external_links snapshot captured BEFORE auto-link writes the
+    // MATCHED row. Bulk undo restores from these so the DAO actually rolls back
+    // to the pre-link state (typically PENDING_REVIEW). Snapshotting AFTER the
+    // link would just re-apply the linked state — a silent no-op.
+    private var autoLinkedPreSnapshots: Map<String, ExternalDecisionSnapshot?> = emptyMap()
     private var hasStarted = false
     private var scanJob: Job? = null
     private var searchJob: Job? = null
@@ -571,9 +576,10 @@ class ExternalImportViewModel(
     private fun autoSummaryContinue() {
         val current = _state.value
         if (current.phase != ImportPhase.AutoImportSummary) return
-        // User accepted the auto-imports; the pre-link presence map is no
+        // User accepted the auto-imports; the pre-link metadata is no
         // longer needed and shouldn't leak into a subsequent wizard run.
         autoLinkedHadInstalledRow = emptyMap()
+        autoLinkedPreSnapshots = emptyMap()
         if (current.cards.isNotEmpty()) {
             _state.update { it.copy(phase = ImportPhase.AwaitingReview) }
         } else {
@@ -596,27 +602,27 @@ class ExternalImportViewModel(
             return
         }
 
-        // Snapshot the pre-link map locally so a concurrent reset can't race us.
+        // Snapshot the pre-link maps locally so a concurrent reset can't race us.
         val hadInstalledMap = autoLinkedHadInstalledRow
+        val preSnapshots = autoLinkedPreSnapshots
 
         viewModelScope.launch {
-            // Roll each auto-linked package back to PENDING_REVIEW. Snapshot →
-            // restoreDecision matches the per-row undo path, so the audit trail
-            // and DAO state mirror what the user would see after a fresh scan
-            // with no auto-link applied. installed_apps is only deleted for
-            // packages whose row did NOT pre-exist before auto-link — same
-            // policy as undoLast (PendingUndo.Kind.Link && !hadInstalledAppRowBefore).
+            // Roll each auto-linked package back to its PRE-LINK external_links
+            // state using the snapshot captured BEFORE materializeAndMark wrote
+            // the MATCHED row. Snapshotting now would just read the post-link
+            // MATCHED state and restoreDecision would be a no-op. installed_apps
+            // is only deleted for packages whose row did NOT pre-exist before
+            // auto-link — same policy as undoLast.
             packages.forEach { pkg ->
-                val snapshot = runCatching {
-                    externalImportRepository.snapshotDecision(pkg)
-                }.getOrNull()
+                val preSnapshot = preSnapshots[pkg]
                 val hadRowBefore = hadInstalledMap[pkg] == true
                 if (!hadRowBefore) {
                     runCatching { installedAppsRepository.deleteInstalledApp(pkg) }
                 }
-                if (snapshot != null) {
-                    runCatching { externalImportRepository.restoreDecision(snapshot) }
+                if (preSnapshot != null) {
+                    runCatching { externalImportRepository.restoreDecision(preSnapshot) }
                 } else {
+                    // No pre-link row existed — drop the auto-link row entirely.
                     runCatching { externalImportRepository.unlink(pkg) }
                 }
             }
@@ -626,6 +632,7 @@ class ExternalImportViewModel(
             // pre-summary action would now point at a row we just restored.
             pendingUndo = null
             autoLinkedHadInstalledRow = emptyMap()
+            autoLinkedPreSnapshots = emptyMap()
 
             val matchesByPkg = lastResolvedMatches.associateBy { it.packageName }
             val restoredCards = packages.mapNotNull { pkg ->
@@ -688,21 +695,30 @@ class ExternalImportViewModel(
         if (remaining.isEmpty()) return
 
         viewModelScope.launch {
+            // Track per-package outcome so a partial failure doesn't claim the
+            // entire wizard cleared and doesn't fire confetti / Done telemetry
+            // on packages whose DAO state is unchanged.
+            val successes = mutableSetOf<String>()
+            val failures = mutableListOf<String>()
             remaining.forEach { card ->
                 try {
                     externalImportRepository.skipPackage(card.packageName, neverAsk = false)
+                    successes += card.packageName
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
                     logger.error("Skip-remaining failed for ${card.packageName}: ${e.message}")
+                    failures += card.packageName
                 }
             }
 
-            runCatching {
-                telemetry.importSkipped(
-                    countBucket = bucketCount(remaining.size),
-                    persisted = "7day",
-                )
+            if (successes.isNotEmpty()) {
+                runCatching {
+                    telemetry.importSkipped(
+                        countBucket = bucketCount(successes.size),
+                        persisted = "7day",
+                    )
+                }
             }
 
             // Skip-remaining is intentionally not undoable — bulk skip clears
@@ -710,35 +726,52 @@ class ExternalImportViewModel(
             // snackbar isn't a sensible affordance for "undo seven things".
             pendingUndo = null
 
-            _state.update {
-                it.copy(
-                    cards = persistentListOf(),
+            val allSucceeded = failures.isEmpty()
+            _state.update { state ->
+                val keptCards = state.cards.filter { it.packageName !in successes }.toImmutableList()
+                state.copy(
+                    cards = keptCards,
                     expandedPackages = persistentSetOf(),
                     activeSearchPackage = null,
                     searchQuery = "",
                     searchResults = persistentListOf(),
                     isSearching = false,
                     searchError = null,
-                    phase = ImportPhase.Done,
-                    skipped = it.skipped + remaining.size,
-                    showCompletionToast = true,
+                    phase = if (allSucceeded && keptCards.isEmpty()) ImportPhase.Done else state.phase,
+                    skipped = state.skipped + successes.size,
+                    showCompletionToast = allSucceeded && keptCards.isEmpty(),
                 )
             }
-            _events.send(ExternalImportEvent.PlayConfetti)
+
+            if (allSucceeded) {
+                _events.send(ExternalImportEvent.PlayConfetti)
+            } else {
+                _events.send(
+                    ExternalImportEvent.ShowError(
+                        getString(Res.string.external_import_error_link_failed),
+                    ),
+                )
+            }
         }
     }
 
     private suspend fun autoMaterialize(matches: List<RepoMatchResult>): List<String> {
         val linked = mutableListOf<String>()
         val hadInstalledRow = mutableMapOf<String, Boolean>()
+        val preSnapshots = mutableMapOf<String, ExternalDecisionSnapshot?>()
         matches.forEach { result ->
             val top = result.topSuggestion ?: return@forEach
             if (top.confidence < AUTO_LINK_THRESHOLD) return@forEach
             val candidate = candidatesByPackage[result.packageName] ?: return@forEach
 
-            // Capture pre-link installed_apps presence BEFORE materializeAndMark
-            // writes the row. autoSummaryUndoAll reads this to decide whether to
-            // delete the row on undo or leave it (because it pre-existed).
+            // Capture pre-link state BEFORE materializeAndMark writes the
+            // MATCHED row. Bulk undo uses both: the pre-link snapshot to
+            // restore the DAO row to its original state, and the
+            // installed_apps presence flag to decide whether to delete the
+            // installed_apps row (only if auto-link created it).
+            val preSnapshot = runCatching {
+                externalImportRepository.snapshotDecision(result.packageName)
+            }.getOrNull()
             val pre = runCatching {
                 installedAppsRepository.getAppByPackage(result.packageName) != null
             }.getOrDefault(false)
@@ -753,9 +786,11 @@ class ExternalImportViewModel(
             if (ok) {
                 linked += result.packageName
                 hadInstalledRow[result.packageName] = pre
+                preSnapshots[result.packageName] = preSnapshot
             }
         }
         autoLinkedHadInstalledRow = hadInstalledRow.toMap()
+        autoLinkedPreSnapshots = preSnapshots.toMap()
         return linked
     }
 
