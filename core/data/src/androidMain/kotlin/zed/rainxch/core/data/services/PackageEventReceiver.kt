@@ -14,6 +14,7 @@ import org.koin.core.component.inject
 import zed.rainxch.core.data.local.db.dao.ExternalLinkDao
 import zed.rainxch.core.domain.repository.ExternalImportRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.system.ExternalLinkState
 import zed.rainxch.core.domain.system.PackageMonitor
 import zed.rainxch.core.domain.util.VersionVerdict
 import zed.rainxch.core.domain.util.resolveExternalInstallVerdict
@@ -197,10 +198,9 @@ class PackageEventReceiver() :
             .getOrNull()
         if (tracked != null) return false
         val link = runCatching { getExternalLinkDao().get(packageName) }.getOrNull()
-        return when (link?.state) {
-            "MATCHED", "NEVER_ASK" -> false
-            else -> true
-        }
+        val state = link?.state ?: return true
+        return state != ExternalLinkState.MATCHED.name &&
+            state != ExternalLinkState.NEVER_ASK.name
     }
 
     /**
@@ -308,7 +308,28 @@ class PackageEventReceiver() :
         try {
             getRepository().deleteInstalledApp(packageName)
             runCatching { getExternalImport().unlink(packageName) }
-                .onFailure { Logger.w(it) { "External link cleanup failed for $packageName" } }
+                .onFailure { initialError ->
+                    Logger.w(initialError) { "External link cleanup failed for $packageName; scheduling retry" }
+                    // A failed unlink leaves a stale MATCHED/NEVER_ASK row that
+                    // makes `shouldRescan` return false on a future reinstall —
+                    // i.e., the user reinstalls a previously-tracked app and we
+                    // silently fail to re-link it. Retry once on the app scope
+                    // after a short backoff. If the retry also fails, the next
+                    // periodic worker sweep gets a chance via `runPeriodicExternalDeltaScan`.
+                    getBackstopScope().launch {
+                        kotlinx.coroutines.delay(UNLINK_RETRY_DELAY_MS)
+                        runCatching { getExternalImport().unlink(packageName) }
+                            .onSuccess {
+                                Logger.i { "External link cleanup retry succeeded for $packageName" }
+                            }
+                            .onFailure { retryError ->
+                                Logger.w(retryError) {
+                                    "External link cleanup final failure for $packageName; " +
+                                        "row may persist until next periodic scan"
+                                }
+                            }
+                    }
+                }
             Logger.i { "Removed uninstalled app via broadcast: $packageName" }
         } catch (e: Exception) {
             Logger.e { "PackageEventReceiver remove error for $packageName: ${e.message}" }
@@ -316,6 +337,8 @@ class PackageEventReceiver() :
     }
 
     companion object {
+        private const val UNLINK_RETRY_DELAY_MS: Long = 1_000
+
         fun createIntentFilter(): IntentFilter =
             IntentFilter().apply {
                 addAction(Intent.ACTION_PACKAGE_ADDED)
