@@ -1,6 +1,6 @@
 package zed.rainxch.core.domain.model
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class MirrorConfig(
     val id: String,
