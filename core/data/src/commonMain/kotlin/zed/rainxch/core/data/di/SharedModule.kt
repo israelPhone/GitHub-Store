@@ -256,6 +256,8 @@ val coreModule =
         single<DownloadOrchestrator> {
             DefaultDownloadOrchestrator(
                 downloader = get(),
+                multiSourceDownloader = get(),
+                digestVerifier = get(),
                 installer = get(),
                 installedAppsRepository = get(),
                 pendingInstallNotifier = get(),
