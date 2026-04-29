@@ -90,6 +90,7 @@ class FeedbackViewModel(
             _state.update { it.copy(isSending = false) }
             if (!failed) {
                 _events.send(FeedbackEvent.OnSent(channel))
+                resetForm()
             }
         }
     }
