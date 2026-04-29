@@ -25,11 +25,13 @@ import zed.rainxch.core.data.local.db.dao.SigningFingerprintDao
 import zed.rainxch.core.data.local.db.dao.StarredRepoDao
 import zed.rainxch.core.data.local.db.dao.UpdateHistoryDao
 import zed.rainxch.core.data.logging.KermitLogger
+import zed.rainxch.core.data.mirror.MirrorRepositoryImpl
 import zed.rainxch.core.data.network.BackendApiClient
 import zed.rainxch.core.data.network.BackendExternalMatchApi
 import zed.rainxch.core.data.network.ExternalMatchApi
 import zed.rainxch.core.data.network.ExternalMatchApiSelector
 import zed.rainxch.core.data.network.GitHubClientProvider
+import zed.rainxch.core.data.network.MirrorApiClient
 import zed.rainxch.core.data.network.MockExternalMatchApi
 import zed.rainxch.core.data.network.ProxyManager
 import zed.rainxch.core.data.network.ProxyManagerSeeding
@@ -60,6 +62,7 @@ import zed.rainxch.core.domain.repository.DeviceIdentityRepository
 import zed.rainxch.core.domain.repository.ExternalImportRepository
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.MirrorRepository
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.RateLimitRepository
 import zed.rainxch.core.domain.repository.SearchHistoryRepository
@@ -118,6 +121,20 @@ val coreModule =
         single<TweaksRepository> {
             TweaksRepositoryImpl(
                 preferences = get(),
+            )
+        }
+
+        single<MirrorApiClient> {
+            MirrorApiClient(
+                backendApiClient = get(),
+            )
+        }
+
+        single<MirrorRepository> {
+            MirrorRepositoryImpl(
+                preferences = get(),
+                apiClient = get(),
+                appScope = get(),
             )
         }
 
