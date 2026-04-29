@@ -861,4 +861,50 @@
     <string name="details_unlink_external_app_dialog_confirm">Unlink</string>
     <string name="details_unlink_external_app_success">Unlinked. We\'ll re-suggest a match next scan.</string>
     <string name="details_unlink_external_app_failure">Couldn\'t unlink — try again.</string>
+
+    <!-- Tweaks feature - Mirror -->
+    <string name="mirror_tweaks_entry_label">Download Mirror</string>
+    <string name="mirror_picker_title">Download Mirror</string>
+    <string name="mirror_picker_description">Used for downloading release assets and proxying GitHub API calls. Most users should leave this on Direct GitHub.</string>
+
+    <!-- Mirror - Sections -->
+    <string name="mirror_section_official">Official</string>
+    <string name="mirror_section_community">Community</string>
+
+    <!-- Mirror - Statuses -->
+    <string name="mirror_status_ok">%1$dms</string>
+    <string name="mirror_status_degraded">%1$dms</string>
+    <string name="mirror_status_down">(down)</string>
+    <string name="mirror_status_unknown">?</string>
+
+    <!-- Mirror - Custom -->
+    <string name="mirror_custom_label">Custom mirror…</string>
+    <string name="mirror_custom_dialog_title">Custom mirror</string>
+    <string name="mirror_custom_dialog_hint">https://your-mirror.example/{url}</string>
+    <string name="mirror_custom_validation_https">Template must start with https://</string>
+    <string name="mirror_custom_validation_template">Template must contain {url} exactly once</string>
+    <string name="mirror_custom_save">Save</string>
+
+    <!-- Mirror - Test connection -->
+    <string name="mirror_test_button">Test selected</string>
+    <string name="mirror_test_in_progress">Testing…</string>
+    <string name="mirror_test_success">Reached in %1$dms</string>
+    <string name="mirror_test_http_error">Mirror returned %1$d</string>
+    <string name="mirror_test_timeout">Timed out after 5s</string>
+    <string name="mirror_test_dns_fail">Could not resolve host</string>
+    <string name="mirror_test_other">Failed: %1$s</string>
+
+    <!-- Mirror - Footer hint -->
+    <string name="mirror_deploy_your_own_hint">All mirrors broken? You can host your own in 5 minutes — see docs.</string>
+
+    <!-- Mirror - Removed notice + verification -->
+    <string name="mirror_removed_toast">%1$s is no longer available, switched to Direct GitHub.</string>
+    <string name="mirror_digest_mismatch_error">Checksum mismatch — file may have been tampered with</string>
+
+    <!-- Mirror - Auto-suggest -->
+    <string name="mirror_auto_suggest_title">Try a faster mirror?</string>
+    <string name="mirror_auto_suggest_body">Some users on slow networks have better luck with a community proxy.</string>
+    <string name="mirror_auto_suggest_pick_one">Pick one</string>
+    <string name="mirror_auto_suggest_maybe_later">Maybe later</string>
+    <string name="mirror_auto_suggest_dont_ask_again">Don\'t ask again</string>
 </resources>
