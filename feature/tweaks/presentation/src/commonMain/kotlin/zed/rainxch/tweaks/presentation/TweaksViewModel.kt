@@ -655,6 +655,11 @@ class TweaksViewModel(
                 // Handled in composable
             }
 
+            TweaksAction.OnFeedbackClick ->
+                _state.update { it.copy(isFeedbackSheetVisible = true) }
+            TweaksAction.OnFeedbackDismiss ->
+                _state.update { it.copy(isFeedbackSheetVisible = false) }
+
             is TweaksAction.OnTelemetryToggled -> {
                 viewModelScope.launch {
                     tweaksRepository.setTelemetryEnabled(action.enabled)

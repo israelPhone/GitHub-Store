@@ -17,6 +17,7 @@ import zed.rainxch.starred.presentation.StarredReposViewModel
 import zed.rainxch.tweaks.presentation.TweaksViewModel
 import zed.rainxch.tweaks.presentation.mirror.AutoSuggestMirrorViewModel
 import zed.rainxch.tweaks.presentation.mirror.MirrorPickerViewModel
+import zed.rainxch.tweaks.presentation.feedback.FeedbackViewModel
 
 val viewModelsModule =
     module {
@@ -62,6 +63,7 @@ val viewModelsModule =
         viewModelOf(::SearchViewModel)
         viewModelOf(::ProfileViewModel)
         viewModelOf(::TweaksViewModel)
+        viewModelOf(::FeedbackViewModel)
         viewModelOf(::StarredReposViewModel)
         viewModelOf(::AutoSuggestMirrorViewModel)
         viewModel {
