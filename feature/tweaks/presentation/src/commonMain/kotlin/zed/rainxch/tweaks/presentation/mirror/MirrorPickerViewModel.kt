@@ -109,9 +109,10 @@ class MirrorPickerViewModel(
                     is MirrorPreference.Selected ->
                         state.value.mirrors.firstOrNull { it.id == pref.id }?.urlTemplate
                 }
+            val probeUrl = "https://raw.githubusercontent.com/octocat/Hello-World/master/README"
             val targetUrl =
-                if (template == null) "https://api.github.com/zen"
-                else MirrorRewriter.applyTemplate(template, "https://api.github.com/zen")
+                if (template == null) probeUrl
+                else MirrorRewriter.applyTemplate(template, probeUrl)
             val result =
                 withTimeoutOrNull(5_000L) {
                     runCatching {
