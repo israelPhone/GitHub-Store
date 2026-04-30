@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import zed.rainxch.core.data.network.MirrorRewriter
 import zed.rainxch.core.domain.model.MirrorConfig
 import zed.rainxch.core.domain.model.MirrorPreference
 import zed.rainxch.core.domain.repository.MirrorRepository
@@ -112,7 +111,7 @@ class MirrorPickerViewModel(
             val probeUrl = "https://raw.githubusercontent.com/octocat/Hello-World/master/README"
             val targetUrl =
                 if (template == null) probeUrl
-                else MirrorRewriter.applyTemplate(template, probeUrl)
+                else template.replace("{url}", probeUrl)
             val result =
                 withTimeoutOrNull(5_000L) {
                     runCatching {
