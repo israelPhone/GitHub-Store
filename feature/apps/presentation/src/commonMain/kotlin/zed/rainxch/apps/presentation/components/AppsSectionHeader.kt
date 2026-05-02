@@ -31,6 +31,8 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.apps_section_collapse
 import zed.rainxch.githubstore.core.presentation.res.apps_section_count_suffix
 import zed.rainxch.githubstore.core.presentation.res.apps_section_expand
+import zed.rainxch.githubstore.core.presentation.res.apps_section_state_collapsed
+import zed.rainxch.githubstore.core.presentation.res.apps_section_state_expanded
 
 /**
  * Section header shown above each grouped app list. Honours WCAG: the row
@@ -52,6 +54,8 @@ fun AppsSectionHeader(
 ) {
     val expandLabel = stringResource(Res.string.apps_section_expand)
     val collapseLabel = stringResource(Res.string.apps_section_collapse)
+    val expandedStateLabel = stringResource(Res.string.apps_section_state_expanded)
+    val collapsedStateLabel = stringResource(Res.string.apps_section_state_collapsed)
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 0f else -90f,
         animationSpec = tween(durationMillis = 180),
@@ -74,7 +78,7 @@ fun AppsSectionHeader(
                                 role = Role.Button
                                 heading()
                                 contentDescription = "$title, $count, $rowSemantic"
-                                stateDescription = if (isExpanded) "expanded" else "collapsed"
+                                stateDescription = if (isExpanded) expandedStateLabel else collapsedStateLabel
                             }
                     } else {
                         base.semantics(mergeDescendants = true) {
