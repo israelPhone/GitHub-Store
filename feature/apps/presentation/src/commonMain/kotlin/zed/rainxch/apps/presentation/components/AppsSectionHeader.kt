@@ -31,8 +31,6 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.apps_section_collapse
 import zed.rainxch.githubstore.core.presentation.res.apps_section_count_suffix
 import zed.rainxch.githubstore.core.presentation.res.apps_section_expand
-import zed.rainxch.githubstore.core.presentation.res.apps_section_header_a11y_collapsible
-import zed.rainxch.githubstore.core.presentation.res.apps_section_header_a11y_static
 import zed.rainxch.githubstore.core.presentation.res.apps_section_state_collapsed
 import zed.rainxch.githubstore.core.presentation.res.apps_section_state_expanded
 
@@ -56,19 +54,15 @@ fun AppsSectionHeader(
 ) {
     val expandLabel = stringResource(Res.string.apps_section_expand)
     val collapseLabel = stringResource(Res.string.apps_section_collapse)
+    val expandedStateLabel = stringResource(Res.string.apps_section_state_expanded)
+    val collapsedStateLabel = stringResource(Res.string.apps_section_state_collapsed)
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 0f else -90f,
         animationSpec = tween(durationMillis = 180),
         label = "section-chevron",
     )
 
-    val toggleHint = if (isExpanded) collapseLabel else expandLabel
-    val collapsibleHeaderLabel =
-        stringResource(Res.string.apps_section_header_a11y_collapsible, title, count, toggleHint)
-    val staticHeaderLabel =
-        stringResource(Res.string.apps_section_header_a11y_static, title, count)
-    val expandedStateLabel = stringResource(Res.string.apps_section_state_expanded)
-    val collapsedStateLabel = stringResource(Res.string.apps_section_state_collapsed)
+    val rowSemantic = if (isExpanded) collapseLabel else expandLabel
 
     Row(
         modifier =
@@ -83,14 +77,13 @@ fun AppsSectionHeader(
                             .semantics(mergeDescendants = true) {
                                 role = Role.Button
                                 heading()
-                                contentDescription = collapsibleHeaderLabel
-                                stateDescription =
-                                    if (isExpanded) expandedStateLabel else collapsedStateLabel
+                                contentDescription = "$title, $count, $rowSemantic"
+                                stateDescription = if (isExpanded) expandedStateLabel else collapsedStateLabel
                             }
                     } else {
                         base.semantics(mergeDescendants = true) {
                             heading()
-                            contentDescription = staticHeaderLabel
+                            contentDescription = "$title, $count"
                         }
                     }
                 },
