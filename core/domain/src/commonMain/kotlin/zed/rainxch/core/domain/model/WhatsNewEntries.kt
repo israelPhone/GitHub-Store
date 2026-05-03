@@ -11,24 +11,24 @@ object WhatsNewEntries {
                     WhatsNewSection(
                         type = WhatsNewSectionType.NEW,
                         bullets = listOf(
-                            "What's new sheet — see highlights right after every update.",
-                            "APK Inspect: peek inside any release before installing.",
-                            "Manual rescan surfaces every GitHub-style app on device.",
+                            "APK Inspect — peek inside any release before installing.",
+                            "Apps screen now groups updates, pending installs, and installed apps into sections.",
                         ),
                     ),
                     WhatsNewSection(
                         type = WhatsNewSectionType.IMPROVED,
                         bullets = listOf(
-                            "Sui silent install support, alongside Shizuku.",
-                            "Faithful pending row — parked APKs now carry their own icon and version.",
-                            "Auth resilience: token-scoped 401 debounce stops spurious sign-outs.",
+                            "Manual rescan surfaces every GitHub-style app on device, not just verified ones.",
+                            "Tighter auth handling — transient 401s no longer trigger spurious sign-outs.",
+                            "Faithful pending rows — parked APKs carry their own icon and version.",
                         ),
                     ),
                     WhatsNewSection(
                         type = WhatsNewSectionType.FIXED,
                         bullets = listOf(
-                            "Multi-source download race no longer corrupts the final APK.",
-                            "Shizuku-fallback installs no longer mark apps installed before they actually are.",
+                            "Multi-source downloads no longer clobber each other's APK file.",
+                            "Shizuku-fallback installs no longer flip rows to \"installed\" before the system confirms.",
+                            "Self-update no longer leaves apps stuck on \"Preparing to install\".",
                         ),
                     ),
                 ),
