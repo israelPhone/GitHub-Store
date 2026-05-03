@@ -131,7 +131,7 @@ private fun HeaderRow(
     ) {
         Icon(
             imageVector = severityIcon(severity, iconHint),
-            contentDescription = null,
+            contentDescription = stringResource(severityLabel(severity)),
             tint = severityColor,
             modifier = Modifier.size(20.dp),
         )
@@ -140,7 +140,7 @@ private fun HeaderRow(
         if (isAcknowledged) {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
-                contentDescription = stringResource(Res.string.announcements_acknowledged),
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp),
             )
@@ -218,7 +218,9 @@ private fun ActionRow(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = announcement.ctaLabel ?: stringResource(Res.string.announcements_read_more))
+                val resolvedLabel = announcement.ctaLabel?.takeIf { it.isNotBlank() }
+                    ?: stringResource(Res.string.announcements_read_more)
+                Text(text = resolvedLabel)
             }
         }
         Spacer(Modifier.weight(1f))
