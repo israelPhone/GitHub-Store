@@ -37,5 +37,5 @@ class WhatsNewLoaderImpl(
 }
 
 object KnownWhatsNewVersionCodes {
-    val ALL: List<Int> = emptyList()
+    val ALL: List<Int> = listOf(16, 15)
 }
