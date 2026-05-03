@@ -14,11 +14,6 @@ import zed.rainxch.core.domain.system.AppVersionInfo
 
 class WhatsNewViewModel(
     private val tweaksRepository: TweaksRepository,
-    private val appVersionInfo: AppVersionInfo,
-) : ViewModel() {
-    private val _pendingEntry = MutableStateFlow<WhatsNewEntry?>(null)
-    val pendingEntry: StateFlow<WhatsNewEntry?> = _pendingEntry.asStateFlow()
-
     init {
         viewModelScope.launch {
             evaluate()
@@ -26,18 +21,25 @@ class WhatsNewViewModel(
     }
 
     private suspend fun evaluate() {
-        val current = appVersionInfo.versionCode
-        val lastSeen = tweaksRepository.getLastSeenWhatsNewVersionCode().first() ?: Int.MIN_VALUE
+        runCatching {
+            val current = appVersionInfo.versionCode
+            val lastSeen = tweaksRepository.getLastSeenWhatsNewVersionCode().first()
 
-        if (lastSeen >= current) return
+            if (lastSeen == null) {
+                tweaksRepository.setLastSeenWhatsNewVersionCode(current)
+                return
+            }
 
-        val entry = WhatsNewEntries.forVersionCode(current)
-        if (entry == null || !entry.showAsSheet) {
-            tweaksRepository.setLastSeenWhatsNewVersionCode(current)
-            return
+            if (lastSeen >= current) return
+
+            val entry = WhatsNewEntries.forVersionCode(current)
+            if (entry == null || !entry.showAsSheet) {
+                tweaksRepository.setLastSeenWhatsNewVersionCode(current)
+                return
+            }
+
+            _pendingEntry.value = entry
         }
-
-        _pendingEntry.value = entry
     }
 
     fun markSeen() {
