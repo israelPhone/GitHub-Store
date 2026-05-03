@@ -53,7 +53,8 @@ class AnnouncementsRepositoryImpl(
             persistedFlow,
             lastRefreshFailed,
             tweaksRepository.getInstallerType(),
-        ) { persisted, refreshFailed, installerType ->
+            tweaksRepository.getAppLanguage(),
+        ) { persisted, refreshFailed, installerType, _ ->
             val items = parseAndFilter(persisted.payload, installerType.name)
             AnnouncementsFeedSnapshot(
                 items = items,
@@ -145,13 +146,14 @@ class AnnouncementsRepositoryImpl(
             .mapNotNull { it.toDomain(fullLocale = full, primaryLocale = primary) }
             .filter { item ->
                 val expired = item.expiresAt?.let { it < now } == true
+                val publishedOk = item.publishedAt <= now
                 val minVc = item.minVersionCode
                 val maxVc = item.maxVersionCode
                 val versionFloorOk = minVc == null || versionCode >= minVc
                 val versionCeilingOk = maxVc == null || versionCode <= maxVc
                 val platformOk = item.platforms?.contains(platformTag) ?: true
                 val installerOk = item.installerTypes?.contains(installerTypeTag) ?: true
-                !expired && versionFloorOk && versionCeilingOk && platformOk && installerOk
+                !expired && publishedOk && versionFloorOk && versionCeilingOk && platformOk && installerOk
             }
             .sortedByDescending { it.publishedAt }
             .toList()
