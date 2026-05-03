@@ -23,15 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.domain.model.AnnouncementCategory
 import zed.rainxch.githubstore.core.presentation.res.Res
-import zed.rainxch.githubstore.core.presentation.res.announcements_category_news
-import zed.rainxch.githubstore.core.presentation.res.announcements_category_privacy
-import zed.rainxch.githubstore.core.presentation.res.announcements_category_security
-import zed.rainxch.githubstore.core.presentation.res.announcements_category_status
-import zed.rainxch.githubstore.core.presentation.res.announcements_category_survey
 import zed.rainxch.githubstore.core.presentation.res.announcements_mute_locked
 import zed.rainxch.githubstore.core.presentation.res.announcements_mute_settings_title
 
@@ -112,10 +106,3 @@ private fun CategoryRow(
     }
 }
 
-private fun categoryLabel(category: AnnouncementCategory): StringResource = when (category) {
-    AnnouncementCategory.NEWS -> Res.string.announcements_category_news
-    AnnouncementCategory.PRIVACY -> Res.string.announcements_category_privacy
-    AnnouncementCategory.SURVEY -> Res.string.announcements_category_survey
-    AnnouncementCategory.SECURITY -> Res.string.announcements_category_security
-    AnnouncementCategory.STATUS -> Res.string.announcements_category_status
-}

@@ -171,9 +171,8 @@ fun App(deepLinkUri: String? = null) {
 
         val announcementsViewModel: AnnouncementsViewModel = koinViewModel()
         val pendingCritical by announcementsViewModel.pendingCriticalAcknowledgment.collectAsStateWithLifecycle()
-        val canShowCritical = onHomeScreen && authSettled && rateLimitCleared
         val criticalToShow = pendingCritical
-        if (criticalToShow != null && canShowCritical && debouncedReady && entryToShow == null) {
+        if (criticalToShow != null && canShowWhatsNew && debouncedReady && entryToShow == null) {
             CriticalAnnouncementModal(
                 announcement = criticalToShow,
                 onAcknowledge = { announcementsViewModel.acknowledge(criticalToShow) },
