@@ -654,6 +654,8 @@
     <string name="include_pre_releases_description">Track pre-release versions when checking for updates. When disabled, only stable releases are considered.</string>
     <string name="confirm_uninstall_title">Uninstall app?</string>
     <string name="confirm_uninstall_message">Are you sure you want to uninstall %1$s? This action cannot be undone and app data may be lost.</string>
+    <string name="confirm_discard_pending_title">Discard pending install?</string>
+    <string name="confirm_discard_pending_message">Drop the parked installer for %1$s and remove the row from your apps list? The downloaded APK will be deleted.</string>
 
     <string name="invalid_github_url">Invalid GitHub URL. Use format: github.com/owner/repo</string>
     <string name="repo_not_found">Repository not found: %1$s/%2$s</string>

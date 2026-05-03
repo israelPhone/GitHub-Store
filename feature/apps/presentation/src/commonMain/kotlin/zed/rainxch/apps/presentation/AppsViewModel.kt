@@ -274,7 +274,16 @@ class AppsViewModel(
             }
 
             is AppsAction.OnDiscardPendingInstall -> {
+                _state.update { it.copy(appPendingDiscard = action.app) }
+            }
+
+            is AppsAction.OnConfirmDiscardPendingInstall -> {
+                _state.update { it.copy(appPendingDiscard = null) }
                 discardPendingInstall(action.app)
+            }
+
+            AppsAction.OnDismissDiscardPendingDialog -> {
+                _state.update { it.copy(appPendingDiscard = null) }
             }
 
             is AppsAction.OnCancelUpdate -> {

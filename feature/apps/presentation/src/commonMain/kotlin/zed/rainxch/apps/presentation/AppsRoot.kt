@@ -145,6 +145,8 @@ import zed.rainxch.githubstore.core.presentation.res.sort_name
 import zed.rainxch.githubstore.core.presentation.res.sort_recently_updated
 import zed.rainxch.githubstore.core.presentation.res.sort_updates_first
 import zed.rainxch.githubstore.core.presentation.res.uninstall
+import zed.rainxch.githubstore.core.presentation.res.confirm_discard_pending_message
+import zed.rainxch.githubstore.core.presentation.res.confirm_discard_pending_title
 import zed.rainxch.githubstore.core.presentation.res.discard_pending_install
 import zed.rainxch.githubstore.core.presentation.res.update
 import zed.rainxch.githubstore.core.presentation.res.update_all
@@ -407,6 +409,47 @@ fun AppsScreen(
                 dismissButton = {
                     TextButton(
                         onClick = { onAction(AppsAction.OnDismissUninstallDialog) },
+                    ) {
+                        Text(text = stringResource(Res.string.cancel))
+                    }
+                },
+            )
+        }
+
+        // Discard-pending-install confirmation dialog. Mirrors the
+        // uninstall flow because both branches blow away DB rows the
+        // user might still want — the discard target also deletes the
+        // parked APK from disk, so the prompt is doubly warranted.
+        state.appPendingDiscard?.let { app ->
+            AlertDialog(
+                onDismissRequest = { onAction(AppsAction.OnDismissDiscardPendingDialog) },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.confirm_discard_pending_title),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            Res.string.confirm_discard_pending_message,
+                            app.appName,
+                        ),
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = { onAction(AppsAction.OnConfirmDiscardPendingInstall(app)) },
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.discard_pending_install),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { onAction(AppsAction.OnDismissDiscardPendingDialog) },
                     ) {
                         Text(text = stringResource(Res.string.cancel))
                     }
