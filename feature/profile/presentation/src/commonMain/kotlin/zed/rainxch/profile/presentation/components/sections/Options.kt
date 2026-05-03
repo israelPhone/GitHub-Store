@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VolunteerActivism
@@ -87,6 +88,17 @@ fun LazyListScope.options(
             },
             onLongClick = {
                 onAction(ProfileAction.OnWhatsNewLongClick)
+            },
+        )
+
+        Spacer(Modifier.height(4.dp))
+
+        OptionCard(
+            icon = Icons.Default.Notifications,
+            label = stringResource(Res.string.announcements_title),
+            description = stringResource(Res.string.announcements_profile_description),
+            onClick = {
+                onAction(ProfileAction.OnAnnouncementsClick)
             },
         )
 
