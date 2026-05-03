@@ -290,6 +290,7 @@ fun AppNavigation(
                             announcementsViewModel.previewSampleAnnouncements()
                             navController.navigate(GithubStoreGraph.AnnouncementsScreen)
                         },
+                        hasUnreadAnnouncements = announcementsUnreadCount > 0,
                     )
                 }
 
