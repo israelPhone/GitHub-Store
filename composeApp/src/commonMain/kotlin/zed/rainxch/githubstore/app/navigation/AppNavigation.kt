@@ -350,6 +350,7 @@ fun AppNavigation(
                         onToggleMute = { category, muted ->
                             announcementsViewModel.setMuted(category, muted)
                         },
+                        onLeavingScreen = { announcementsViewModel.clearPreview() },
                     )
                 }
 

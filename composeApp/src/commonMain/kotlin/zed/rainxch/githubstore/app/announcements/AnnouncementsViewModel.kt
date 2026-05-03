@@ -18,6 +18,7 @@ import zed.rainxch.core.domain.model.AnnouncementSeverity
 import zed.rainxch.core.domain.repository.AnnouncementsFeedSnapshot
 import zed.rainxch.core.domain.repository.AnnouncementsRepository
 import zed.rainxch.core.domain.utils.BrowserHelper
+import kotlin.time.Instant
 
 class AnnouncementsViewModel(
     private val repository: AnnouncementsRepository,
@@ -72,13 +73,17 @@ class AnnouncementsViewModel(
         }
     }
 
-    fun refresh() {
-        viewModelScope.launch {
-            try {
-                repository.refresh()
-            } catch (t: Throwable) {
-                logger.e(t) { "Manual announcements refresh failed" }
-            }
+    suspend fun refresh() {
+        try {
+            repository.refresh()
+        } catch (t: Throwable) {
+            logger.e(t) { "Manual announcements refresh failed" }
+        }
+    }
+
+    fun clearPreview() {
+        if (_previewItems.value.isNotEmpty()) {
+            _previewItems.value = emptyList()
         }
     }
 
@@ -150,7 +155,7 @@ class AnnouncementsViewModel(
             listOf(
                 Announcement(
                     id = "preview-info-news",
-                    publishedAt = "2026-05-03T00:00:00Z",
+                    publishedAt = Instant.parse("2026-05-03T00:00:00Z"),
                     expiresAt = null,
                     severity = AnnouncementSeverity.INFO,
                     category = AnnouncementCategory.NEWS,
@@ -171,7 +176,7 @@ class AnnouncementsViewModel(
                 ),
                 Announcement(
                     id = "preview-important-survey",
-                    publishedAt = "2026-05-02T00:00:00Z",
+                    publishedAt = Instant.parse("2026-05-02T00:00:00Z"),
                     expiresAt = null,
                     severity = AnnouncementSeverity.IMPORTANT,
                     category = AnnouncementCategory.SURVEY,
@@ -189,7 +194,7 @@ class AnnouncementsViewModel(
                 ),
                 Announcement(
                     id = "preview-critical-security",
-                    publishedAt = "2026-05-01T00:00:00Z",
+                    publishedAt = Instant.parse("2026-05-01T00:00:00Z"),
                     expiresAt = null,
                     severity = AnnouncementSeverity.CRITICAL,
                     category = AnnouncementCategory.SECURITY,
