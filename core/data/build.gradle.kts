@@ -36,6 +36,7 @@ kotlin {
                 implementation(libs.androidx.work.runtime)
                 implementation(libs.shizuku.api)
                 implementation(libs.shizuku.provider)
+                implementation(libs.dhizuku.api)
                 compileOnly(libs.hidden.api.stub)
             }
         }
