@@ -146,9 +146,9 @@ winget install zed.rainxch.githubstore
 - **Download mirror system**
     - Multi‑source race against the direct GitHub CDN, helpful on networks where `github.com` is throttled.
     - End‑to‑end SHA‑256 verification against GitHub's published asset digests.
-    - Curated community mirror list, updateable from the backend without an app release.
+    - Curated community mirror list, updatable from the backend without an app release.
     - Custom mirror URL for self‑hosted `gh-proxy`‑style instances.
-    - Auto‑suggest sheet after sustained slow downloads — opt in with one tap, dismissable, never nags.
+    - Auto‑suggest sheet after sustained slow downloads — opt in with one tap, dismissible, never nags.
 
 - **Rich details screen**
     - App name, version and share action.
