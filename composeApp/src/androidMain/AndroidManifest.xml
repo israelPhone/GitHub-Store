@@ -18,6 +18,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <uses-permission android:name="com.rosan.dhizuku.permission.API" />
+
     <!--
         Fallback visibility for installer-source classification when
         QUERY_ALL_PACKAGES is denied on Android 11+. We need to recognise
@@ -31,6 +33,8 @@
         <package android:name="org.fdroid.fdroid" />
         <package android:name="com.android.vending" />
         <package android:name="com.aurora.store" />
+        <package android:name="com.rosan.dhizuku" />
+        <provider android:authorities="com.rosan.dhizuku.server.provider" />
     </queries>
 
     <application
