@@ -8,9 +8,19 @@ import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import zed.rainxch.apps.domain.model.GithubRepoInfo
+import zed.rainxch.apps.domain.model.ImportFormat
 import zed.rainxch.apps.domain.model.ImportResult
 import zed.rainxch.apps.domain.repository.AppsRepository
+import zed.rainxch.core.data.mappers.toExportedAppOrSkip
+import zed.rainxch.core.data.mappers.toObtainiumApp
+import zed.rainxch.core.domain.model.ObtainiumApp
+import zed.rainxch.core.domain.model.ObtainiumExport
 import zed.rainxch.core.data.dto.GithubRepoNetworkModel
 import zed.rainxch.core.data.dto.ReleaseNetwork
 import zed.rainxch.core.data.mappers.toDomain
@@ -262,44 +272,110 @@ class AppsRepositoryImpl(
         return json.encodeToString(ExportedAppList.serializer(), exported)
     }
 
+    override suspend fun exportObtainium(): String {
+        val apps = appsRepository.getAllInstalledApps().first()
+        val export = ObtainiumExport(
+            apps = apps.map { it.toObtainiumApp() },
+            overrideExportFormatVersion = OBTAINIUM_EXPORT_FORMAT_VERSION,
+        )
+        return json.encodeToString(ObtainiumExport.serializer(), export)
+    }
+
     override suspend fun importApps(json: String): ImportResult {
-        val exportedList =
-            try {
-                this@AppsRepositoryImpl.json.decodeFromString(ExportedAppList.serializer(), json)
-            } catch (e: Exception) {
-                logger.error("Failed to parse import JSON: ${e.message}")
-                return ImportResult(imported = 0, skipped = 0, failed = 1)
+        val parsed = try {
+            this@AppsRepositoryImpl.json.parseToJsonElement(json)
+        } catch (e: Exception) {
+            logger.error("Import: not valid JSON: ${e.message}")
+            return ImportResult(
+                failed = 1,
+                sourceFormat = ImportFormat.UNKNOWN,
+                unknownFormatPreview = json.take(UNKNOWN_PREVIEW_CHARS),
+            )
+        }
+
+        val format = detectFormat(parsed)
+        return when (format) {
+            ImportFormat.NATIVE -> importNative(json)
+            ImportFormat.OBTAINIUM -> importObtainium(json)
+            ImportFormat.UNKNOWN -> ImportResult(
+                failed = 1,
+                sourceFormat = ImportFormat.UNKNOWN,
+                unknownFormatPreview = json.take(UNKNOWN_PREVIEW_CHARS),
+            )
+        }
+    }
+
+    private fun detectFormat(element: kotlinx.serialization.json.JsonElement): ImportFormat {
+        val obj = (element as? JsonObject) ?: return ImportFormat.UNKNOWN
+        val apps = obj["apps"] as? kotlinx.serialization.json.JsonArray ?: return ImportFormat.UNKNOWN
+
+        var sawNative = false
+        var sawObtainium = false
+        for (item in apps) {
+            val app = item as? JsonObject ?: continue
+            if (app.containsKey("repoOwner") && app.containsKey("repoName")) {
+                sawNative = true
+                break
             }
+            if (app.containsKey("id") && app.containsKey("url")) {
+                val url = app["url"]?.jsonPrimitive?.contentOrNull
+                if (url?.contains("github.com", ignoreCase = true) == true) {
+                    sawObtainium = true
+                }
+            }
+        }
+        if (sawNative) return ImportFormat.NATIVE
+        if (sawObtainium) return ImportFormat.OBTAINIUM
+
+        if (apps.isEmpty()) {
+            val versionNode = obj["version"]
+            if (versionNode is kotlinx.serialization.json.JsonPrimitive && versionNode.contentOrNull?.toIntOrNull() != null) {
+                return ImportFormat.NATIVE
+            }
+            if (obj.containsKey("overrideExportFormatVersion") || obj.containsKey("settings")) {
+                return ImportFormat.OBTAINIUM
+            }
+        }
+        return ImportFormat.UNKNOWN
+    }
+
+    private suspend fun importNative(rawJson: String): ImportResult {
+        val exportedList = try {
+            json.decodeFromString(ExportedAppList.serializer(), rawJson)
+        } catch (e: Exception) {
+            logger.error("Failed to parse native import JSON: ${e.message}")
+            return ImportResult(
+                failed = 1,
+                sourceFormat = ImportFormat.NATIVE,
+            )
+        }
 
         val trackedPackages = getTrackedPackageNames()
-        var imported = 0
-        var skipped = 0
-        var failed = 0
+        val imported = mutableListOf<String>()
+        val skipped = mutableListOf<String>()
+        val failed = mutableListOf<String>()
 
         for (exportedApp in exportedList.apps) {
+            val label = "${exportedApp.repoOwner}/${exportedApp.repoName}"
             if (exportedApp.packageName in trackedPackages) {
-                skipped++
+                skipped += label
                 continue
             }
-
             try {
                 val repoInfo = fetchRepoInfo(exportedApp.repoOwner, exportedApp.repoName)
                 if (repoInfo == null) {
-                    failed++
+                    failed += label
                     continue
                 }
 
                 val systemInfo = packageMonitor.getInstalledPackageInfo(exportedApp.packageName)
-
-                val deviceApp =
-                    DeviceApp(
-                        packageName = exportedApp.packageName,
-                        appName = exportedApp.repoName,
-                        versionName = systemInfo?.versionName,
-                        versionCode = systemInfo?.versionCode ?: 0L,
-                        signingFingerprint = systemInfo?.signingFingerprint,
-                    )
-
+                val deviceApp = DeviceApp(
+                    packageName = exportedApp.packageName,
+                    appName = exportedApp.repoName,
+                    versionName = systemInfo?.versionName,
+                    versionCode = systemInfo?.versionCode ?: 0L,
+                    signingFingerprint = systemInfo?.signingFingerprint,
+                )
                 linkAppToRepo(
                     deviceApp = deviceApp,
                     repoInfo = repoInfo,
@@ -311,13 +387,99 @@ class AppsRepositoryImpl(
                     assetGlobPattern = exportedApp.assetGlobPattern,
                     pickedAssetIndex = exportedApp.pickedAssetIndex,
                 )
-                imported++
+                imported += label
             } catch (e: Exception) {
-                logger.error("Failed to import ${exportedApp.repoOwner}/${exportedApp.repoName}: ${e.message}")
-                failed++
+                logger.error("Failed to import $label: ${e.message}")
+                failed += label
             }
         }
 
-        return ImportResult(imported = imported, skipped = skipped, failed = failed)
+        return ImportResult(
+            imported = imported.size,
+            skipped = skipped.size,
+            failed = failed.size,
+            importedItems = imported,
+            skippedItems = skipped,
+            failedItems = failed,
+            sourceFormat = ImportFormat.NATIVE,
+        )
+    }
+
+    private suspend fun importObtainium(rawJson: String): ImportResult {
+        val export = try {
+            json.decodeFromString(ObtainiumExport.serializer(), rawJson)
+        } catch (e: Exception) {
+            logger.error("Failed to parse Obtainium import JSON: ${e.message}")
+            return ImportResult(
+                failed = 1,
+                sourceFormat = ImportFormat.OBTAINIUM,
+            )
+        }
+
+        val trackedPackages = getTrackedPackageNames()
+        val imported = mutableListOf<String>()
+        val skipped = mutableListOf<String>()
+        val failed = mutableListOf<String>()
+        val nonGitHub = mutableListOf<String>()
+
+        for (obtainiumApp in export.apps) {
+            val mapped = obtainiumApp.toExportedAppOrSkip(json)
+            val exportedApp = mapped.exported
+            if (exportedApp == null) {
+                mapped.nonGitHubLabel?.let { nonGitHub += it }
+                mapped.unsupportedFailureLabel?.let { failed += it }
+                continue
+            }
+
+            val label = "${exportedApp.repoOwner}/${exportedApp.repoName}"
+            if (exportedApp.packageName in trackedPackages) {
+                skipped += label
+                continue
+            }
+
+            try {
+                val repoInfo = fetchRepoInfo(exportedApp.repoOwner, exportedApp.repoName)
+                if (repoInfo == null) {
+                    failed += label
+                    continue
+                }
+                val systemInfo = packageMonitor.getInstalledPackageInfo(exportedApp.packageName)
+                val deviceApp = DeviceApp(
+                    packageName = exportedApp.packageName,
+                    appName = obtainiumApp.name?.takeIf { it.isNotBlank() } ?: exportedApp.repoName,
+                    versionName = systemInfo?.versionName,
+                    versionCode = systemInfo?.versionCode ?: 0L,
+                    signingFingerprint = systemInfo?.signingFingerprint,
+                )
+                linkAppToRepo(
+                    deviceApp = deviceApp,
+                    repoInfo = repoInfo,
+                    assetFilterRegex = exportedApp.assetFilterRegex,
+                    fallbackToOlderReleases = exportedApp.fallbackToOlderReleases,
+                    pickedAssetIndex = exportedApp.pickedAssetIndex,
+                )
+                imported += label
+            } catch (e: Exception) {
+                logger.error("Failed to import Obtainium app $label: ${e.message}")
+                failed += label
+            }
+        }
+
+        return ImportResult(
+            imported = imported.size,
+            skipped = skipped.size,
+            failed = failed.size,
+            nonGitHubSkipped = nonGitHub.size,
+            importedItems = imported,
+            skippedItems = skipped,
+            nonGitHubItems = nonGitHub,
+            failedItems = failed,
+            sourceFormat = ImportFormat.OBTAINIUM,
+        )
+    }
+
+    private companion object {
+        const val UNKNOWN_PREVIEW_CHARS = 200
+        const val OBTAINIUM_EXPORT_FORMAT_VERSION = 1
     }
 }
