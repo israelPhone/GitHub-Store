@@ -446,25 +446,29 @@ class BackendApiClient(
 
     private suspend fun parseRefreshErrorBody(
         response: io.ktor.client.statement.HttpResponse,
-    ): Pair<String?, Long?> {
-        val contentLength = response.contentLength() ?: 0L
-        if (contentLength == 0L) return null to null
-        return try {
+    ): Pair<String?, Long?> =
+        try {
             val text = response.bodyAsText()
-            if (text.isBlank()) return null to null
-            val obj = Json.parseToJsonElement(text) as? kotlinx.serialization.json.JsonObject
-                ?: return null to null
-            val error = (obj["error"] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull
-            val retryAfter = (obj["retry_after"] as? kotlinx.serialization.json.JsonPrimitive)
-                ?.contentOrNull
-                ?.toLongOrNull()
-            error to retryAfter
+            if (text.isBlank()) {
+                null to null
+            } else {
+                val obj = Json.parseToJsonElement(text) as? kotlinx.serialization.json.JsonObject
+                if (obj == null) {
+                    null to null
+                } else {
+                    val error = (obj["error"] as? kotlinx.serialization.json.JsonPrimitive)
+                        ?.contentOrNull
+                    val retryAfter = (obj["retry_after"] as? kotlinx.serialization.json.JsonPrimitive)
+                        ?.contentOrNull
+                        ?.toLongOrNull()
+                    error to retryAfter
+                }
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
             null to null
         }
-    }
 
     private inline fun <T> safeCall(block: () -> Result<T>): Result<T> =
         try {
