@@ -102,8 +102,14 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
 
             val finished = latch.await(INSTALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             if (!finished) {
-                logE("install timed out after ${INSTALL_TIMEOUT_SECONDS}s")
-                STATUS_FAILURE
+                logE("install timed out after ${INSTALL_TIMEOUT_SECONDS}s — verifying package state")
+                if (verifyInstallSucceeded(ctx, installer, sessionId)) {
+                    log("post-timeout verification confirmed install succeeded")
+                    STATUS_SUCCESS
+                } else {
+                    logE("post-timeout verification could not confirm install")
+                    STATUS_FAILURE
+                }
             } else {
                 resultRef.get()
             }
@@ -167,8 +173,14 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
 
             val finished = latch.await(UNINSTALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             if (!finished) {
-                logE("uninstall timed out after ${UNINSTALL_TIMEOUT_SECONDS}s")
-                STATUS_FAILURE
+                logE("uninstall timed out after ${UNINSTALL_TIMEOUT_SECONDS}s — verifying package state")
+                if (!isPackageInstalled(ctx, packageName)) {
+                    log("post-timeout verification confirmed uninstall succeeded")
+                    STATUS_SUCCESS
+                } else {
+                    logE("post-timeout verification: package still installed")
+                    STATUS_FAILURE
+                }
             } else {
                 resultRef.get()
             }
@@ -184,6 +196,31 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
 
     override fun destroy() {
         log("destroy() — service being unbound")
+    }
+
+    private fun verifyInstallSucceeded(
+        ctx: Context,
+        installer: PackageInstaller,
+        sessionId: Int,
+    ): Boolean {
+        if (sessionId < 0) return false
+        val targetPackage = try {
+            installer.getSessionInfo(sessionId)?.appPackageName
+        } catch (e: Exception) {
+            logE("getSessionInfo() failed during verification", e)
+            null
+        } ?: return false
+        return isPackageInstalled(ctx, targetPackage)
+    }
+
+    private fun isPackageInstalled(ctx: Context, packageName: String): Boolean = try {
+        ctx.packageManager.getPackageInfo(packageName, 0)
+        true
+    } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
+        false
+    } catch (e: Exception) {
+        logE("getPackageInfo($packageName) failed", e)
+        false
     }
 
     private fun currentApplicationOrNull(): Context? {
