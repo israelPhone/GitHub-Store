@@ -51,6 +51,8 @@ import zed.rainxch.apps.domain.model.ImportResult
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.import_summary_already_tracked
 import zed.rainxch.githubstore.core.presentation.res.import_summary_close
+import zed.rainxch.githubstore.core.presentation.res.import_summary_collapse
+import zed.rainxch.githubstore.core.presentation.res.import_summary_expand
 import zed.rainxch.githubstore.core.presentation.res.import_summary_failed
 import zed.rainxch.githubstore.core.presentation.res.import_summary_format_native
 import zed.rainxch.githubstore.core.presentation.res.import_summary_format_obtainium
@@ -99,18 +101,16 @@ fun ImportSummarySheet(
                 fontWeight = FontWeight.SemiBold,
             )
 
-            val announcement = buildString {
-                append(summary.imported)
-                append(" imported, ")
-                append(summary.skipped)
-                append(" already tracked, ")
-                if (summary.nonGitHubSkipped > 0) {
-                    append(summary.nonGitHubSkipped)
-                    append(" not GitHub, ")
-                }
-                append(summary.failed)
-                append(" failed")
+            val importedPart = stringResource(Res.string.import_summary_imported, summary.imported)
+            val skippedPart = stringResource(Res.string.import_summary_already_tracked, summary.skipped)
+            val nonGitHubPart = if (summary.nonGitHubSkipped > 0) {
+                stringResource(Res.string.import_summary_non_github, summary.nonGitHubSkipped)
+            } else {
+                null
             }
+            val failedPart = stringResource(Res.string.import_summary_failed, summary.failed)
+            val announcement = listOfNotNull(importedPart, skippedPart, nonGitHubPart, failedPart)
+                .joinToString(", ")
             Text(
                 text = "",
                 modifier = Modifier
@@ -276,10 +276,13 @@ private fun SummaryBucket(
                 }
             }
             if (items.isNotEmpty()) {
+                val expandLabel = stringResource(
+                    if (expanded) Res.string.import_summary_collapse else Res.string.import_summary_expand,
+                )
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                        contentDescription = null,
+                        contentDescription = expandLabel,
                     )
                 }
             }

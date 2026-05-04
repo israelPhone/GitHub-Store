@@ -668,6 +668,8 @@
     <string name="import_summary_non_github">%1$d not GitHub</string>
     <string name="import_summary_non_github_caption">We don\'t track GitLab, F-Droid or HTML sources yet.</string>
     <string name="import_summary_close">Done</string>
+    <string name="import_summary_expand">Show details</string>
+    <string name="import_summary_collapse">Hide details</string>
     <string name="import_summary_unknown_format">Couldn\'t read this file</string>
     <string name="import_summary_unknown_caption">It doesn\'t look like a GitHub Store or Obtainium export. Here\'s the start of the file:</string>
     <string name="import_apps_title">Import apps</string>

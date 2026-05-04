@@ -12,6 +12,13 @@ import zed.rainxch.core.domain.model.ObtainiumApp
 data class ObtainiumMapResult(
     val exported: ExportedApp?,
     val nonGitHubLabel: String?,
+    val unsupportedFailureLabel: String?,
+)
+
+private data class AdditionalSettingsParse(
+    val filter: String?,
+    val fallbackToOlderReleases: Boolean,
+    val invertFilter: Boolean,
 )
 
 fun ObtainiumApp.toExportedAppOrSkip(json: Json): ObtainiumMapResult {
@@ -21,15 +28,23 @@ fun ObtainiumApp.toExportedAppOrSkip(json: Json): ObtainiumMapResult {
             exported = null,
             nonGitHubLabel = (name?.takeIf { it.isNotBlank() } ?: id.ifBlank { rawUrl }) +
                 if (rawUrl.isNotEmpty()) " ($rawUrl)" else "",
+            unsupportedFailureLabel = null,
         )
 
     val packageName = id.trim().takeIf { it.isNotBlank() } ?: return ObtainiumMapResult(
         exported = null,
         nonGitHubLabel = "$owner/$repo (missing package id)",
+        unsupportedFailureLabel = null,
     )
 
-    val additional = additionalSettingsRaw
-    val (filterRegex, fallbackToOlderReleases) = parseAdditionalSettings(additional, json)
+    val parsed = parseAdditionalSettings(additionalSettingsRaw, json)
+    if (parsed.invertFilter) {
+        return ObtainiumMapResult(
+            exported = null,
+            nonGitHubLabel = null,
+            unsupportedFailureLabel = "$owner/$repo (inverted APK filter — not supported)",
+        )
+    }
 
     return ObtainiumMapResult(
         exported = ExportedApp(
@@ -37,8 +52,8 @@ fun ObtainiumApp.toExportedAppOrSkip(json: Json): ObtainiumMapResult {
             repoOwner = owner,
             repoName = repo,
             repoUrl = rawUrl,
-            assetFilterRegex = filterRegex,
-            fallbackToOlderReleases = fallbackToOlderReleases,
+            assetFilterRegex = parsed.filter,
+            fallbackToOlderReleases = parsed.fallbackToOlderReleases,
             preferredAssetVariant = null,
             preferredAssetTokens = null,
             assetGlobPattern = null,
@@ -46,6 +61,7 @@ fun ObtainiumApp.toExportedAppOrSkip(json: Json): ObtainiumMapResult {
             pickedAssetSiblingCount = null,
         ),
         nonGitHubLabel = null,
+        unsupportedFailureLabel = null,
     )
 }
 
@@ -74,19 +90,18 @@ private fun parseGithubOwnerRepo(rawUrl: String): Pair<String, String>? {
 private fun parseAdditionalSettings(
     additional: kotlinx.serialization.json.JsonElement?,
     json: Json,
-): Pair<String?, Boolean> {
-    if (additional == null) return null to false
+): AdditionalSettingsParse {
+    if (additional == null) return AdditionalSettingsParse(null, false, false)
     val obj = when (additional) {
         is JsonPrimitive -> additional.contentOrNull?.let {
             runCatching { json.parseToJsonElement(it).jsonObject }.getOrNull()
         }
         else -> runCatching { additional.jsonObject }.getOrNull()
-    } ?: return null to false
+    } ?: return AdditionalSettingsParse(null, false, false)
 
     val filter = obj["apkFilterRegEx"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
     val invertFilter = obj["invertAPKFilter"]?.jsonPrimitive?.runCatching { boolean }?.getOrNull() == true
     val fallback = obj["fallbackToOlderReleases"]?.jsonPrimitive?.runCatching { boolean }?.getOrNull() == true
 
-    val effectiveFilter = if (invertFilter) null else filter
-    return effectiveFilter to fallback
+    return AdditionalSettingsParse(filter, fallback, invertFilter)
 }

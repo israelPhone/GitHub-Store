@@ -276,6 +276,7 @@ class AppsRepositoryImpl(
         val apps = appsRepository.getAllInstalledApps().first()
         val export = ObtainiumExport(
             apps = apps.map { it.toObtainiumApp() },
+            overrideExportFormatVersion = OBTAINIUM_EXPORT_FORMAT_VERSION,
         )
         return json.encodeToString(ObtainiumExport.serializer(), export)
     }
@@ -307,15 +308,35 @@ class AppsRepositoryImpl(
     private fun detectFormat(element: kotlinx.serialization.json.JsonElement): ImportFormat {
         val obj = (element as? JsonObject) ?: return ImportFormat.UNKNOWN
         val apps = obj["apps"] as? kotlinx.serialization.json.JsonArray ?: return ImportFormat.UNKNOWN
-        val firstApp = (apps.firstOrNull() as? JsonObject) ?: return ImportFormat.UNKNOWN
 
-        if (firstApp.containsKey("repoOwner") && firstApp.containsKey("repoName")) {
-            return ImportFormat.NATIVE
+        var sawNative = false
+        var sawObtainium = false
+        for (item in apps) {
+            val app = item as? JsonObject ?: continue
+            if (app.containsKey("repoOwner") && app.containsKey("repoName")) {
+                sawNative = true
+                break
+            }
+            if (app.containsKey("id") && app.containsKey("url")) {
+                val url = app["url"]?.jsonPrimitive?.contentOrNull
+                if (url?.contains("github.com", ignoreCase = true) == true) {
+                    sawObtainium = true
+                }
+            }
         }
-        val hasObtainiumShape = firstApp.containsKey("id") &&
-            firstApp.containsKey("url") &&
-            firstApp["url"]?.jsonPrimitive?.contentOrNull?.contains("github.com", ignoreCase = true) == true
-        return if (hasObtainiumShape) ImportFormat.OBTAINIUM else ImportFormat.UNKNOWN
+        if (sawNative) return ImportFormat.NATIVE
+        if (sawObtainium) return ImportFormat.OBTAINIUM
+
+        if (apps.isEmpty()) {
+            val versionNode = obj["version"]
+            if (versionNode is kotlinx.serialization.json.JsonPrimitive && versionNode.contentOrNull?.toIntOrNull() != null) {
+                return ImportFormat.NATIVE
+            }
+            if (obj.containsKey("overrideExportFormatVersion") || obj.containsKey("settings")) {
+                return ImportFormat.OBTAINIUM
+            }
+        }
+        return ImportFormat.UNKNOWN
     }
 
     private suspend fun importNative(rawJson: String): ImportResult {
@@ -406,6 +427,7 @@ class AppsRepositoryImpl(
             val exportedApp = mapped.exported
             if (exportedApp == null) {
                 mapped.nonGitHubLabel?.let { nonGitHub += it }
+                mapped.unsupportedFailureLabel?.let { failed += it }
                 continue
             }
 
@@ -458,5 +480,6 @@ class AppsRepositoryImpl(
 
     private companion object {
         const val UNKNOWN_PREVIEW_CHARS = 200
+        const val OBTAINIUM_EXPORT_FORMAT_VERSION = 1
     }
 }
