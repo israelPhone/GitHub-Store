@@ -49,6 +49,7 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
         var sessionId = -1
         var session: PackageInstaller.Session? = null
         var receiver: BroadcastReceiver? = null
+        var committed = false
         return try {
             sessionId = installer.createSession(params)
             log("createSession() — sessionId=$sessionId")
@@ -94,6 +95,7 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
             )
 
             session.commit(pendingIntent.intentSender)
+            committed = true
             log("session.commit() called, awaiting result...")
 
             val finished = latch.await(INSTALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -107,6 +109,9 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
             logE("installPackage() exception", e)
             STATUS_FAILURE
         } finally {
+            if (!committed && sessionId >= 0) {
+                try { installer.abandonSession(sessionId) } catch (_: Exception) {}
+            }
             try { session?.close() } catch (_: Exception) {}
             if (receiver != null) {
                 try { ctx.unregisterReceiver(receiver) } catch (_: Exception) {}
