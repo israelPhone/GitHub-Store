@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -66,7 +67,8 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
 
             val latch = CountDownLatch(1)
             val resultRef = AtomicInteger(STATUS_FAILURE)
-            val action = "$ACTION_INSTALL_RESULT.$sessionId"
+            val token = UUID.randomUUID().toString()
+            val action = "$ACTION_INSTALL_RESULT.$token"
 
             receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
@@ -89,7 +91,7 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
             }
             val pendingIntent = PendingIntent.getBroadcast(
                 ctx,
-                sessionId,
+                token.hashCode(),
                 Intent(action).setPackage(ctx.packageName),
                 pendingFlags,
             )
@@ -130,7 +132,8 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
         val installer = ctx.packageManager.packageInstaller
         val latch = CountDownLatch(1)
         val resultRef = AtomicInteger(STATUS_FAILURE)
-        val action = "$ACTION_UNINSTALL_RESULT.${packageName.hashCode()}"
+        val token = UUID.randomUUID().toString()
+        val action = "$ACTION_UNINSTALL_RESULT.$token"
         var receiver: BroadcastReceiver? = null
 
         return try {
@@ -155,7 +158,7 @@ class DhizukuInstallerServiceImpl() : IDhizukuInstallerService.Stub() {
             }
             val pendingIntent = PendingIntent.getBroadcast(
                 ctx,
-                packageName.hashCode(),
+                token.hashCode(),
                 Intent(action).setPackage(ctx.packageName),
                 pendingFlags,
             )
