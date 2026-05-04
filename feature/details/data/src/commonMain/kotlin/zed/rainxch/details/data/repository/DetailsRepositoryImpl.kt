@@ -517,7 +517,10 @@ class DetailsRepositoryImpl(
         owner: String,
         repo: String,
     ): RepoStats {
-        val cacheKey = "details:stats:$owner/$repo"
+        // v2 — backend now supplies openIssues; pre-PR entries had it pinned
+        // to 0 for anon users. Bumping the key forces re-fetch instead of
+        // serving stale zeros for the remainder of the 6h TTL after upgrade.
+        val cacheKey = "details:stats:v2:$owner/$repo"
 
         cacheManager.get<RepoStats>(cacheKey)?.let { cached ->
             logger.debug("Cache hit for repo stats $owner/$repo")
