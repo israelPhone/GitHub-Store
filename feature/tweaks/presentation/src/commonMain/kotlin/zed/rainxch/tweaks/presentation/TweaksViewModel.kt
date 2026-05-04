@@ -662,18 +662,20 @@ class TweaksViewModel(
                 val draft = _state.value.installerAttributionCustomDraft.trim()
                 if (!zed.rainxch.core.domain.model.InstallerAttributionDefaults.isValidPackageName(draft)) {
                     _state.update {
-                        it.copy(
-                            installerAttributionCustomError = "invalid",
-                        )
+                        it.copy(installerAttributionCustomError = "invalid")
                     }
                 } else {
                     viewModelScope.launch {
-                        tweaksRepository.setInstallerAttribution(
-                            zed.rainxch.core.domain.model.InstallerAttribution.Custom(draft),
-                        )
-                    }
-                    _state.update {
-                        it.copy(installerAttributionCustomError = null)
+                        runCatching {
+                            tweaksRepository.setInstallerAttribution(
+                                zed.rainxch.core.domain.model.InstallerAttribution.Custom(draft),
+                            )
+                        }.onSuccess {
+                            _state.update { it.copy(installerAttributionCustomError = null) }
+                        }.onFailure { error ->
+                            println("TweaksViewModel: failed to persist installer attribution: ${error.message}")
+                            _state.update { it.copy(installerAttributionCustomError = "write_failed") }
+                        }
                     }
                 }
             }
