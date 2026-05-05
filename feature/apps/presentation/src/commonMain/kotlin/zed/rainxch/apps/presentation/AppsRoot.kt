@@ -621,7 +621,16 @@ fun AppsScreen(
                             LazyColumn(
                                 state = listState,
                                 modifier = Modifier.fillMaxSize().arrowKeyScroll(listState),
-                                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
+                                // Bottom inset clears the Add-by-link FAB so
+                                // the last list item isn't hidden under it.
+                                // FAB ≈ 56dp + 16dp scaffold inset + 16dp
+                                // breathing room.
+                                contentPadding = PaddingValues(
+                                    start = 0.dp,
+                                    end = 0.dp,
+                                    top = 8.dp,
+                                    bottom = 88.dp,
+                                ),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 if (state.showImportProposalBanner) {
