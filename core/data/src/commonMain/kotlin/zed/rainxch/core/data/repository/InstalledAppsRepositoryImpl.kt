@@ -371,17 +371,37 @@ class InstalledAppsRepositoryImpl(
 
             val (matchedRelease, primaryAsset, variantWasLost) = resolved
 
+            // Canary: when installedVersionCode and latestVersionCode are
+            // both known and equal, the user already has the matched
+            // release. The tag-string compare below can still flip true
+            // (#515) if `installedVersion` got out of sync — e.g. after
+            // a self-update where the resolver path missed updating the
+            // tag. Trust the version-code parity over the string compare.
+            val installedCode = app.installedVersionCode
+            val latestCode = app.latestVersionCode
+            val codesAlreadyMatch =
+                installedCode != null &&
+                    installedCode > 0L &&
+                    latestCode != null &&
+                    latestCode > 0L &&
+                    installedCode == latestCode
+
             val isUpdateAvailable =
-                VersionMath.isVersionNewer(
-                    candidate = matchedRelease.tagName,
-                    current = app.installedVersion,
-                )
+                if (codesAlreadyMatch) {
+                    false
+                } else {
+                    VersionMath.isVersionNewer(
+                        candidate = matchedRelease.tagName,
+                        current = app.installedVersion,
+                    )
+                }
 
             Logger.d {
                 "Update check for ${app.appName}: " +
                     "installedTag=${app.installedVersion}, " +
                     "matchedTag=${matchedRelease.tagName}, " +
                     "matchedAsset=${primaryAsset.name}, " +
+                    "codesMatch=$codesAlreadyMatch, " +
                     "isUpdate=$isUpdateAvailable, variantLost=$variantWasLost"
             }
 
@@ -398,6 +418,25 @@ class InstalledAppsRepositoryImpl(
                 latestVersionCode = null,
                 latestReleasePublishedAt = matchedRelease.publishedAt,
             )
+
+            // Backfill: when codes already match but the row's
+            // `installedVersion` (tag) drifted from the matched release
+            // (typical for rows written before #515 was fixed — e.g.
+            // installedVersion="1.7.0" left over from before a
+            // self-update completed), pin the tag to the matched
+            // release so subsequent checks don't keep re-flagging.
+            if (codesAlreadyMatch &&
+                installedCode != null &&
+                app.installedVersion != matchedRelease.tagName
+            ) {
+                installedAppsDao.updateInstalledVersion(
+                    packageName = packageName,
+                    installedVersion = matchedRelease.tagName,
+                    installedVersionName = app.installedVersionName,
+                    installedVersionCode = installedCode,
+                    isUpdateAvailable = false,
+                )
+            }
 
             // Sync the staleness flag with what the resolver actually
             // observed: flip on when the user's pinned variant has

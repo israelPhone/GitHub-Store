@@ -152,6 +152,15 @@ class GithubStoreApp : Application() {
                     // here at the earliest startup opportunity.
                     if (existing.isPendingInstall) {
                         resolveSelfPendingInstall(existing, repo)
+                    } else {
+                        // Backfill for #515: pre-fix releases left rows
+                        // with `installedVersion` (tag) pinned to the
+                        // pre-update tag even though the system already
+                        // holds the new APK. Detect the drift on cold
+                        // start and normalize so checkForUpdates stops
+                        // re-flagging the row as updatable on every
+                        // periodic sweep.
+                        normalizeSelfInstalledVersion(existing, repo)
                     }
                     return@launch
                 }
@@ -214,6 +223,42 @@ class GithubStoreApp : Application() {
      * and still has the flag set — the typical scenario after a
      * successful self-update where the broadcast path missed.
      */
+    /**
+     * Self-heal stale `installedVersion` tags on the self-row carried
+     * over from before #515 was fixed. Only fires when:
+     *   - The row exists and is not pending an install.
+     *   - The system's package versionCode matches the row's
+     *     `installedVersionCode` (so the user's *system* says the
+     *     install is finished).
+     *   - The row's tag (`installedVersion`) doesn't match
+     *     `latestVersion` (which the pre-install update worker wrote
+     *     to the intended new tag).
+     * Sets `installedVersion = latestVersion` and clears
+     * `isUpdateAvailable`. Cheap, idempotent, side-effect-free
+     * otherwise.
+     */
+    private suspend fun normalizeSelfInstalledVersion(
+        existing: InstalledApp,
+        repo: InstalledAppsRepository,
+    ) {
+        val latestTag = existing.latestVersion ?: return
+        if (existing.installedVersion == latestTag) return
+        try {
+            val packageMonitor = get<PackageMonitor>()
+            val systemInfo = packageMonitor.getInstalledPackageInfo(packageName) ?: return
+            if (systemInfo.versionCode != existing.installedVersionCode) return
+            repo.updateApp(
+                existing.copy(
+                    installedVersion = latestTag,
+                    isUpdateAvailable = false,
+                ),
+            )
+            Logger.i { "Normalized stale self installedVersion tag to $latestTag" }
+        } catch (e: Exception) {
+            Logger.w(e) { "Failed to normalize self installedVersion tag" }
+        }
+    }
+
     private suspend fun resolveSelfPendingInstall(
         existing: InstalledApp,
         repo: InstalledAppsRepository,
@@ -223,15 +268,22 @@ class GithubStoreApp : Application() {
             val systemInfo = packageMonitor.getInstalledPackageInfo(packageName)
             if (systemInfo != null) {
                 val latestVersionCode = existing.latestVersionCode ?: 0L
+                // Also pin `installedVersion` (the tag string) to the
+                // intended new release. Otherwise `checkForUpdates`
+                // compares the freshly-fetched matched-release tag to
+                // the *previous* tag still in the row and re-flags
+                // isUpdateAvailable on every periodic sweep (#515).
+                val resolvedTag = existing.latestVersion ?: systemInfo.versionName
                 repo.updateApp(
                     existing.copy(
                         isPendingInstall = false,
+                        installedVersion = resolvedTag,
                         installedVersionName = systemInfo.versionName,
                         installedVersionCode = systemInfo.versionCode,
                         isUpdateAvailable = latestVersionCode > systemInfo.versionCode,
                     ),
                 )
-                Logger.i { "Resolved self-update pending install: ${systemInfo.versionName} (code=${systemInfo.versionCode})" }
+                Logger.i { "Resolved self-update pending install: ${systemInfo.versionName} (code=${systemInfo.versionCode}, tag=$resolvedTag)" }
             } else {
                 repo.updatePendingStatus(packageName, false)
                 Logger.i { "Resolved self-update pending install (no system info)" }

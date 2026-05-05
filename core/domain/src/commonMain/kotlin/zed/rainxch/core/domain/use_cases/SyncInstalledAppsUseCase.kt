@@ -106,16 +106,24 @@ class SyncInstalledAppsUseCase(
                             val systemInfo = packageMonitor.getInstalledPackageInfo(app.packageName)
                             if (systemInfo != null) {
                                 val latestVersionCode = app.latestVersionCode ?: 0L
+                                // Also pin `installedVersion` (tag) to the
+                                // intended new release. Skipping it leaves
+                                // checkForUpdates re-flagging the row as
+                                // updatable on every sweep because the
+                                // tag-string compare keeps seeing the old
+                                // version (#515).
+                                val resolvedTag = app.latestVersion ?: systemInfo.versionName
                                 installedAppsRepository.updateApp(
                                     app.copy(
                                         isPendingInstall = false,
+                                        installedVersion = resolvedTag,
                                         installedVersionName = systemInfo.versionName,
                                         installedVersionCode = systemInfo.versionCode,
                                         isUpdateAvailable = latestVersionCode > systemInfo.versionCode,
                                     ),
                                 )
                                 logger.info(
-                                    "Resolved pending install: ${app.packageName} (v${systemInfo.versionName}, code=${systemInfo.versionCode})",
+                                    "Resolved pending install: ${app.packageName} (v${systemInfo.versionName}, code=${systemInfo.versionCode}, tag=$resolvedTag)",
                                 )
                             } else {
                                 installedAppsRepository.updatePendingStatus(app.packageName, false)
