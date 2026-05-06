@@ -29,6 +29,7 @@ data class TweaksState(
     val shizukuAvailability: ShizukuAvailability = ShizukuAvailability.UNAVAILABLE,
     val dhizukuAvailability: DhizukuAvailability = DhizukuAvailability.UNAVAILABLE,
     val autoUpdateEnabled: Boolean = false,
+    val updateCheckEnabled: Boolean = true,
     val updateCheckIntervalHours: Long = 6L,
     val includePreReleases: Boolean = false,
     val isHideSeenEnabled: Boolean = false,

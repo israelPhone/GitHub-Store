@@ -4,6 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import co.touchlab.kermit.Logger
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.koin.core.context.GlobalContext
+import zed.rainxch.core.domain.repository.TweaksRepository
 
 /**
  * Reschedules periodic update checks after device reboot.
@@ -11,9 +15,27 @@ import co.touchlab.kermit.Logger
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
-            Logger.i { "BootReceiver: Device booted, scheduling update checks" }
-            UpdateScheduler.schedule(context)
+        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+        val pendingResult = goAsync()
+        try {
+            val enabled =
+                runCatching {
+                    runBlocking {
+                        GlobalContext.get().get<TweaksRepository>().getUpdateCheckEnabled().first()
+                    }
+                }.getOrElse {
+                    Logger.w(it) { "BootReceiver: Failed to read update-check flag, defaulting to enabled" }
+                    true
+                }
+            if (enabled) {
+                Logger.i { "BootReceiver: Device booted, scheduling update checks" }
+                UpdateScheduler.schedule(context)
+            } else {
+                Logger.i { "BootReceiver: Device booted, update check disabled — skipping" }
+                UpdateScheduler.cancel(context)
+            }
+        } finally {
+            pendingResult.finish()
         }
     }
 }

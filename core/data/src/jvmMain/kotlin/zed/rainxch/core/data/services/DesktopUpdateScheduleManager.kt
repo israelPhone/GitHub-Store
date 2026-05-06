@@ -9,4 +9,8 @@ class DesktopUpdateScheduleManager : UpdateScheduleManager {
     override fun reschedule(intervalHours: Long) {
         // No background scheduler on Desktop
     }
+
+    override fun cancel() {
+        // No background scheduler on Desktop
+    }
 }

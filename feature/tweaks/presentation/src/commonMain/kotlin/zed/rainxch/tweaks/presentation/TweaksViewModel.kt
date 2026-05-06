@@ -69,6 +69,7 @@ class TweaksViewModel(
                     loadInstallerPreference()
                     loadAutoUpdatePreference()
                     loadUpdateCheckInterval()
+                    loadUpdateCheckEnabled()
                     loadIncludePreReleases()
                     loadHideSeenEnabled()
                     loadScrollbarEnabled()
@@ -362,6 +363,16 @@ class TweaksViewModel(
             tweaksRepository.getUpdateCheckInterval().collect { hours ->
                 _state.update {
                     it.copy(updateCheckIntervalHours = hours)
+                }
+            }
+        }
+    }
+
+    private fun loadUpdateCheckEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getUpdateCheckEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(updateCheckEnabled = enabled)
                 }
             }
         }
@@ -683,7 +694,20 @@ class TweaksViewModel(
             is TweaksAction.OnUpdateCheckIntervalChanged -> {
                 viewModelScope.launch {
                     tweaksRepository.setUpdateCheckInterval(action.hours)
-                    updateScheduleManager.reschedule(action.hours)
+                    if (_state.value.updateCheckEnabled) {
+                        updateScheduleManager.reschedule(action.hours)
+                    }
+                }
+            }
+
+            is TweaksAction.OnUpdateCheckEnabledToggled -> {
+                viewModelScope.launch {
+                    tweaksRepository.setUpdateCheckEnabled(action.enabled)
+                    if (action.enabled) {
+                        updateScheduleManager.reschedule(_state.value.updateCheckIntervalHours)
+                    } else {
+                        updateScheduleManager.cancel()
+                    }
                 }
             }
 

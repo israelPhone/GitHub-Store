@@ -127,7 +127,14 @@ class GithubStoreApp : Application() {
     private fun scheduleBackgroundUpdateChecks() {
         appScope.launch {
             try {
-                val intervalHours = get<TweaksRepository>().getUpdateCheckInterval().first()
+                val tweaks = get<TweaksRepository>()
+                val enabled = tweaks.getUpdateCheckEnabled().first()
+                if (!enabled) {
+                    UpdateScheduler.cancel(this@GithubStoreApp)
+                    Logger.i { "Background update check disabled — skipping schedule" }
+                    return@launch
+                }
+                val intervalHours = tweaks.getUpdateCheckInterval().first()
                 UpdateScheduler.schedule(
                     context = this@GithubStoreApp,
                     intervalHours = intervalHours,

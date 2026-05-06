@@ -293,8 +293,18 @@ fun LazyListScope.updatesSection(
 
         Spacer(Modifier.height(8.dp))
 
+        BackgroundUpdateCheckToggleCard(
+            enabled = state.updateCheckEnabled,
+            onToggle = { enabled ->
+                onAction(TweaksAction.OnUpdateCheckEnabledToggled(enabled))
+            }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
         UpdateCheckIntervalCard(
             selectedIntervalHours = state.updateCheckIntervalHours,
+            enabled = state.updateCheckEnabled,
             onIntervalSelected = { hours ->
                 onAction(TweaksAction.OnUpdateCheckIntervalChanged(hours))
             }
@@ -308,6 +318,44 @@ fun LazyListScope.updatesSection(
                 onAction(TweaksAction.OnIncludePreReleasesToggled(enabled))
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun BackgroundUpdateCheckToggleCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
+    ExpressiveCard {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.update_check_enabled_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = stringResource(Res.string.update_check_enabled_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = onToggle
+            )
+        }
     }
 }
 
@@ -654,6 +702,7 @@ private fun AutoUpdateCard(
 @Composable
 private fun UpdateCheckIntervalCard(
     selectedIntervalHours: Long,
+    enabled: Boolean,
     onIntervalSelected: (Long) -> Unit,
 ) {
     val intervals = listOf(
@@ -711,6 +760,7 @@ private fun UpdateCheckIntervalCard(
 
                     FilterChip(
                         selected = isSelected,
+                        enabled = enabled,
                         onClick = { onIntervalSelected(hours) },
                         label = {
                             Text(
