@@ -658,6 +658,8 @@
     <string name="section_updates">Updates</string>
     <string name="update_check_interval_title">Update check interval</string>
     <string name="update_check_interval_description">How often to check for app updates in background</string>
+    <string name="update_check_enabled_title">Background update check</string>
+    <string name="update_check_enabled_description">Periodically check for updates in the background. Turn off to save battery — you can still check manually from any app's details screen.</string>
     <string name="interval_3h">3h</string>
     <string name="interval_6h">6h</string>
     <string name="interval_12h">12h</string>

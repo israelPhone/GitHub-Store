@@ -25,7 +25,8 @@
         "El reescaneo manual muestra todas las apps tipo GitHub presentes en el dispositivo.",
         "Mejor manejo de autenticación: los 401 transitorios ya no provocan cierres de sesión espurios.",
         "El número de incidencias abiertas ahora se muestra a todos, incluidos los usuarios sin sesión — viene del backend, sin coste de cuota de GitHub.",
-        "La licencia ahora se muestra para cada repo independientemente del estado de inicio de sesión — viene del backend, sin coste de cuota de GitHub al abrir Detalles."
+        "La licencia ahora se muestra para cada repo independientemente del estado de inicio de sesión — viene del backend, sin coste de cuota de GitHub al abrir Detalles.",
+        "La comprobación de actualizaciones en segundo plano se puede desactivar por completo — ahorra batería si prefieres comprobar manualmente."
       ]
     },
     {

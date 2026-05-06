@@ -528,6 +528,8 @@
     <string name="section_updates">Aktualizacje</string>
     <string name="update_check_interval_title">Częstotliwość sprawdzania</string>
     <string name="update_check_interval_description">Jak często sprawdzać aktualizacje aplikacji w tle</string>
+    <string name="update_check_enabled_title">Sprawdzanie aktualizacji w tle</string>
+    <string name="update_check_enabled_description">Okresowo sprawdza aktualizacje w tle. Wyłącz, aby oszczędzać baterię — zawsze możesz sprawdzić ręcznie z ekranu szczegółów dowolnej aplikacji.</string>
     <string name="interval_3h">3g</string>
     <string name="interval_6h">6g</string>
     <string name="interval_12h">12g</string>

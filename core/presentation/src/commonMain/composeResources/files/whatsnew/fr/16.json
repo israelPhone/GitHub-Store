@@ -25,7 +25,8 @@
         "Le rescan manuel fait remonter toutes les apps de type GitHub présentes sur l’appareil.",
         "Gestion d’authentification renforcée : les 401 transitoires ne déconnectent plus à tort.",
         "Le nombre d’issues ouvertes s’affiche désormais pour tout le monde, y compris les utilisateurs déconnectés — fourni par le backend, sans coût de quota GitHub.",
-        "La licence s’affiche désormais pour chaque dépôt, peu importe l’état de connexion — fournie par le backend, sans coût de quota GitHub à l’ouverture des Détails."
+        "La licence s’affiche désormais pour chaque dépôt, peu importe l’état de connexion — fournie par le backend, sans coût de quota GitHub à l’ouverture des Détails.",
+        "La vérification des mises à jour en arrière-plan peut être complètement désactivée — économise la batterie si vous préférez vérifier manuellement."
       ]
     },
     {

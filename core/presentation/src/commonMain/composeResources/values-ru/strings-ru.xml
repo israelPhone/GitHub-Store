@@ -528,6 +528,8 @@
     <string name="section_updates">Обновления</string>
     <string name="update_check_interval_title">Интервал проверки обновлений</string>
     <string name="update_check_interval_description">Как часто проверять обновления приложения в фоне</string>
+    <string name="update_check_enabled_title">Фоновая проверка обновлений</string>
+    <string name="update_check_enabled_description">Периодически проверяет обновления в фоне. Отключите для экономии батареи — всегда можно проверить вручную из экрана деталей любого приложения.</string>
     <string name="interval_3h">3ч</string>
     <string name="interval_6h">6ч</string>
     <string name="interval_12h">12ч</string>

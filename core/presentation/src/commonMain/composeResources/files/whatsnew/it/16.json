@@ -25,7 +25,8 @@
         "La rilevazione manuale mostra tutte le app di tipo GitHub presenti sul dispositivo.",
         "Gestione dell’autenticazione più solida: i 401 transitori non causano più disconnessioni indebite.",
         "Il conteggio delle issue aperte ora è visibile a tutti, anche agli utenti non autenticati — arriva dal backend, senza costi di quota GitHub.",
-        "La licenza ora è mostrata per ogni repo indipendentemente dallo stato di accesso — arriva dal backend, senza costi di quota GitHub all’apertura dei Dettagli."
+        "La licenza ora è mostrata per ogni repo indipendentemente dallo stato di accesso — arriva dal backend, senza costi di quota GitHub all’apertura dei Dettagli.",
+        "La verifica aggiornamenti in background può essere disattivata del tutto — risparmia batteria se preferisci verificare manualmente."
       ]
     },
     {

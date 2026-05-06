@@ -565,6 +565,8 @@
     <string name="section_updates">التحديثات</string>
     <string name="update_check_interval_title">فترة التحقق من التحديثات</string>
     <string name="update_check_interval_description">عدد مرات التحقق من تحديثات التطبيق في الخلفية</string>
+    <string name="update_check_enabled_title">التحقق التلقائي من التحديثات</string>
+    <string name="update_check_enabled_description">يبحث عن التحديثات في الخلفية بشكل دوري. أوقفه لتوفير البطارية — يمكنك دائماً التحقق يدوياً من شاشة تفاصيل أي تطبيق.</string>
     <string name="interval_3h">٣ ساعات</string>
     <string name="interval_6h">٦ ساعات</string>
     <string name="interval_12h">١٢ ساعة</string>

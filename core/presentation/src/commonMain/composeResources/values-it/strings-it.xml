@@ -564,6 +564,8 @@
     <string name="section_updates">Aggiornamenti</string>
     <string name="update_check_interval_title">Intervallo di controllo</string>
     <string name="update_check_interval_description">Ogni quanto verificare gli aggiornamenti in background</string>
+    <string name="update_check_enabled_title">Verifica aggiornamenti in background</string>
+    <string name="update_check_enabled_description">Verifica periodicamente gli aggiornamenti in background. Disattiva per risparmiare batteria — puoi sempre verificare manualmente dalla schermata dettagli di qualsiasi app.</string>
     <string name="interval_3h">3h</string>
     <string name="interval_6h">6h</string>
     <string name="interval_12h">12h</string>

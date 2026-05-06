@@ -564,6 +564,8 @@
     <string name="section_updates">আপডেট</string>
     <string name="update_check_interval_title">আপডেট চেক করার ব্যবধান</string>
     <string name="update_check_interval_description">ব্যাকগ্রাউন্ডে কতক্ষণ পর পর অ্যাপ আপডেট খোঁজা হবে</string>
+    <string name="update_check_enabled_title">ব্যাকগ্রাউন্ড আপডেট চেক</string>
+    <string name="update_check_enabled_description">নিয়মিত ব্যাকগ্রাউন্ডে আপডেট খোঁজে। ব্যাটারি বাঁচাতে বন্ধ করুন — আপনি যেকোনো অ্যাপের ডিটেইলস স্ক্রিন থেকে ম্যানুয়ালি চেক করতে পারবেন।</string>
     <string name="interval_3h">৩ঘ</string>
     <string name="interval_6h">৬ঘ</string>
     <string name="interval_12h">১২ঘ</string>
