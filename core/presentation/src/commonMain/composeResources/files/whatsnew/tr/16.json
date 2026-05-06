@@ -38,7 +38,8 @@
         "Windows'ta yükleyici başlatma, ASCII dışı kullanıcı adları veya alışılmadık dosya adlarına sahip hesaplarda artık başarısız olmuyor.",
         "Sıvı cam efekti kaldırıldı — koyu modda ikonlar şeffaf arka planlarda görünmez olabiliyordu. Her yerde daha temiz, daha kontrastlı bir arayüz.",
         "Mağaza artık siz güncelledikten sonra kendisi için güncelleme mevcut olduğunu söylemiyor.",
-        "Uygulamalar ekranı — 'Bağlantıyla ekle' düğmesi artık listenin son uygulamasını örtmüyor."
+        "Uygulamalar ekranı — 'Bağlantıyla ekle' düğmesi artık listenin son uygulamasını örtmüyor.",
+        "Backend meşgulken arama artık GitHub hız sınırı diyaloğunu açmıyor — bunun yerine 'birazdan tekrar deneyin' bildirimi gösteriyor."
       ]
     }
   ]

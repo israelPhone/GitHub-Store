@@ -38,7 +38,8 @@
         "El lanzamiento del instalador en Windows ya no falla con cuentas que tienen nombres de usuario no ASCII o nombres de archivo inusuales.",
         "Efecto de cristal líquido eliminado — los iconos en modo oscuro podían volverse invisibles sobre fondos transparentes. Interfaz más limpia y con mayor contraste en todas partes.",
         "La tienda ya no anuncia una actualización propia disponible después de que la hayas actualizado.",
-        "Pantalla de Apps — el botón «Añadir por enlace» ya no tapa la última app de la lista."
+        "Pantalla de Apps — el botón «Añadir por enlace» ya no tapa la última app de la lista.",
+        "La búsqueda ya no dispara el diálogo de límite de peticiones de GitHub cuando el backend está ocupado — muestra un toast amigable de «inténtalo en breve»."
       ]
     }
   ]
