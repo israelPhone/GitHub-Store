@@ -37,7 +37,8 @@
         "El escritorio ahora confía en los certificados raíz instalados en el sistema — Watt Toolkit, FastGithub, Fiddler y proxies MITM corporativos funcionan sin tener que usar keytool.",
         "El lanzamiento del instalador en Windows ya no falla con cuentas que tienen nombres de usuario no ASCII o nombres de archivo inusuales.",
         "Efecto de cristal líquido eliminado — los iconos en modo oscuro podían volverse invisibles sobre fondos transparentes. Interfaz más limpia y con mayor contraste en todas partes.",
-        "La tienda ya no anuncia una actualización propia disponible después de que la hayas actualizado."
+        "La tienda ya no anuncia una actualización propia disponible después de que la hayas actualizado.",
+        "Pantalla de Apps — el botón «Añadir por enlace» ya no tapa la última app de la lista."
       ]
     }
   ]
