@@ -8,40 +8,22 @@
       "type": "NEW",
       "bullets": [
         "APK Inspect — zajrzyj do środka dowolnego wydania przed instalacją.",
-        "Ekran aplikacji grupuje teraz aktualizacje, instalacje oczekujące i aplikacje zainstalowane.",
-        "Panel „Co nowego” — od razu wiadomo, co się zmieniło po każdej aktualizacji.",
-        "Kanał ogłoszeń — informacje o prywatności, ankiety i alerty bezpieczeństwa w Profilu.",
         "Cicha instalacja przez Dhizuku — pomijaj okna instalacji OEM na urządzeniach Xiaomi, OPPO, vivo i Huawei dzięki uprawnieniom właściciela urządzenia.",
         "Import/Eksport Obtainium — przenieś bibliotekę z Obtainium jednym dotknięciem albo wyeksportuj do formatu Obtainium kiedy chcesz.",
-        "Dodaj z oznaczonych gwiazdką — zobacz, które z twoich oznaczonych repo GitHub publikują APK, i przejdź wprost do instalacji.",
-        "Atrybucja instalatora — ustaw nazwę instalatora, którą deklarują ciche instalacje, by aplikacje filtrujące po źródle instalacji działały.",
-        "Ręczne odświeżanie w szczegółach — pociągnij, aby odświeżyć na Androidzie, pozycja „Odśwież” w menu na każdej platformie, Ctrl/Cmd+R na pulpicie.",
-        "Wyszukiwarka sortuje teraz po „Ostatnio zaktualizowane” i „Niedawno wydane” — najpierw repozytoria z świeżą aktywnością albo najświeższymi stabilnymi wydaniami."
+        "Dodaj z oznaczonych gwiazdką — zobacz, które z twoich oznaczonych repo GitHub publikują APK."
       ]
     },
     {
       "type": "IMPROVED",
       "bullets": [
-        "Ręczne ponowne skanowanie pokazuje wszystkie aplikacje z GitHuba obecne na urządzeniu.",
-        "Stabilniejsza obsługa autoryzacji — przejściowe 401 nie powodują już fałszywych wylogowań.",
-        "Liczba otwartych zgłoszeń jest teraz pokazywana wszystkim, także użytkownikom niezalogowanym — pochodzi z backendu, bez kosztów limitu GitHuba.",
-        "Licencja jest teraz pokazywana dla każdego repo niezależnie od stanu zalogowania — pochodzi z backendu, bez kosztów limitu GitHuba przy otwieraniu Szczegółów.",
+        "Liczba otwartych zgłoszeń i licencja są teraz pokazywane wszystkim, także użytkownikom niezalogowanym — pochodzą z backendu, bez kosztów limitu GitHuba.",
         "Sprawdzanie aktualizacji w tle można całkowicie wyłączyć — oszczędza baterię, jeśli wolisz sprawdzać ręcznie."
       ]
     },
     {
       "type": "FIXED",
       "bullets": [
-        "Pobierania z wielu źródeł nie nadpisują już swoich plików APK.",
-        "Instalacje z trybem awaryjnym Shizuku nie oznaczają już aplikacji jako „zainstalowanych” przedwcześnie.",
-        "Auto-aktualizacja nie zostawia już aplikacji w stanie „Przygotowywanie instalacji”.",
-        "Wersja desktopowa ufa teraz certyfikatom głównym zainstalowanym w systemie — Watt Toolkit, FastGithub, Fiddler i firmowe proxy MITM działają bez kombinowania z keytool.",
-        "Uruchamianie instalatora w Windows nie zawodzi już na kontach z nazwami użytkownika zawierającymi znaki spoza ASCII lub nietypowymi nazwami plików.",
-        "Efekt płynnego szkła usunięty — w trybie ciemnym ikony na przezroczystym tle mogły stawać się niewidoczne. Wszędzie czystszy, bardziej kontrastowy interfejs.",
-        "Sklep nie zgłasza już dostępnej aktualizacji dla samego siebie po jej zainstalowaniu.",
-        "Ekran Aplikacji — przycisk „Dodaj przez link” nie zasłania już ostatniej aplikacji na liście.",
-        "Wyszukiwarka nie wyświetla już okna limitu zapytań GitHuba, gdy backend jest zajęty — zamiast tego pokazuje przyjazny toast „spróbuj ponownie za chwilę”.",
-        "Panel „Co nowego” i historia przełączają się teraz na nowo wybrany język bez konieczności restartu aplikacji."
+        "Efekt płynnego szkła usunięty — w trybie ciemnym ikony na przezroczystym tle mogły stawać się niewidoczne. Wszędzie czystszy, bardziej kontrastowy interfejs."
       ]
     }
   ]
