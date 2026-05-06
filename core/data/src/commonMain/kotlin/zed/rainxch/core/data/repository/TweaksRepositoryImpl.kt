@@ -156,6 +156,17 @@ class TweaksRepositoryImpl(
         }
     }
 
+    override fun getUpdateCheckEnabled(): Flow<Boolean> =
+        preferences.data.map { prefs ->
+            prefs[UPDATE_CHECK_ENABLED_KEY] ?: true
+        }
+
+    override suspend fun setUpdateCheckEnabled(enabled: Boolean) {
+        preferences.edit { prefs ->
+            prefs[UPDATE_CHECK_ENABLED_KEY] = enabled
+        }
+    }
+
     override fun getUpdateCheckInterval(): Flow<Long> =
         preferences.data.map { prefs ->
             prefs[UPDATE_CHECK_INTERVAL_KEY] ?: DEFAULT_UPDATE_CHECK_INTERVAL_HOURS
@@ -409,6 +420,7 @@ class TweaksRepositoryImpl(
         private val INSTALLER_TYPE_KEY = stringPreferencesKey("installer_type")
         private val INSTALLER_ATTRIBUTION_KEY = stringPreferencesKey("installer_attribution")
         private val AUTO_UPDATE_KEY = booleanPreferencesKey("auto_update_enabled")
+        private val UPDATE_CHECK_ENABLED_KEY = booleanPreferencesKey("update_check_enabled")
         private val UPDATE_CHECK_INTERVAL_KEY = longPreferencesKey("update_check_interval_hours")
         private val INCLUDE_PRE_RELEASES_KEY = booleanPreferencesKey("include_pre_releases")
         private val HIDE_SEEN_ENABLED_KEY = booleanPreferencesKey("hide_seen_enabled")

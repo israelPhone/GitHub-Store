@@ -563,6 +563,8 @@
     <string name="section_updates">अपडेट</string>
     <string name="update_check_interval_title">अपडेट जाँच अंतराल</string>
     <string name="update_check_interval_description">पृष्ठभूमि में ऐप अपडेट कितनी बार जाँचें</string>
+    <string name="update_check_enabled_title">पृष्ठभूमि अपडेट जाँच</string>
+    <string name="update_check_enabled_description">पृष्ठभूमि में समय-समय पर अपडेट जाँचता है। बैटरी बचाने के लिए बंद करें — किसी भी ऐप के विवरण स्क्रीन से मैन्युअली जाँच की जा सकती है।</string>
     <string name="interval_3h">3घ</string>
     <string name="interval_6h">6घ</string>
     <string name="interval_12h">12घ</string>

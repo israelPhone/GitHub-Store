@@ -41,6 +41,10 @@ interface TweaksRepository {
 
     suspend fun setAutoUpdateEnabled(enabled: Boolean)
 
+    fun getUpdateCheckEnabled(): Flow<Boolean>
+
+    suspend fun setUpdateCheckEnabled(enabled: Boolean)
+
     fun getUpdateCheckInterval(): Flow<Long>
 
     suspend fun setUpdateCheckInterval(hours: Long)

@@ -10,4 +10,10 @@ interface UpdateScheduleManager {
      * Takes effect immediately (replaces existing schedule).
      */
     fun reschedule(intervalHours: Long)
+
+    /**
+     * Cancels every pending update-check / auto-update worker. Used
+     * when the user disables background update checking entirely.
+     */
+    fun cancel()
 }

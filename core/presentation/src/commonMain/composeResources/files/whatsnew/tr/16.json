@@ -25,7 +25,8 @@
         "Manuel yeniden tarama, cihazdaki tüm GitHub tipi uygulamaları görünür kılıyor.",
         "Daha sağlam kimlik doğrulama: geçici 401 yanıtları artık yanlışlıkla oturumu kapatmıyor.",
         "Açık konu sayısı artık oturum açmamış kullanıcılar dahil herkese gösteriliyor — backend'den geliyor, GitHub kotası harcamıyor.",
-        "Lisans artık oturum durumundan bağımsız olarak her depo için gösteriliyor — backend'den geliyor, Detayları açarken GitHub kotası harcanmıyor."
+        "Lisans artık oturum durumundan bağımsız olarak her depo için gösteriliyor — backend'den geliyor, Detayları açarken GitHub kotası harcanmıyor.",
+        "Arka plan güncelleme kontrolü tamamen kapatılabiliyor — manuel kontrolü tercih ediyorsanız pil tasarrufu sağlar."
       ]
     },
     {

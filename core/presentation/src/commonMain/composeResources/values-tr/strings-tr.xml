@@ -562,6 +562,8 @@
     <string name="section_updates">Güncellemeler</string>
     <string name="update_check_interval_title">Güncelleme kontrol aralığı</string>
     <string name="update_check_interval_description">Arka planda uygulama güncellemelerinin ne sıklıkla kontrol edileceği</string>
+    <string name="update_check_enabled_title">Arka planda güncelleme kontrolü</string>
+    <string name="update_check_enabled_description">Arka planda düzenli aralıklarla güncellemeleri kontrol eder. Pil tasarrufu için kapatın — her zaman uygulamanın detay ekranından manuel olarak kontrol edebilirsiniz.</string>
     <string name="interval_3h">3s</string>
     <string name="interval_6h">6s</string>
     <string name="interval_12h">12s</string>

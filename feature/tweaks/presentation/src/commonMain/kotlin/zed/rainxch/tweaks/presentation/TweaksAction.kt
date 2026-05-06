@@ -95,6 +95,10 @@ sealed interface TweaksAction {
         val hours: Long,
     ) : TweaksAction
 
+    data class OnUpdateCheckEnabledToggled(
+        val enabled: Boolean,
+    ) : TweaksAction
+
     data class OnIncludePreReleasesToggled(
         val enabled: Boolean,
     ) : TweaksAction

@@ -25,7 +25,8 @@
         "Manual rescan surfaces every GitHub-style app on device.",
         "Tighter auth handling — transient 401s no longer trigger spurious sign-outs.",
         "Open-issues count now shown to everyone, including signed-out users — the count now comes from the backend.",
-        "License now shown for every repo regardless of sign-in state — sourced from backend, no more GitHub quota cost per Details open."
+        "License now shown for every repo regardless of sign-in state — sourced from backend, no more GitHub quota cost per Details open.",
+        "Background update check can be turned off entirely — saves battery if you'd rather check for updates manually."
       ]
     },
     {
