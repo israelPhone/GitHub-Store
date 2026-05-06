@@ -39,7 +39,8 @@
         "Effetto vetro liquido rimosso — le icone in modalità scura potevano diventare invisibili su sfondi trasparenti. Interfaccia più pulita e con maggior contrasto ovunque.",
         "Lo store non segnala più un aggiornamento disponibile per sé stesso dopo che lo hai già aggiornato.",
         "Schermata App — il pulsante «Aggiungi tramite link» non copre più l'ultima app dell'elenco.",
-        "La ricerca non mostra più il dialogo di limite richieste di GitHub quando è il backend a essere occupato — mostra invece un toast «riprova a breve»."
+        "La ricerca non mostra più il dialogo di limite richieste di GitHub quando è il backend a essere occupato — mostra invece un toast «riprova a breve».",
+        "Il pannello Novità e la cronologia passano ora alla lingua appena selezionata senza dover riavviare l'app."
       ]
     }
   ]

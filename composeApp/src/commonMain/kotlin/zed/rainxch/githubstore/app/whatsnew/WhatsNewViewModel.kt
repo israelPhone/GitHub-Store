@@ -6,6 +6,8 @@ import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import zed.rainxch.core.domain.model.WhatsNewEntry
@@ -30,21 +32,41 @@ class WhatsNewViewModel(
     val hasHistory: StateFlow<Boolean> = _hasHistory.asStateFlow()
 
     init {
+        // Re-load whenever the user's selected app language changes.
+        // The loader resolves locale per call, but cached state on this
+        // VM would otherwise serve the previous language's text after
+        // the user switches in Tweaks. distinctUntilChanged guards
+        // against the initial replay-emit firing the load twice.
         viewModelScope.launch {
             try {
-                evaluate()
+                tweaksRepository
+                    .getAppLanguage()
+                    .distinctUntilChanged()
+                    .collect {
+                        reloadHistory()
+                        reloadPending()
+                    }
             } catch (t: Throwable) {
-                logger.e(t) { "Failed to evaluate what's-new state" }
+                logger.e(t) { "Failed to observe app-language for what's-new reloads" }
             }
         }
-        viewModelScope.launch {
-            try {
-                val entries = whatsNewLoader.loadAll()
-                _historyEntries.value = entries
-                _hasHistory.value = entries.size > 1
-            } catch (t: Throwable) {
-                logger.e(t) { "Failed to load what's-new history" }
-            }
+    }
+
+    private suspend fun reloadHistory() {
+        try {
+            val entries = whatsNewLoader.loadAll()
+            _historyEntries.value = entries
+            _hasHistory.value = entries.size > 1
+        } catch (t: Throwable) {
+            logger.e(t) { "Failed to load what's-new history" }
+        }
+    }
+
+    private suspend fun reloadPending() {
+        try {
+            evaluate()
+        } catch (t: Throwable) {
+            logger.e(t) { "Failed to evaluate what's-new state" }
         }
     }
 
