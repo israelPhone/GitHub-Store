@@ -131,10 +131,11 @@ winget install zed.rainxch.githubstore
     - Curated discovery layer through the GitHub Store backend, with the live GitHub passthrough as a backup so freshness is honest.
     - Only repos with valid installable assets are shown.
     - Platform‑aware topic scoring so Android/desktop users see relevant apps first.
-    - Search with filters for platform, programming language, and sort order.
+    - Search with filters for platform, programming language, and sort order — including **Recently Updated** (repo activity) and **Recently Released** (latest stable release date) sorts backed by the curated index.
     - Search history — recent queries are saved locally and shown as suggestions.
     - Clipboard link detection — automatically detects GitHub URLs from your clipboard and offers quick navigation.
     - Hide seen repos — optionally filter out repositories you've already viewed from discovery feeds.
+    - **Add from starred** — discover APK‑shipping repos from your GitHub stars and jump straight into installing.
 
 - **Release browser & installs**
     - Release picker to browse and install from any release, not just the latest.
@@ -152,24 +153,29 @@ winget install zed.rainxch.githubstore
 
 - **Rich details screen**
     - App name, version and share action.
-    - Stars, forks, open issues.
+    - Stars, forks, open issues, and license — sourced from the backend so anonymous and signed‑in users see the same data without burning GitHub quota.
     - Rendered README content ("About this app") with optional translation to the user's chosen language.
     - Release notes with Markdown formatting for any selected release.
     - List of installers with platform labels and file sizes.
     - Pre‑release channel chip — toggle "Include betas" / "Stable only" per app, with a "switch to stable" rollback when a clean stable exists.
     - "Merged what's changed since v1.0" — concatenated release notes for every version skipped between updates.
+    - **Manual refresh** — pull‑to‑refresh on Android, an overflow‑menu Refresh on every platform, and `Ctrl/Cmd+R` on desktop. 30‑second per‑repo cooldown surfaces as a friendly retry‑after toast.
     - Deep linking support — open repository details via `githubstore://`, `github.com`, or `github-store.org` URLs.
     - Developer profile screen to explore a developer's repositories and activity.
+    - **Per‑app variant pinning + asset filter regex** — pin the asset variant you actually want (`-arm64`, `-stable`, `-no-jvm`, etc.) and write a glob/regex filter so updates always pick the right artifact even when the publisher reshuffles asset names.
 
 - **App management**
     - Open, uninstall, and downgrade installed apps directly from GitHub Store.
     - **Library Imports** (Android) — recognises GitHub‑sourced apps already on the device (Obtainium, sideload, F‑Droid). Three match strategies (manifest hint, signing fingerprint, backend lookup); high‑confidence matches link silently, the rest land in a one‑tap review wizard. Run on demand from Apps overflow → Scan for GitHub apps.
+    - **Obtainium import / export** (Android) — bring your library over from Obtainium with one tap, or export back to Obtainium any time. Round‑trip preserved via a discriminator on the export.
     - **Link apps** — connect any app already installed on your device to its GitHub repository so GitHub Store can track updates for it. A guided flow lets you pick the app, enter the repo URL, and select the matching release asset.
     - **Sectioned Apps screen** — updates, pending installs, and installed apps grouped so you see what needs attention first.
     - Android: APK architecture matching (armv7/armv8), package monitoring, and update tracking.
     - Android: Shizuku and Sui silent installation — install and update apps without prompts (requires [Shizuku](https://shizuku.rikka.app/) or Sui running with ADB or root).
+    - Android: **Dhizuku silent install** — bypass OEM install prompts on Xiaomi, OPPO, vivo, and Huawei devices via the [Dhizuku](https://github.com/iamr0s/Dhizuku) Device Owner method. Magisk‑free silent installs on stock ROMs.
+    - Android: **Signing fingerprint verification for auto‑updates** — auto‑update is blocked if the new APK's signing key doesn't match what the row was registered with. Prevents silent compromise on a hijacked release.
     - Android: Background update checking — configurable periodic checks (3h / 6h / 12h / 24h) with notifications when updates are found.
-    - Android: Auto‑update — silently installs available updates via Shizuku/Sui when enabled.
+    - Android: Auto‑update — silently installs available updates via Shizuku/Sui/Dhizuku when enabled.
     - Desktop (Windows/macOS/Linux): downloads installers to the user's Downloads folder and opens them with the default handler.
 
 - **Collections**
@@ -187,9 +193,10 @@ winget install zed.rainxch.githubstore
 
 - **Tweaks**
     - Dedicated settings screen accessible from the bottom navigation bar.
-    - **Appearance** — theme color picker (Dynamic, Ocean, Purple, Forest, Slate, Amber), light/dark/system mode, AMOLED black theme, system font toggle, liquid glass UI effect, scrollbar toggle (desktop).
+    - **Appearance** — theme color picker (Dynamic, Ocean, Purple, Forest, Slate, Amber), light/dark/system mode, AMOLED black theme, system font toggle, scrollbar toggle (desktop).
     - **Network** — proxy configuration with HTTP/SOCKS support and optional authentication; download‑mirror picker with latency test.
-    - **Installation** (Android) — choose between default installer and Shizuku/Sui silent install, with real‑time installer status indicator.
+    - **Installation** (Android) — choose between default installer, Shizuku/Sui silent install, or Dhizuku Device Owner install, with real‑time installer status indicator. **Installer attribution** sub‑setting lets you set the installer‑package name silent installs claim (System default, a preset like Play Store, or a custom package) so apps that gate on install source can be coaxed into running.
+    - **Translation provider** — switch between Google Translate (free, no key) and Youdao (custom app key + secret) for README and release‑note translation.
     - **Updates** (Android) — update check interval, pre‑release inclusion, auto‑update toggle.
     - **Storage** — view and clear downloaded package cache.
     - **Send feedback** — bug reports, feature ideas, and change requests sent as email or a pre‑filled GitHub issue. Diagnostics card shows exactly what's being sent before you send it.
@@ -201,6 +208,7 @@ winget install zed.rainxch.githubstore
     - Dynamic proxy support (HTTP, SOCKS, System) for configurable network routing.
     - Enhanced caching system for faster loading and reduced API usage.
     - Anonymous backend at `api.github-store.org` for auth proxy, curated discovery, and the announcements feed. Open source under Apache 2.0 — self‑hostable.
+    - **Desktop trusts OS‑installed root certificates** in addition to the JVM bundle, so TLS‑intercepting tools (Watt Toolkit, FastGithub, Fiddler, corporate MITM proxies) work without `keytool` gymnastics.
 
 ---
 
