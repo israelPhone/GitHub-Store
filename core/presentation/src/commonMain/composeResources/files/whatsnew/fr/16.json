@@ -39,7 +39,8 @@
         "Effet verre liquide supprimé — les icônes en mode sombre pouvaient devenir invisibles sur des fonds transparents. Interface plus nette et plus contrastée partout.",
         "Le store ne signale plus une mise à jour disponible pour lui-même après que vous l'avez déjà mis à jour.",
         "Écran Apps — le bouton « Ajouter par lien » ne masque plus la dernière app de la liste.",
-        "La recherche ne déclenche plus la boîte de dialogue de limitation de débit GitHub quand le backend est occupé — affiche un toast « réessayez bientôt » à la place."
+        "La recherche ne déclenche plus la boîte de dialogue de limitation de débit GitHub quand le backend est occupé — affiche un toast « réessayez bientôt » à la place.",
+        "La fiche des nouveautés et l'historique passent désormais à la langue nouvellement choisie sans avoir à redémarrer l'application."
       ]
     }
   ]
