@@ -38,7 +38,8 @@
         "Uruchamianie instalatora w Windows nie zawodzi już na kontach z nazwami użytkownika zawierającymi znaki spoza ASCII lub nietypowymi nazwami plików.",
         "Efekt płynnego szkła usunięty — w trybie ciemnym ikony na przezroczystym tle mogły stawać się niewidoczne. Wszędzie czystszy, bardziej kontrastowy interfejs.",
         "Sklep nie zgłasza już dostępnej aktualizacji dla samego siebie po jej zainstalowaniu.",
-        "Ekran Aplikacji — przycisk „Dodaj przez link” nie zasłania już ostatniej aplikacji na liście."
+        "Ekran Aplikacji — przycisk „Dodaj przez link” nie zasłania już ostatniej aplikacji na liście.",
+        "Wyszukiwarka nie wyświetla już okna limitu zapytań GitHuba, gdy backend jest zajęty — zamiast tego pokazuje przyjazny toast „spróbuj ponownie za chwilę”."
       ]
     }
   ]

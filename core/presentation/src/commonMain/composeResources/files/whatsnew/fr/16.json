@@ -38,7 +38,8 @@
         "Le lancement de l’installateur sous Windows ne plante plus pour les comptes dont le nom d’utilisateur contient des caractères non-ASCII ou des noms de fichier inhabituels.",
         "Effet verre liquide supprimé — les icônes en mode sombre pouvaient devenir invisibles sur des fonds transparents. Interface plus nette et plus contrastée partout.",
         "Le store ne signale plus une mise à jour disponible pour lui-même après que vous l'avez déjà mis à jour.",
-        "Écran Apps — le bouton « Ajouter par lien » ne masque plus la dernière app de la liste."
+        "Écran Apps — le bouton « Ajouter par lien » ne masque plus la dernière app de la liste.",
+        "La recherche ne déclenche plus la boîte de dialogue de limitation de débit GitHub quand le backend est occupé — affiche un toast « réessayez bientôt » à la place."
       ]
     }
   ]

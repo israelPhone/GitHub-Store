@@ -26,6 +26,7 @@ import zed.rainxch.core.data.mappers.toSummary
 import zed.rainxch.core.data.network.BackendApiClient
 import zed.rainxch.core.data.network.GitHubClientProvider
 import zed.rainxch.core.data.network.executeRequest
+import zed.rainxch.core.data.network.shouldFallbackToGithubOrRethrow
 import zed.rainxch.core.domain.model.DiscoveryPlatform
 import zed.rainxch.core.domain.model.GithubRepoSummary
 import zed.rainxch.core.domain.model.PaginatedDiscoveryRepositories
@@ -142,18 +143,39 @@ class SearchRepositoryImpl(
             offset = offset,
         )
 
-        return result.getOrNull()?.let { searchResponse ->
-            val repos = searchResponse.items.map { it.toSummary() }
-
-            val hasMore = offset + repos.size < searchResponse.totalHits
-            PaginatedDiscoveryRepositories(
-                repos = repos,
-                hasMore = hasMore,
-                nextPageIndex = page + 1,
-                totalCount = searchResponse.totalHits,
-                passthroughAttempted = searchResponse.passthroughAttempted,
-            )
-        }
+        return result.fold(
+            onSuccess = { searchResponse ->
+                val repos = searchResponse.items.map { it.toSummary() }
+                val hasMore = offset + repos.size < searchResponse.totalHits
+                PaginatedDiscoveryRepositories(
+                    repos = repos,
+                    hasMore = hasMore,
+                    nextPageIndex = page + 1,
+                    totalCount = searchResponse.totalHits,
+                    passthroughAttempted = searchResponse.passthroughAttempted,
+                )
+            },
+            onFailure = { e ->
+                // Centralized fallback policy. Side effects:
+                //  * 429 → throws domain RateLimitException so the
+                //    caller surfaces a friendly retry-after toast
+                //    (prevents the direct-GitHub /search + per-repo
+                //    /releases verify storm that would otherwise burn
+                //    the user's quota and trip the global rate-limit
+                //    dialog).
+                //  * CancellationException → re-thrown to preserve
+                //    structured concurrency.
+                //  * BackendException 5xx / network → returns true →
+                //    fall through to GitHub REST fallback below.
+                //  * BackendException 4xx (other than 429) → returns
+                //    false → backend's answer is authoritative; do
+                //    NOT silently retry against direct GitHub.
+                if (!shouldFallbackToGithubOrRethrow(e)) {
+                    throw e
+                }
+                null
+            },
+        )
     }
 
     // ── Fallback GitHub REST search ───────────────────────────────────
