@@ -31,20 +31,27 @@ class WhatsNewViewModel(
     private val _hasHistory = MutableStateFlow(false)
     val hasHistory: StateFlow<Boolean> = _hasHistory.asStateFlow()
 
+    @Volatile
+    private var lastLanguageTag: String? = null
+
     init {
         // Re-load whenever the user's selected app language changes.
-        // The loader resolves locale per call, but cached state on this
-        // VM would otherwise serve the previous language's text after
-        // the user switches in Tweaks. distinctUntilChanged guards
-        // against the initial replay-emit firing the load twice.
+        // The tag is threaded explicitly into the loader so we beat
+        // the race against MainActivity's setActiveLanguageTag — both
+        // collectors fan out from the same flow with no ordering
+        // guarantee, so reading Locale.getDefault() inside the loader
+        // can return the previous language. distinctUntilChanged
+        // guards against the initial replay-emit firing the load
+        // twice.
         viewModelScope.launch {
             try {
                 tweaksRepository
                     .getAppLanguage()
                     .distinctUntilChanged()
-                    .collect {
-                        reloadHistory()
-                        reloadPending()
+                    .collect { tag ->
+                        lastLanguageTag = tag
+                        reloadHistory(tag)
+                        reloadPending(tag)
                     }
             } catch (t: Throwable) {
                 logger.e(t) { "Failed to observe app-language for what's-new reloads" }
@@ -52,9 +59,9 @@ class WhatsNewViewModel(
         }
     }
 
-    private suspend fun reloadHistory() {
+    private suspend fun reloadHistory(languageTag: String?) {
         try {
-            val entries = whatsNewLoader.loadAll()
+            val entries = whatsNewLoader.loadAll(languageTag)
             _historyEntries.value = entries
             _hasHistory.value = entries.size > 1
         } catch (t: Throwable) {
@@ -62,21 +69,21 @@ class WhatsNewViewModel(
         }
     }
 
-    private suspend fun reloadPending() {
+    private suspend fun reloadPending(languageTag: String?) {
         try {
-            evaluate()
+            evaluate(languageTag)
         } catch (t: Throwable) {
             logger.e(t) { "Failed to evaluate what's-new state" }
         }
     }
 
-    private suspend fun evaluate() {
+    private suspend fun evaluate(languageTag: String? = lastLanguageTag) {
         val current = appVersionInfo.versionCode
         val lastSeen = tweaksRepository.getLastSeenWhatsNewVersionCode().first() ?: Int.MIN_VALUE
 
         if (lastSeen >= current) return
 
-        val entry = whatsNewLoader.forVersionCode(current)
+        val entry = whatsNewLoader.forVersionCode(current, languageTag)
         if (entry == null || !entry.showAsSheet) {
             tweaksRepository.setLastSeenWhatsNewVersionCode(current)
             return
@@ -100,10 +107,11 @@ class WhatsNewViewModel(
     fun forceShowLatest() {
         viewModelScope.launch {
             try {
+                val tag = lastLanguageTag
                 val current = appVersionInfo.versionCode
                 val entry =
-                    whatsNewLoader.forVersionCode(current)
-                        ?: whatsNewLoader.loadAll().firstOrNull()
+                    whatsNewLoader.forVersionCode(current, tag)
+                        ?: whatsNewLoader.loadAll(tag).firstOrNull()
                         ?: return@launch
                 _pendingEntry.value = entry
             } catch (t: Throwable) {
