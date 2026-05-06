@@ -8,40 +8,22 @@
       "type": "NEW",
       "bullets": [
         "APK Inspect — peek inside any release before installing.",
-        "Apps screen now groups updates, pending installs, and installed apps.",
-        "What's new sheet — see what changed after every update.",
-        "Announcements feed — privacy notices, surveys, and security advisories in Profile.",
         "Dhizuku silent install — bypass OEM install prompts on Xiaomi, OPPO, vivo, Huawei devices via Device Owner.",
         "Obtainium import/export — bring your library over from Obtainium with one tap, or export to Obtainium any time.",
-        "Add from starred — surface APK-shipping repos from your GitHub stars and jump straight into installing.",
-        "Installer attribution — set what installer name silent installs claim, so apps that gate on installer source can be coaxed into running.",
-        "Manual refresh on details — pull-to-refresh on Android, overflow-menu Refresh on every platform, Ctrl/Cmd+R on desktop.",
-        "Search now sorts by Recently Updated and Recently Released — find repos with fresh activity or fresh stable releases first."
+        "Add from starred — surface APK-shipping repos from your GitHub stars."
       ]
     },
     {
       "type": "IMPROVED",
       "bullets": [
-        "Manual rescan surfaces every GitHub-style app on device.",
-        "Tighter auth handling — transient 401s no longer trigger spurious sign-outs.",
-        "Open-issues count now shown to everyone, including signed-out users — the count now comes from the backend.",
-        "License now shown for every repo regardless of sign-in state — sourced from backend, no more GitHub quota cost per Details open.",
+        "Open-issues count and license now shown to everyone, including signed-out users — sourced from the backend, no GitHub quota cost.",
         "Background update check can be turned off entirely — saves battery if you'd rather check for updates manually."
       ]
     },
     {
       "type": "FIXED",
       "bullets": [
-        "Multi-source downloads no longer clobber each other's APK file.",
-        "Shizuku-fallback installs no longer flip rows to \"installed\" prematurely.",
-        "Self-update no longer leaves apps stuck on \"Preparing to install\".",
-        "Desktop now trusts OS-installed root certificates — Watt Toolkit, FastGithub, Fiddler, and corporate MITM proxies just work without keytool gymnastics.",
-        "Windows installer launch no longer fails on accounts with non-ASCII usernames or unusual filename characters.",
-        "Liquid Glass effect removed — icons in dark mode could become invisible against transparent backgrounds. Cleaner, higher-contrast UI everywhere.",
-        "Store no longer claims an update is available for itself after you've already updated it.",
-        "Apps screen — Add-by-link button no longer covers the last app in the list.",
-        "Search no longer triggers the GitHub rate-limit dialog when the backend itself is busy — surfaces a friendly retry-after toast instead.",
-        "What's-new sheet and history now switch to the newly-selected language without needing an app restart."
+        "Liquid Glass effect removed — icons in dark mode could become invisible against transparent backgrounds. Cleaner, higher-contrast UI everywhere."
       ]
     }
   ]

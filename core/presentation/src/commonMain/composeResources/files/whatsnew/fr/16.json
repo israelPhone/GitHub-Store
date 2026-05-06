@@ -8,40 +8,22 @@
       "type": "NEW",
       "bullets": [
         "APK Inspect : examinez le contenu d’une release avant de l’installer.",
-        "L’écran Apps regroupe désormais les mises à jour, installations en attente et apps installées.",
-        "Fiche des nouveautés : voyez ce qui a changé après chaque mise à jour.",
-        "Fil d’annonces : avis de confidentialité, sondages et alertes de sécurité dans Profil.",
         "Installation silencieuse via Dhizuku : contournez les fenêtres d’installation des OEM (Xiaomi, OPPO, vivo, Huawei) grâce au statut Propriétaire de l’appareil.",
         "Import/Export Obtainium : récupérez votre bibliothèque depuis Obtainium en un toucher, ou exportez vers Obtainium quand vous voulez.",
-        "Ajouter depuis les étoiles : repérez parmi vos repos étoilés sur GitHub ceux qui livrent un APK, puis installez-les directement.",
-        "Attribution de l’installateur : choisissez le nom d’installateur que les installations silencieuses revendiquent, pour que les apps qui filtrent par source d’installation fonctionnent.",
-        "Actualisation manuelle dans les détails : tirer pour actualiser sur Android, entrée « Actualiser » dans le menu sur toutes les plateformes, Ctrl/Cmd+R sur le bureau.",
-        "La recherche peut désormais trier par « Récemment mis à jour » et « Récemment publiés » — trouvez d’abord les dépôts avec une activité récente ou les releases stables les plus récentes."
+        "Ajouter depuis les étoiles : repérez parmi vos repos étoilés sur GitHub ceux qui livrent un APK."
       ]
     },
     {
       "type": "IMPROVED",
       "bullets": [
-        "Le rescan manuel fait remonter toutes les apps de type GitHub présentes sur l’appareil.",
-        "Gestion d’authentification renforcée : les 401 transitoires ne déconnectent plus à tort.",
-        "Le nombre d’issues ouvertes s’affiche désormais pour tout le monde, y compris les utilisateurs déconnectés — fourni par le backend, sans coût de quota GitHub.",
-        "La licence s’affiche désormais pour chaque dépôt, peu importe l’état de connexion — fournie par le backend, sans coût de quota GitHub à l’ouverture des Détails.",
+        "Le nombre d’issues ouvertes et la licence s’affichent désormais pour tout le monde, y compris les utilisateurs déconnectés — fournis par le backend, sans coût de quota GitHub.",
         "La vérification des mises à jour en arrière-plan peut être complètement désactivée — économise la batterie si vous préférez vérifier manuellement."
       ]
     },
     {
       "type": "FIXED",
       "bullets": [
-        "Les téléchargements multi-source ne s’écrasent plus entre eux.",
-        "Les installations en repli Shizuku ne marquent plus les apps comme « installées » trop tôt.",
-        "L’auto-mise à jour ne laisse plus d’apps bloquées sur « Préparation de l’installation ».",
-        "Le bureau fait désormais confiance aux certificats racine installés par l’OS — Watt Toolkit, FastGithub, Fiddler et les proxys MITM d’entreprise fonctionnent sans manip keytool.",
-        "Le lancement de l’installateur sous Windows ne plante plus pour les comptes dont le nom d’utilisateur contient des caractères non-ASCII ou des noms de fichier inhabituels.",
-        "Effet verre liquide supprimé — les icônes en mode sombre pouvaient devenir invisibles sur des fonds transparents. Interface plus nette et plus contrastée partout.",
-        "Le store ne signale plus une mise à jour disponible pour lui-même après que vous l'avez déjà mis à jour.",
-        "Écran Apps — le bouton « Ajouter par lien » ne masque plus la dernière app de la liste.",
-        "La recherche ne déclenche plus la boîte de dialogue de limitation de débit GitHub quand le backend est occupé — affiche un toast « réessayez bientôt » à la place.",
-        "La fiche des nouveautés et l'historique passent désormais à la langue nouvellement choisie sans avoir à redémarrer l'application."
+        "Effet verre liquide supprimé — les icônes en mode sombre pouvaient devenir invisibles sur des fonds transparents. Interface plus nette et plus contrastée partout."
       ]
     }
   ]

@@ -8,40 +8,22 @@
       "type": "NEW",
       "bullets": [
         "APK Inspect: esamina il contenuto di una release prima di installarla.",
-        "La schermata App ora raggruppa aggiornamenti, installazioni in attesa e app installate.",
-        "Pannello Novità: scopri cosa è cambiato dopo ogni aggiornamento.",
-        "Feed annunci: avvisi sulla privacy, sondaggi e segnalazioni di sicurezza nel Profilo.",
         "Installazione silenziosa con Dhizuku: bypassa i prompt di installazione OEM su Xiaomi, OPPO, vivo e Huawei tramite il proprietario del dispositivo.",
         "Import/Export Obtainium: porta la tua libreria da Obtainium con un tocco, o esporta verso il formato Obtainium quando vuoi.",
-        "Aggiungi dalle stelle: scopri i repo che spediscono APK fra le tue stelle GitHub e vai dritto all'installazione.",
-        "Attribuzione installatore: scegli quale nome di installatore dichiarano le installazioni silenziose, così le app che filtrano sull'origine funzionano.",
-        "Aggiornamento manuale nei dettagli: trascina per aggiornare su Android, voce «Aggiorna» nel menu su tutte le piattaforme, Ctrl/Cmd+R su desktop.",
-        "La ricerca può ora ordinare per «Aggiornati di recente» e «Rilasciati di recente» — trova prima i repo con attività fresca o release stabili più recenti."
+        "Aggiungi dalle stelle: scopri i repo che spediscono APK fra le tue stelle GitHub."
       ]
     },
     {
       "type": "IMPROVED",
       "bullets": [
-        "La rilevazione manuale mostra tutte le app di tipo GitHub presenti sul dispositivo.",
-        "Gestione dell’autenticazione più solida: i 401 transitori non causano più disconnessioni indebite.",
-        "Il conteggio delle issue aperte ora è visibile a tutti, anche agli utenti non autenticati — arriva dal backend, senza costi di quota GitHub.",
-        "La licenza ora è mostrata per ogni repo indipendentemente dallo stato di accesso — arriva dal backend, senza costi di quota GitHub all’apertura dei Dettagli.",
+        "Il conteggio delle issue aperte e la licenza ora sono visibili a tutti, anche agli utenti non autenticati — arrivano dal backend, senza costi di quota GitHub.",
         "La verifica aggiornamenti in background può essere disattivata del tutto — risparmia batteria se preferisci verificare manualmente."
       ]
     },
     {
       "type": "FIXED",
       "bullets": [
-        "I download multi-sorgente non si sovrascrivono più a vicenda.",
-        "Le installazioni con fallback Shizuku non segnano più le app come «installate» troppo presto.",
-        "L’aggiornamento automatico non lascia più app bloccate su «Preparazione all’installazione».",
-        "Il desktop ora si fida dei certificati radice installati dal sistema — Watt Toolkit, FastGithub, Fiddler e i proxy MITM aziendali funzionano senza manovre con keytool.",
-        "L’avvio dell’installer su Windows non fallisce più per account con nomi utente non ASCII o nomi file insoliti.",
-        "Effetto vetro liquido rimosso — le icone in modalità scura potevano diventare invisibili su sfondi trasparenti. Interfaccia più pulita e con maggior contrasto ovunque.",
-        "Lo store non segnala più un aggiornamento disponibile per sé stesso dopo che lo hai già aggiornato.",
-        "Schermata App — il pulsante «Aggiungi tramite link» non copre più l'ultima app dell'elenco.",
-        "La ricerca non mostra più il dialogo di limite richieste di GitHub quando è il backend a essere occupato — mostra invece un toast «riprova a breve».",
-        "Il pannello Novità e la cronologia passano ora alla lingua appena selezionata senza dover riavviare l'app."
+        "Effetto vetro liquido rimosso — le icone in modalità scura potevano diventare invisibili su sfondi trasparenti. Interfaccia più pulita e con maggior contrasto ovunque."
       ]
     }
   ]
