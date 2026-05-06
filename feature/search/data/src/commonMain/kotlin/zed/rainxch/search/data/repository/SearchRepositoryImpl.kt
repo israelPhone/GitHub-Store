@@ -156,15 +156,22 @@ class SearchRepositoryImpl(
                 )
             },
             onFailure = { e ->
-                // Centralized fallback policy: throws RateLimitException
-                // for backend 429 (caller surfaces friendly retry-after
-                // toast) so we don't cascade into a direct-GitHub
-                // /search/repositories + per-repo /releases verify storm
-                // that would burn the user's GitHub quota and trip the
-                // global rate-limit dialog. 5xx / network errors fall
-                // through to the GitHub REST fallback as before.
+                // Centralized fallback policy. Side effects:
+                //  * 429 → throws domain RateLimitException so the
+                //    caller surfaces a friendly retry-after toast
+                //    (prevents the direct-GitHub /search + per-repo
+                //    /releases verify storm that would otherwise burn
+                //    the user's quota and trip the global rate-limit
+                //    dialog).
+                //  * CancellationException → re-thrown to preserve
+                //    structured concurrency.
+                //  * BackendException 5xx / network → returns true →
+                //    fall through to GitHub REST fallback below.
+                //  * BackendException 4xx (other than 429) → returns
+                //    false → backend's answer is authoritative; do
+                //    NOT silently retry against direct GitHub.
                 if (!shouldFallbackToGithubOrRethrow(e)) {
-                    return null
+                    throw e
                 }
                 null
             },
