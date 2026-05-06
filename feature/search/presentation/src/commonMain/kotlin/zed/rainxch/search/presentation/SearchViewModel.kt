@@ -41,6 +41,9 @@ import zed.rainxch.githubstore.core.presentation.res.failed_to_share_link
 import zed.rainxch.githubstore.core.presentation.res.link_copied_to_clipboard
 import zed.rainxch.githubstore.core.presentation.res.no_github_link_in_clipboard
 import zed.rainxch.githubstore.core.presentation.res.explore_error
+import zed.rainxch.githubstore.core.presentation.res.rate_limit_exceeded
+import zed.rainxch.githubstore.core.presentation.res.rate_limit_exceeded_retry_in
+import zed.rainxch.githubstore.core.presentation.res.rate_limit_exceeded_signin_hint
 import zed.rainxch.githubstore.core.presentation.res.search_failed
 import zed.rainxch.search.presentation.mappers.toDomain
 import zed.rainxch.search.presentation.utils.isEntirelyGithubUrls
@@ -404,11 +407,17 @@ class SearchViewModel(
                     }
                 } catch (e: RateLimitException) {
                     logger.debug("Rate limit exceeded: ${e.message}")
+                    val seconds = e.rateLimitInfo.timeUntilReset().inWholeSeconds
+                    val message = if (seconds > 0L) {
+                        getString(Res.string.rate_limit_exceeded_retry_in, seconds.toInt())
+                    } else {
+                        getString(Res.string.rate_limit_exceeded)
+                    }
                     _state.update {
                         it.copy(
                             isLoading = false,
                             isLoadingMore = false,
-                            errorMessage = e.message,
+                            errorMessage = message,
                         )
                     }
                 } catch (e: CancellationException) {

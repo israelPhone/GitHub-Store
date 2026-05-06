@@ -26,6 +26,7 @@ import zed.rainxch.core.data.mappers.toSummary
 import zed.rainxch.core.data.network.BackendApiClient
 import zed.rainxch.core.data.network.GitHubClientProvider
 import zed.rainxch.core.data.network.executeRequest
+import zed.rainxch.core.data.network.shouldFallbackToGithubOrRethrow
 import zed.rainxch.core.domain.model.DiscoveryPlatform
 import zed.rainxch.core.domain.model.GithubRepoSummary
 import zed.rainxch.core.domain.model.PaginatedDiscoveryRepositories
@@ -142,18 +143,32 @@ class SearchRepositoryImpl(
             offset = offset,
         )
 
-        return result.getOrNull()?.let { searchResponse ->
-            val repos = searchResponse.items.map { it.toSummary() }
-
-            val hasMore = offset + repos.size < searchResponse.totalHits
-            PaginatedDiscoveryRepositories(
-                repos = repos,
-                hasMore = hasMore,
-                nextPageIndex = page + 1,
-                totalCount = searchResponse.totalHits,
-                passthroughAttempted = searchResponse.passthroughAttempted,
-            )
-        }
+        return result.fold(
+            onSuccess = { searchResponse ->
+                val repos = searchResponse.items.map { it.toSummary() }
+                val hasMore = offset + repos.size < searchResponse.totalHits
+                PaginatedDiscoveryRepositories(
+                    repos = repos,
+                    hasMore = hasMore,
+                    nextPageIndex = page + 1,
+                    totalCount = searchResponse.totalHits,
+                    passthroughAttempted = searchResponse.passthroughAttempted,
+                )
+            },
+            onFailure = { e ->
+                // Centralized fallback policy: throws RateLimitException
+                // for backend 429 (caller surfaces friendly retry-after
+                // toast) so we don't cascade into a direct-GitHub
+                // /search/repositories + per-repo /releases verify storm
+                // that would burn the user's GitHub quota and trip the
+                // global rate-limit dialog. 5xx / network errors fall
+                // through to the GitHub REST fallback as before.
+                if (!shouldFallbackToGithubOrRethrow(e)) {
+                    return null
+                }
+                null
+            },
+        )
     }
 
     // ── Fallback GitHub REST search ───────────────────────────────────
