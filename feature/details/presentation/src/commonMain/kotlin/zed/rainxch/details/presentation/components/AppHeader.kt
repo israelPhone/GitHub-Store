@@ -209,7 +209,7 @@ fun AppHeader(
                     }
 
                     if (installedApp != null &&
-                        !VersionMath.isSameVersion(installedApp.installedVersion, release?.tagName)
+                        !VersionMath.isExactSameVersion(installedApp.installedVersion, release?.tagName)
                     ) {
                         Text(
                             text =
