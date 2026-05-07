@@ -16,6 +16,8 @@ import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import co.touchlab.kermit.Logger
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -25,6 +27,7 @@ import org.koin.android.ext.android.inject
 import zed.rainxch.core.data.services.LocalizationManager
 import zed.rainxch.core.data.utils.AndroidShareManager
 import zed.rainxch.core.domain.repository.TweaksRepository
+import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ShareManager
 import zed.rainxch.githubstore.app.deeplink.DeepLinkParser
 
@@ -35,6 +38,8 @@ class MainActivity : ComponentActivity() {
     private val shareManager: ShareManager by inject()
     private val tweaksRepository: TweaksRepository by inject()
     private val localizationManager: LocalizationManager by inject()
+    private val syncInstalledAppsUseCase: SyncInstalledAppsUseCase by inject()
+    private val appScope: CoroutineScope by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -99,6 +104,14 @@ class MainActivity : ComponentActivity() {
             }
 
             App(deepLinkUri = deepLinkUri)
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        appScope.launch {
+            runCatching { syncInstalledAppsUseCase() }
+                .onFailure { Logger.w(it) { "onRestart sync failed" } }
         }
     }
 
