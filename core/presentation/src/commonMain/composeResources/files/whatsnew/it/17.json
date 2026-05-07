@@ -9,6 +9,12 @@
       "bullets": [
         "Ignora aggiornamenti per app — silenzia la notifica di aggiornamento per le app che non vuoi aggiornare."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Le app disinstallate dalle Impostazioni di sistema spariscono ora subito dalla lista delle app tracciate."
+      ]
     }
   ]
 }

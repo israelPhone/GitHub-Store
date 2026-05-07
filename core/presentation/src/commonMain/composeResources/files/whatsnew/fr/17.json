@@ -9,6 +9,12 @@
       "bullets": [
         "Ignorer les mises à jour par appli — masque la pastille de mise à jour pour les applis que tu ne veux pas mettre à jour."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Les applis désinstallées depuis les Paramètres système disparaissent maintenant immédiatement de la liste suivie."
+      ]
     }
   ]
 }

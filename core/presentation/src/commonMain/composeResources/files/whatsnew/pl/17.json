@@ -9,6 +9,12 @@
       "bullets": [
         "Ignorowanie aktualizacji dla każdej aplikacji — wycisz powiadomienie o aktualizacji dla dowolnej aplikacji, której nie chcesz aktualizować."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Aplikacje odinstalowane przez ustawienia systemu znikają teraz natychmiast z listy śledzonych."
+      ]
     }
   ]
 }

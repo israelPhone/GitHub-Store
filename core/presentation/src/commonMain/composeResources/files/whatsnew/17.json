@@ -9,6 +9,12 @@
       "bullets": [
         "Ignore updates per app — silence the update badge for any app you don't want to update."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Uninstalled apps now disappear from the tracked list right away, even when removed from system Settings."
+      ]
     }
   ]
 }
