@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "앱별 업데이트 무시 — 업데이트하고 싶지 않은 앱의 업데이트 배지를 숨길 수 있어요."
+      ]
+    }
+  ]
+}

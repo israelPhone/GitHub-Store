@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "按应用忽略更新 — 不想更新的应用,可以单独隐藏其更新提示。"
+      ]
+    }
+  ]
+}

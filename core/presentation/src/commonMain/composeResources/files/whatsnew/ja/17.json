@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "アプリごとに更新を無視 — 更新したくないアプリの更新バッジを非表示にできるようになりました。"
+      ]
+    }
+  ]
+}
