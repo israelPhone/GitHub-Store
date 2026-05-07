@@ -110,6 +110,42 @@ object VersionMath {
      */
     fun isSameVersion(a: String?, b: String?): Boolean = compareVersions(a, b) == 0
 
+    /**
+     * Strict literal equality after the conservative cleanup that
+     * [normalizeVersion] applies BEFORE the semver normalization steps:
+     * trim, strip `refs/tags/`, strip leading `v` / `V`, trim again.
+     *
+     * Differs from [isSameVersion] in that it does NOT strip `+build`
+     * metadata, does NOT extract a dotted-digit core from prefixed
+     * tags, and is case-sensitive on the suffix. Use this in UI
+     * branches that gate "Open" vs "Install" CTAs — semver treats
+     * `1.0.0+build.1` and `1.0.0+build.2` as equivalent for ordering,
+     * but users (and maintainers who abuse build metadata to ship
+     * distinct artifacts under the same numeric core) consider them
+     * different versions.
+     *
+     * Two null/blank inputs return `false`. The check requires both
+     * sides to be present; otherwise the caller would gate UI on
+     * "two unknowns are the same", which is never the intent.
+     */
+    fun isExactSameVersion(a: String?, b: String?): Boolean {
+        val cleanedA = stripCommonPrefixes(a) ?: return false
+        val cleanedB = stripCommonPrefixes(b) ?: return false
+        return cleanedA == cleanedB
+    }
+
+    private fun stripCommonPrefixes(version: String?): String? {
+        if (version.isNullOrBlank()) return null
+        val trimmed =
+            version
+                .trim()
+                .removePrefix("refs/tags/")
+                .removePrefix("v")
+                .removePrefix("V")
+                .trim()
+        return trimmed.takeIf { it.isNotEmpty() }
+    }
+
     private fun compareNormalized(a: String, b: String): Int {
         if (a == b) return 0
         val parsedA = parseSemanticVersion(a)
