@@ -548,7 +548,10 @@ fun AppsScreen(
                     )
                 }
 
-                val hasUpdates = state.apps.any { it.installedApp.isUpdateAvailable }
+                val hasUpdates =
+                    state.apps.any {
+                        it.installedApp.isUpdateAvailable && it.installedApp.updateCheckEnabled
+                    }
                 if (hasUpdates && !state.isUpdatingAll) {
                     Button(
                         onClick = { onAction(AppsAction.OnUpdateAll) },

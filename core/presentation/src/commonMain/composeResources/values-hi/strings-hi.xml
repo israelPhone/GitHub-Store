@@ -1007,7 +1007,7 @@
     <string name="apps_compact_status_pending_install">इंस्टॉल लंबित</string>
     <string name="apps_compact_status_pre_release_on">प्री-रिलीज़ चालू</string>
     <string name="apps_compact_status_ready_to_install">इंस्टॉल के लिए तैयार</string>
-    <string name="apps_compact_status_updates_ignored">अपडेट अनदेखा किए गए</string>
+    <string name="apps_compact_status_updates_ignored">अपडेट अनदेखे किए गए</string>
     <string name="apps_compact_status_variant_pinned">वैरिएंट पिन किया गया</string>
     <string name="apps_compact_status_variant_stale">वैरिएंट पुराना, कार्रवाई आवश्यक</string>
     <string name="apps_ignore_updates">अपडेट अनदेखा करें</string>

@@ -594,6 +594,8 @@ class AppsViewModel(
         viewModelScope.launch {
             try {
                 installedAppsRepository.setUpdateCheckEnabled(packageName, enabled)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 logger.error("Failed to toggle update check for $packageName: ${e.message}")
             }

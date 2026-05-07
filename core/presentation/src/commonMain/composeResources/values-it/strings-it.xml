@@ -1011,7 +1011,7 @@
     <string name="apps_compact_status_updates_ignored">aggiornamenti ignorati</string>
     <string name="apps_compact_status_variant_pinned">variante fissata</string>
     <string name="apps_compact_status_variant_stale">variante obsoleta, azione richiesta</string>
-    <string name="apps_ignore_updates">Ignora aggiornamenti</string>
+    <string name="apps_ignore_updates">Ignora gli aggiornamenti</string>
     <string name="apps_section_collapse">Comprimi sezione</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">Espandi sezione</string>
