@@ -80,6 +80,9 @@ interface InstalledAppDao {
     @Query("UPDATE installed_apps SET includePreReleases = :enabled WHERE packageName = :packageName")
     suspend fun updateIncludePreReleases(packageName: String, enabled: Boolean)
 
+    @Query("UPDATE installed_apps SET updateCheckEnabled = :enabled WHERE packageName = :packageName")
+    suspend fun updateUpdateCheckEnabled(packageName: String, enabled: Boolean)
+
     @Query(
         """
         UPDATE installed_apps
