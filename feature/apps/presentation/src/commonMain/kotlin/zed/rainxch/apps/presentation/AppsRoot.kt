@@ -110,6 +110,8 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.add_by_link
 import zed.rainxch.githubstore.core.presentation.res.add_from_starred_title
 import zed.rainxch.githubstore.core.presentation.res.advanced_settings_open
+import zed.rainxch.githubstore.core.presentation.res.apps_compact_more_actions
+import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
 import zed.rainxch.githubstore.core.presentation.res.apps_section_up_to_date
 import zed.rainxch.githubstore.core.presentation.res.apps_section_updates_available
 import zed.rainxch.githubstore.core.presentation.res.install
@@ -609,9 +611,13 @@ fun AppsScreen(
                         // rows) and the "Up to date" group (compact rows) — issue #463.
                         // Sort order is already applied by the ViewModel.
                         val updatesGroup =
-                            state.filteredApps.filter { it.installedApp.isUpdateAvailable }
+                            state.filteredApps.filter {
+                                it.installedApp.isUpdateAvailable && it.installedApp.updateCheckEnabled
+                            }
                         val idleGroup =
-                            state.filteredApps.filter { !it.installedApp.isUpdateAvailable }
+                            state.filteredApps.filter {
+                                !it.installedApp.isUpdateAvailable || !it.installedApp.updateCheckEnabled
+                            }
 
                         ScrollbarContainer(
                             listState = listState,
@@ -669,6 +675,9 @@ fun AppsScreen(
                                                 onRepoClick = { onAction(AppsAction.OnNavigateToRepo(appItem.installedApp.repoId)) },
                                                 onTogglePreReleases = { enabled ->
                                                     onAction(AppsAction.OnTogglePreReleases(appItem.installedApp.packageName, enabled))
+                                                },
+                                                onToggleUpdateCheck = { enabled ->
+                                                    onAction(AppsAction.OnToggleUpdateCheck(appItem.installedApp.packageName, enabled))
                                                 },
                                                 onAdvancedSettingsClick = {
                                                     onAction(AppsAction.OnOpenAdvancedSettings(appItem.installedApp))
@@ -736,6 +745,14 @@ fun AppsScreen(
                                                     onTogglePreReleases = { enabled ->
                                                         onAction(
                                                             AppsAction.OnTogglePreReleases(
+                                                                appItem.installedApp.packageName,
+                                                                enabled,
+                                                            ),
+                                                        )
+                                                    },
+                                                    onToggleUpdateCheck = { enabled ->
+                                                        onAction(
+                                                            AppsAction.OnToggleUpdateCheck(
                                                                 appItem.installedApp.packageName,
                                                                 enabled,
                                                             ),
@@ -829,6 +846,7 @@ fun AppItemCard(
     onUninstallClick: () -> Unit,
     onRepoClick: () -> Unit,
     onTogglePreReleases: (Boolean) -> Unit,
+    onToggleUpdateCheck: (Boolean) -> Unit,
     onAdvancedSettingsClick: () -> Unit,
     onPickVariantClick: () -> Unit,
     onInstallPendingClick: () -> Unit,
@@ -1074,6 +1092,40 @@ fun AppItemCard(
                                 contentDescription = preReleaseString
                             },
                     )
+
+                    var showRowOverflow by remember { mutableStateOf(false) }
+                    val moreActionsLabel =
+                        stringResource(Res.string.apps_compact_more_actions, app.appName)
+                    Box {
+                        IconButton(
+                            onClick = { showRowOverflow = true },
+                            enabled = !isBusy,
+                            modifier = Modifier.semantics {
+                                contentDescription = moreActionsLabel
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreVert,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showRowOverflow,
+                            onDismissRequest = { showRowOverflow = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    val baseLabel = stringResource(Res.string.apps_ignore_updates)
+                                    Text(text = if (!app.updateCheckEnabled) "$baseLabel  ✓" else baseLabel)
+                                },
+                                onClick = {
+                                    showRowOverflow = false
+                                    onToggleUpdateCheck(!app.updateCheckEnabled)
+                                },
+                            )
+                        }
+                    }
                 }
             }
 

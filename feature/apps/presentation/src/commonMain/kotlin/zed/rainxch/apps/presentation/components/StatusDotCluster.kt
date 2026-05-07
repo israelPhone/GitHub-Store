@@ -22,6 +22,7 @@ import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_filter_
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_pending_install
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_pre_release_on
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_ready_to_install
+import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_updates_ignored
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_variant_pinned
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_variant_stale
 
@@ -38,6 +39,7 @@ data class CompactStatusFlags(
     val preReleaseOn: Boolean = false,
     val pendingInstall: Boolean = false,
     val readyToInstall: Boolean = false,
+    val updatesIgnored: Boolean = false,
 )
 
 /**
@@ -56,6 +58,7 @@ fun rememberCompactStatusFlags(appItem: AppItem): CompactStatusFlags {
         app.includePreReleases,
         app.isPendingInstall,
         app.pendingInstallFilePath,
+        app.updateCheckEnabled,
     ) {
         CompactStatusFlags(
             filterActive = !app.assetFilterRegex.isNullOrBlank() || app.fallbackToOlderReleases,
@@ -64,6 +67,7 @@ fun rememberCompactStatusFlags(appItem: AppItem): CompactStatusFlags {
             preReleaseOn = app.includePreReleases,
             pendingInstall = app.isPendingInstall && app.pendingInstallFilePath == null,
             readyToInstall = app.pendingInstallFilePath != null,
+            updatesIgnored = !app.updateCheckEnabled,
         )
     }
 }
@@ -88,6 +92,7 @@ fun StatusDotCluster(
         if (flags.variantPinned) add(StatusItem(DotShape.Diamond, cs.primary))
         if (flags.filterActive) add(StatusItem(DotShape.Square, cs.primary))
         if (flags.preReleaseOn) add(StatusItem(DotShape.Circle, cs.tertiary))
+        if (flags.updatesIgnored) add(StatusItem(DotShape.Bar, cs.outline))
     }
 
     if (items.isEmpty()) return
@@ -113,6 +118,7 @@ private enum class DotShape {
     Diamond,
     Ring,
     Chevron,
+    Bar,
 }
 
 private fun DrawScope.drawShape(shape: DotShape, color: Color) {
@@ -157,6 +163,12 @@ private fun DrawScope.drawShape(shape: DotShape, color: Color) {
                 }
             drawPath(path, color, style = Stroke(width = 1.5f))
         }
+        DotShape.Bar ->
+            drawRect(
+                color = color,
+                topLeft = androidx.compose.ui.geometry.Offset(0f, s * 0.4f),
+                size = androidx.compose.ui.geometry.Size(s, s * 0.2f),
+            )
     }
 }
 
@@ -180,6 +192,7 @@ fun buildCompactRowSemantics(
         if (flags.variantPinned) add(stringResource(Res.string.apps_compact_status_variant_pinned))
         if (flags.filterActive) add(stringResource(Res.string.apps_compact_status_filter_active))
         if (flags.preReleaseOn) add(stringResource(Res.string.apps_compact_status_pre_release_on))
+        if (flags.updatesIgnored) add(stringResource(Res.string.apps_compact_status_updates_ignored))
     }
     return parts.joinToString(", ")
 }

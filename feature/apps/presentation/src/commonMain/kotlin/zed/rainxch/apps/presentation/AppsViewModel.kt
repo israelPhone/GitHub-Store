@@ -394,6 +394,10 @@ class AppsViewModel(
                 togglePreReleases(action.packageName, action.enabled)
             }
 
+            is AppsAction.OnToggleUpdateCheck -> {
+                toggleUpdateCheck(action.packageName, action.enabled)
+            }
+
             is AppsAction.OnOpenAdvancedSettings -> {
                 openAdvancedSettings(action.app)
             }
@@ -582,6 +586,16 @@ class AppsViewModel(
                 installedAppsRepository.checkForUpdates(packageName)
             } catch (e: Exception) {
                 logger.error("Failed to toggle pre-releases for $packageName: ${e.message}")
+            }
+        }
+    }
+
+    private fun toggleUpdateCheck(packageName: String, enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                installedAppsRepository.setUpdateCheckEnabled(packageName, enabled)
+            } catch (e: Exception) {
+                logger.error("Failed to toggle update check for $packageName: ${e.message}")
             }
         }
     }

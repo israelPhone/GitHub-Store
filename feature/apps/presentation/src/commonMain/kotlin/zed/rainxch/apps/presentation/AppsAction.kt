@@ -71,6 +71,9 @@ sealed interface AppsAction {
     // Per-app pre-release toggle
     data class OnTogglePreReleases(val packageName: String, val enabled: Boolean) : AppsAction
 
+    // Per-app update-check toggle (issue #536: ignore updates for individual apps)
+    data class OnToggleUpdateCheck(val packageName: String, val enabled: Boolean) : AppsAction
+
     // Per-app advanced settings sheet (monorepo)
     data class OnOpenAdvancedSettings(val app: InstalledAppUi) : AppsAction
     data object OnDismissAdvancedSettings : AppsAction
