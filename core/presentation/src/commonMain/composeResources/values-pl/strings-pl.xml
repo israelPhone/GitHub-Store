@@ -989,8 +989,10 @@
     <string name="apps_compact_status_pending_install">oczekuje na instalację</string>
     <string name="apps_compact_status_pre_release_on">pre-release włączony</string>
     <string name="apps_compact_status_ready_to_install">gotowy do instalacji</string>
+    <string name="apps_compact_status_updates_ignored">aktualizacje zignorowane</string>
     <string name="apps_compact_status_variant_pinned">wariant przypięty</string>
     <string name="apps_compact_status_variant_stale">wariant nieaktualny, wymagana akcja</string>
+    <string name="apps_ignore_updates">Ignoruj aktualizacje</string>
     <string name="apps_section_collapse">Zwiń sekcję</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">Rozwiń sekcję</string>

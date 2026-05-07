@@ -963,8 +963,10 @@
     <string name="apps_compact_status_pending_install">インストール保留中</string>
     <string name="apps_compact_status_pre_release_on">プレリリース有効</string>
     <string name="apps_compact_status_ready_to_install">インストール準備完了</string>
+    <string name="apps_compact_status_updates_ignored">更新を無視中</string>
     <string name="apps_compact_status_variant_pinned">バリアント固定</string>
     <string name="apps_compact_status_variant_stale">バリアントが古いです、対応が必要</string>
+    <string name="apps_ignore_updates">更新を無視</string>
     <string name="apps_section_collapse">セクションを折りたたむ</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">セクションを展開</string>

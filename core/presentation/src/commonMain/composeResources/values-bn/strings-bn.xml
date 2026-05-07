@@ -996,8 +996,10 @@
     <string name="apps_compact_status_pending_install">ইনস্টল মুলতুবি</string>
     <string name="apps_compact_status_pre_release_on">প্রি-রিলিজ চালু</string>
     <string name="apps_compact_status_ready_to_install">ইনস্টলের জন্য প্রস্তুত</string>
+    <string name="apps_compact_status_updates_ignored">আপডেট উপেক্ষা করা হয়েছে</string>
     <string name="apps_compact_status_variant_pinned">ভ্যারিয়েন্ট পিন করা</string>
     <string name="apps_compact_status_variant_stale">ভ্যারিয়েন্ট পুরোনো, ব্যবস্থা প্রয়োজন</string>
+    <string name="apps_ignore_updates">আপডেট উপেক্ষা করুন</string>
     <string name="apps_section_collapse">বিভাগ সংকুচিত করুন</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">বিভাগ প্রসারিত করুন</string>

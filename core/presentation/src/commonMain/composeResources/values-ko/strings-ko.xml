@@ -998,8 +998,10 @@
     <string name="apps_compact_status_pending_install">설치 대기 중</string>
     <string name="apps_compact_status_pre_release_on">프리릴리스 켜짐</string>
     <string name="apps_compact_status_ready_to_install">설치 준비 완료</string>
+    <string name="apps_compact_status_updates_ignored">업데이트 무시됨</string>
     <string name="apps_compact_status_variant_pinned">변형 고정됨</string>
     <string name="apps_compact_status_variant_stale">변형이 오래됨, 조치 필요</string>
+    <string name="apps_ignore_updates">업데이트 무시</string>
     <string name="apps_section_collapse">섹션 접기</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">섹션 펼치기</string>
