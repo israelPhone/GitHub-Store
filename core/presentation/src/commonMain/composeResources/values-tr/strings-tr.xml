@@ -1005,8 +1005,10 @@
     <string name="apps_compact_status_pending_install">kurulum bekliyor</string>
     <string name="apps_compact_status_pre_release_on">ön sürüm açık</string>
     <string name="apps_compact_status_ready_to_install">kurulmaya hazır</string>
+    <string name="apps_compact_status_updates_ignored">güncellemeler yok sayıldı</string>
     <string name="apps_compact_status_variant_pinned">varyant sabitlendi</string>
     <string name="apps_compact_status_variant_stale">varyant eski, işlem gerekli</string>
+    <string name="apps_ignore_updates">Güncellemeleri yok say</string>
     <string name="apps_section_collapse">Bölümü daralt</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">Bölümü genişlet</string>

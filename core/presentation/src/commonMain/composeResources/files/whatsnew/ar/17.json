@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "تجاهل التحديثات لكل تطبيق — أوقف تنبيه التحديث لأي تطبيق لا ترغب في تحديثه."
+      ]
+    }
+  ]
+}

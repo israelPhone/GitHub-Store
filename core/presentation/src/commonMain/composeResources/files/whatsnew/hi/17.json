@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "हर ऐप के अपडेट अनदेखा करें — जिस ऐप को अपडेट नहीं करना चाहते, उसका अपडेट बैज छिपा दें।"
+      ]
+    }
+  ]
+}

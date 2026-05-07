@@ -1,0 +1,14 @@
+{
+  "versionCode": 17,
+  "versionName": "1.9.0",
+  "releaseDate": "2026-05-07",
+  "showAsSheet": true,
+  "sections": [
+    {
+      "type": "NEW",
+      "bullets": [
+        "Ignorer les mises à jour par appli — masque la pastille de mise à jour pour les applis que tu ne veux pas mettre à jour."
+      ]
+    }
+  ]
+}

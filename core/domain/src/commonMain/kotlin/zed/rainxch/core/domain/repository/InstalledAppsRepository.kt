@@ -73,6 +73,11 @@ interface InstalledAppsRepository {
         enabled: Boolean,
     )
 
+    suspend fun setUpdateCheckEnabled(
+        packageName: String,
+        enabled: Boolean,
+    )
+
     /**
      * Persists per-app monorepo settings: an optional regex applied to asset
      * names and whether the update checker should fall back to older

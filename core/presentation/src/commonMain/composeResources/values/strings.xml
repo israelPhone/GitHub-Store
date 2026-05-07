@@ -1050,6 +1050,8 @@
     <string name="apps_compact_status_variant_stale">variant stale, action needed</string>
     <string name="apps_compact_status_pending_install">pending install</string>
     <string name="apps_compact_status_ready_to_install">ready to install</string>
+    <string name="apps_compact_status_updates_ignored">updates ignored</string>
+    <string name="apps_ignore_updates">Ignore updates</string>
     <string name="discard_pending_install">Discard</string>
 
     <!-- APK Inspect feature -->

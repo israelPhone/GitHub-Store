@@ -968,8 +968,10 @@
     <string name="apps_compact_status_pending_install">instalación pendiente</string>
     <string name="apps_compact_status_pre_release_on">prelanzamiento activado</string>
     <string name="apps_compact_status_ready_to_install">listo para instalar</string>
+    <string name="apps_compact_status_updates_ignored">actualizaciones ignoradas</string>
     <string name="apps_compact_status_variant_pinned">variante fijada</string>
     <string name="apps_compact_status_variant_stale">variante desfasada, requiere acción</string>
+    <string name="apps_ignore_updates">Ignorar actualizaciones</string>
     <string name="apps_section_collapse">Contraer sección</string>
     <string name="apps_section_count_suffix">· %1$d</string>
     <string name="apps_section_expand">Expandir sección</string>

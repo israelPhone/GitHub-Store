@@ -317,6 +317,10 @@ class InstalledAppsRepositoryImpl(
     override suspend fun checkForUpdates(packageName: String): Boolean {
         val app = installedAppsDao.getAppByPackage(packageName) ?: return false
 
+        if (!app.updateCheckEnabled) {
+            return false
+        }
+
         try {
             val releases =
                 fetchReleaseWindow(
@@ -565,6 +569,26 @@ class InstalledAppsRepositoryImpl(
         enabled: Boolean,
     ) {
         installedAppsDao.updateIncludePreReleases(packageName, enabled)
+    }
+
+    override suspend fun setUpdateCheckEnabled(
+        packageName: String,
+        enabled: Boolean,
+    ) {
+        installedAppsDao.updateUpdateCheckEnabled(packageName, enabled)
+        if (enabled) {
+            try {
+                checkForUpdates(packageName)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.w {
+                    "Failed to re-check after enabling update check for $packageName: ${e.message}"
+                }
+            }
+        } else {
+            installedAppsDao.clearUpdateMetadata(packageName, System.currentTimeMillis())
+        }
     }
 
     override suspend fun setAssetFilter(

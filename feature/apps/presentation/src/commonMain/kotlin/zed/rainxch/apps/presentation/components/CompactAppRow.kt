@@ -60,6 +60,7 @@ import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_pre_rel
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_ready_to_install
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_variant_pinned
 import zed.rainxch.githubstore.core.presentation.res.apps_compact_status_variant_stale
+import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
 import zed.rainxch.githubstore.core.presentation.res.install
 import zed.rainxch.githubstore.core.presentation.res.open
 import zed.rainxch.githubstore.core.presentation.res.pre_release_badge
@@ -89,6 +90,7 @@ fun CompactAppRow(
     onPickVariantClick: () -> Unit,
     onUninstallClick: () -> Unit,
     onTogglePreReleases: (Boolean) -> Unit,
+    onToggleUpdateCheck: (Boolean) -> Unit,
     onRowClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -202,10 +204,12 @@ fun CompactAppRow(
             isPending = app.isPendingInstall,
             isUpdateAvailable = app.isUpdateAvailable,
             isPreReleaseEnabled = app.includePreReleases,
+            isUpdateCheckEnabled = app.updateCheckEnabled,
             onAdvancedSettingsClick = onAdvancedSettingsClick,
             onPickVariantClick = onPickVariantClick,
             onUninstallClick = onUninstallClick,
             onTogglePreReleases = onTogglePreReleases,
+            onToggleUpdateCheck = onToggleUpdateCheck,
             onDiscardPendingClick = onDiscardPendingClick,
         )
     }
@@ -218,10 +222,12 @@ private fun CompactRowOverflow(
     isPending: Boolean,
     isUpdateAvailable: Boolean,
     isPreReleaseEnabled: Boolean,
+    isUpdateCheckEnabled: Boolean,
     onAdvancedSettingsClick: () -> Unit,
     onPickVariantClick: () -> Unit,
     onUninstallClick: () -> Unit,
     onTogglePreReleases: (Boolean) -> Unit,
+    onToggleUpdateCheck: (Boolean) -> Unit,
     onDiscardPendingClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -271,6 +277,16 @@ private fun CompactRowOverflow(
                 onClick = {
                     expanded = false
                     onTogglePreReleases(!isPreReleaseEnabled)
+                },
+            )
+            DropdownMenuItem(
+                text = {
+                    val baseLabel = stringResource(Res.string.apps_ignore_updates)
+                    Text(text = if (!isUpdateCheckEnabled) "$baseLabel  ✓" else baseLabel)
+                },
+                onClick = {
+                    expanded = false
+                    onToggleUpdateCheck(!isUpdateCheckEnabled)
                 },
             )
             if (isPending) {
