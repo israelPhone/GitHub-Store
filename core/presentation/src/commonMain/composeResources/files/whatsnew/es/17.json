@@ -9,6 +9,12 @@
       "bullets": [
         "Ignorar actualizaciones por app — silencia la insignia de actualización en cualquier app que no quieras actualizar."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Las apps desinstaladas desde Ajustes del sistema ahora desaparecen al instante de la lista de seguimiento."
+      ]
     }
   ]
 }

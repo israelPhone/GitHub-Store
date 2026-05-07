@@ -9,6 +9,12 @@
       "bullets": [
         "Uygulama bazında güncelleme yok say — güncellemek istemediğin uygulamaların güncelleme rozetini sustur."
       ]
+    },
+    {
+      "type": "FIXED",
+      "bullets": [
+        "Sistem ayarlarından kaldırılan uygulamalar artık izlenen listeden anında siliniyor."
+      ]
     }
   ]
 }
