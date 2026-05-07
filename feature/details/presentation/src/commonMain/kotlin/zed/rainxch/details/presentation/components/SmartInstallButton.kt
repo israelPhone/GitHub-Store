@@ -87,12 +87,12 @@ fun SmartInstallButton(
     val isUpdateAvailable =
         installedApp?.isUpdateAvailable == true && !installedApp.isPendingInstall
 
-    // VersionMath.isSameVersion treats two blank inputs as equal (both
-    // normalize to ""), which would otherwise drive the CTA to "Open" or
-    // skip the "Install version X" branch when we actually have no version
-    // info. Require both sides to be present and non-blank before letting
-    // the equality check influence the CTA, and reuse the trimmed
-    // selected tag downstream so it can never render as an empty string.
+    // VersionMath.isExactSameVersion gates the CTA: it requires both
+    // sides to be present and compares post-prefix-strip strings literally,
+    // so build-metadata variants (`1.0.0+build.1` vs `1.0.0+build.2`) are
+    // correctly treated as different versions even though semver-style
+    // ordering would consider them equal. Reuse the trimmed selected tag
+    // downstream so the "Install version X" label can never render empty.
     val normInstalled =
         installedApp?.installedVersion?.trim()?.takeIf { it.isNotBlank() }
     val normSelected =
@@ -102,7 +102,7 @@ fun SmartInstallButton(
         isInstalled &&
             normInstalled != null &&
             normSelected != null &&
-            VersionMath.isSameVersion(normInstalled, normSelected)
+            VersionMath.isExactSameVersion(normInstalled, normSelected)
 
     val enabled =
         remember(primaryAsset, isDownloading, isInstalling) {
@@ -246,7 +246,7 @@ fun SmartInstallButton(
             isInstalled &&
                 normInstalled != null &&
                 normSelected != null &&
-                !VersionMath.isSameVersion(normInstalled, normSelected) -> {
+                !VersionMath.isExactSameVersion(normInstalled, normSelected) -> {
                 stringResource(Res.string.install_version, normSelected)
             }
 

@@ -13,7 +13,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Les applis désinstallées depuis les Paramètres système disparaissent maintenant immédiatement de la liste suivie."
+        "Les applis désinstallées depuis les Paramètres système disparaissent maintenant immédiatement de la liste suivie.",
+        "Meilleure détection de version — les releases qui partagent le même numéro mais portent des métadonnées de build différentes ne sont plus signalées à tort comme 'déjà installées'."
       ]
     }
   ]

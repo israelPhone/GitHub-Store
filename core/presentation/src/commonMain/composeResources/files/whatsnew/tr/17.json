@@ -13,7 +13,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Sistem ayarlarından kaldırılan uygulamalar artık izlenen listeden anında siliniyor."
+        "Sistem ayarlarından kaldırılan uygulamalar artık izlenen listeden anında siliniyor.",
+        "Daha iyi sürüm algılama — aynı numarayı paylaşan ancak farklı build meta verisi taşıyan sürümler artık yanlışlıkla 'zaten yüklü' olarak işaretlenmiyor."
       ]
     }
   ]
