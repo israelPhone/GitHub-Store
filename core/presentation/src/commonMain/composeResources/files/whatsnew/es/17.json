@@ -13,7 +13,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Las apps desinstaladas desde Ajustes del sistema ahora desaparecen al instante de la lista de seguimiento."
+        "Las apps desinstaladas desde Ajustes del sistema ahora desaparecen al instante de la lista de seguimiento.",
+        "Mejor detección de versiones — las releases que comparten número pero llevan metadatos de build distintos ya no se marcan por error como 'ya instaladas'."
       ]
     }
   ]

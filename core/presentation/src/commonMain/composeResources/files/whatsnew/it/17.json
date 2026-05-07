@@ -13,7 +13,8 @@
     {
       "type": "FIXED",
       "bullets": [
-        "Le app disinstallate dalle Impostazioni di sistema spariscono ora subito dalla lista delle app tracciate."
+        "Le app disinstallate dalle Impostazioni di sistema spariscono ora subito dalla lista delle app tracciate.",
+        "Riconoscimento versioni più preciso — le release con lo stesso numero ma metadati di build diversi non vengono più erroneamente segnalate come 'già installate'."
       ]
     }
   ]
